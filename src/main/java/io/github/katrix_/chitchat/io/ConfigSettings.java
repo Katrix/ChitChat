@@ -69,6 +69,8 @@ public class ConfigSettings {
 			TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate channelTemplate = TextTemplate.of(Text.of(TextColors.WHITE, "["), TextTemplate.arg(TEMPLATE_PREFIX),
 			Text.of(TextColors.WHITE, "] "));
+	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "), 
+			TextTemplate.arg(TEMPLATE_MESSAGE));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -102,6 +104,9 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("command", "shoutTemplate");
 			shoutTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : shoutTemplate;
+			
+			node = cfgRoot.getNode("command", "announceTemplate");
+			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -143,6 +148,8 @@ public class ConfigSettings {
 					.setValue(TypeToken.of(TextTemplate.class), pmSender);
 			cfgRoot.getNode("command", "shoutTemplate").setComment("Type = TextTemplate\nThe format that will be used for the shout command.")
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
+			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
+					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -225,6 +232,10 @@ public class ConfigSettings {
 
 	public static TextTemplate getChannelTemplate() {
 		return cfg.channelTemplate;
+	}
+	
+	public static TextTemplate getAnnounceTemplate() {
+		return cfg.announceTemplate;
 	}
 
 	public static boolean getChatPling() {

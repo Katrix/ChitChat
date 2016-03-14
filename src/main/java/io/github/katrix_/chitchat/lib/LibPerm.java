@@ -37,6 +37,8 @@ public class LibPerm {
 	public static final String PM = CHAT + ".pm";
 	public static final String REPLY = CHAT + ".reply";
 	public static final String ME = CHAT + ".me";
+	public static final String ANNOUNCE = CHAT_MOD + ".announce";
+	public static final String ANNOUNCE_CONSOLE = ANNOUNCE + ".console";
 	public static final String CHAT_COLOR = CHAT + ".color";
 
 	public static final String RELOAD = ADMIN + ".reload";

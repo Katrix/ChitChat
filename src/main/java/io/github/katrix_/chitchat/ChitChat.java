@@ -33,6 +33,7 @@ import org.spongepowered.api.plugin.Plugin;
 import com.google.inject.Inject;
 
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.command.CmdAnnounce;
 import io.github.katrix_.chitchat.command.CmdChannel;
 import io.github.katrix_.chitchat.command.CmdChitChat;
 import io.github.katrix_.chitchat.command.CmdMe;
@@ -69,6 +70,7 @@ public class ChitChat {
 		registerCommand(CmdReply.INSTACE);
 		registerCommand(CmdMe.INSTACE);
 		registerCommand(CmdChitChat.INSTACE);
+		registerCommand(CmdAnnounce.INSTANCE);
 
 		ChitChatChannels.initChannels();
 	}
