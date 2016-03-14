@@ -33,11 +33,12 @@ import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
+import io.github.katrix_.chitchat.io.ConfigSettings;
 
 public class ChitChatChannels {
 
 	private static final String GLOBAL_NAME = "Global";
-	private static final ChannelChitChat GLOBAL = new ChannelChitChat(GLOBAL_NAME, Text.of("The global channel"), Text.of(TextColors.GOLD, "G"));
+	private static final ChannelChitChat GLOBAL = new ChannelChitChat(GLOBAL_NAME, Text.of("The global channel"), ConfigSettings.getGlobalChannelPrefix());
 	private static final Map<Player, ChannelChitChat> CHANNEL_PLAYER_MAP = new WeakHashMap<>();
 	private static final Map<String, ChannelChitChat> CHANNELS = new HashMap<>();
 

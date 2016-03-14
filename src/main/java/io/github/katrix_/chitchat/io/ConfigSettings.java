@@ -56,6 +56,7 @@ public class ConfigSettings {
 
 	private TextTemplate defaultHeader = TextTemplate.of(TextTemplate.arg(TEMPLATE_PLAYER).color(TextColors.GRAY));
 	private Text defaultSuffix = Text.EMPTY;
+	private Text globalPrefix = Text.of(TextColors.GOLD, "G");
 	private TextTemplate headerTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
 	private TextTemplate suffixTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_SUFFIX));
 
@@ -83,6 +84,9 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("chat", "defaultSuffix");
 			defaultSuffix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : defaultSuffix;
+			
+			node = cfgRoot.getNode("chat", "globalPrefix");
+			globalPrefix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : globalPrefix;
 
 			node = cfgRoot.getNode("chat", "headerTemplate");
 			headerTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : headerTemplate;
@@ -131,6 +135,8 @@ public class ConfigSettings {
 					.setComment(
 							"Type = Text\nThe suffix that should be used if no suffix option for permissions is found. If a suffix option is found, it will override this")
 					.setValue(TypeToken.of(Text.class), defaultSuffix);
+			cfgRoot.getNode("chat", "globalPrefix")
+					.setComment("Type = Text\nThe prefix that will be used for the global channel.").setValue(TypeToken.of(Text.class), globalPrefix);
 			cfgRoot.getNode("chat", "headerTemplate")
 					.setComment(
 							"Type = TextTemplate\nThe format that will be used for the prefix and the name. Do note that the prefix and the name always sits side by side")
@@ -204,6 +210,10 @@ public class ConfigSettings {
 
 	public static Text getDefaultSuffix() {
 		return cfg.defaultSuffix;
+	}
+	
+	public static Text getGlobalChannelPrefix() {
+		return cfg.globalPrefix;
 	}
 
 	public static TextTemplate getHeaderTemplate() {
