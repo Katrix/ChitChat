@@ -27,10 +27,14 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.command.spec.CommandSpec.Builder;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextFormat;
+import org.spongepowered.api.text.format.TextStyles;
 
 import com.google.common.collect.ImmutableList;
 
 import io.github.katrix_.chitchat.lib.LibPerm;
+import io.github.katrix_.chitchat.lib.LibPlugin;
 
 public class CmdChitChat extends CommandBase {
 
@@ -42,12 +46,13 @@ public class CmdChitChat extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+		src.sendMessage(Text.of(TextColors.GREEN, TextStyles.BOLD, LibPlugin.NAME, TextFormat.NONE, ": V.", LibPlugin.VERSION));
 		return CommandResult.success();
 	}
 
 	@Override
 	public CommandSpec getCommand() {
-		Builder builder = CommandSpec.builder().description(Text.of("Various commands to interact with ChitChat")).permission(LibPerm.CHITCHAT);
+		Builder builder = CommandSpec.builder().description(Text.of("Shows information about ChitChat")).permission(LibPerm.CHITCHAT).executor(this);
 		registerSubcommands(builder);
 		return builder.build();
 	}
