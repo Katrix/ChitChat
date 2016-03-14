@@ -27,7 +27,9 @@ public class LibPerm {
 
 	public static final String COMMAND = PREFIX + ".command";
 	public static final String CHAT = PREFIX + ".chat";
+	public static final String CHAT_MOD = CHAT + ".mod";
 	public static final String CHANNEL = PREFIX + ".channel";
+	public static final String CHANNEL_MOD = CHANNEL + ".mod";
 	public static final String ADMIN = PREFIX + ".admin";
 
 	public static final String CHITCHAT = COMMAND + ".chitchat";
@@ -47,7 +49,6 @@ public class LibPerm {
 
 	public static final String CHANNEL_JOIN = CHANNEL + ".join";
 	public static final String CHANNEL_LIST = CHANNEL + ".list";
-	public static final String CHANNEL_MOD = CHANNEL + ".mod";
 	public static final String CHANNEL_INFO = CHANNEL + ".info";
 	public static final String CHANNEL_MODIFY = CHANNEL_MOD + ".modify";
 	public static final String CHANNEL_NAME = CHANNEL_MODIFY + ".name";
