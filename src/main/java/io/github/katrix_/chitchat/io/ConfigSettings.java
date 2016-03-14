@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
 import com.google.common.reflect.TypeToken;
 
@@ -53,7 +54,7 @@ public class ConfigSettings {
 	private ConfigurationLoader<CommentedConfigurationNode> cfgLoader = HoconConfigurationLoader.builder().setPath(cfgFile).build();
 	private CommentedConfigurationNode cfgRoot;
 
-	private TextTemplate defaultHeader = TextTemplate.of(TextTemplate.arg(TEMPLATE_HEADER).color(TextColors.GRAY));
+	private TextTemplate defaultHeader = TextTemplate.of(TextTemplate.arg(TEMPLATE_PLAYER).color(TextColors.GRAY));
 	private Text defaultSuffix = Text.EMPTY;
 	private TextTemplate headerTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
 	private TextTemplate suffixTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_SUFFIX));
@@ -64,7 +65,7 @@ public class ConfigSettings {
 			TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate pmSender = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "To "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "),
 			TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.BLUE), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(" shouts: "),
+	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.BOLD), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(" shouts: "),
 			TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate channelTemplate = TextTemplate.of(Text.of(TextColors.WHITE, "["), TextTemplate.arg(TEMPLATE_PREFIX),
 			Text.of(TextColors.WHITE, "] "));
