@@ -1,17 +1,17 @@
 /**
  * This file is part of ChitChat, licensed under the MIT License (MIT).
- * 
+ *
  * Copyright (c) 2016 Katrix
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge, publish, distribute,
  * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all copies or
  * substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
  * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -66,12 +66,12 @@ public class ConfigSettings {
 			TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate pmSender = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "To "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "),
 			TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.BOLD), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(" shouts: "),
-			TextTemplate.arg(TEMPLATE_MESSAGE));
+	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.BOLD), TextTemplate.arg(TEMPLATE_PLAYER),
+			Text.of(" shouts: "), TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate channelTemplate = TextTemplate.of(Text.of(TextColors.WHITE, "["), TextTemplate.arg(TEMPLATE_PREFIX),
 			Text.of(TextColors.WHITE, "] "));
-	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "), 
-			TextTemplate.arg(TEMPLATE_MESSAGE));
+	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER),
+			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -84,7 +84,7 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("chat", "defaultSuffix");
 			defaultSuffix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : defaultSuffix;
-			
+
 			node = cfgRoot.getNode("chat", "globalPrefix");
 			globalPrefix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : globalPrefix;
 
@@ -108,7 +108,7 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("command", "shoutTemplate");
 			shoutTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : shoutTemplate;
-			
+
 			node = cfgRoot.getNode("command", "announceTemplate");
 			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
 		}
@@ -118,7 +118,7 @@ public class ConfigSettings {
 
 		node = cfgRoot.getNode("chat", "chatPling");
 		chatPling = !node.isVirtual() ? node.getBoolean() : chatPling;
-		
+
 		node = cfgRoot.getNode("misc", "debug");
 		debug = !node.isVirtual() ? node.getBoolean() : debug;
 
@@ -135,8 +135,8 @@ public class ConfigSettings {
 					.setComment(
 							"Type = Text\nThe suffix that should be used if no suffix option for permissions is found. If a suffix option is found, it will override this")
 					.setValue(TypeToken.of(Text.class), defaultSuffix);
-			cfgRoot.getNode("chat", "globalPrefix")
-					.setComment("Type = Text\nThe prefix that will be used for the global channel.").setValue(TypeToken.of(Text.class), globalPrefix);
+			cfgRoot.getNode("chat", "globalPrefix").setComment("Type = Text\nThe prefix that will be used for the global channel.")
+					.setValue(TypeToken.of(Text.class), globalPrefix);
 			cfgRoot.getNode("chat", "headerTemplate")
 					.setComment(
 							"Type = TextTemplate\nThe format that will be used for the prefix and the name. Do note that the prefix and the name always sits side by side")
@@ -163,8 +163,7 @@ public class ConfigSettings {
 
 		cfgRoot.getNode("chat", "chatPling").setComment("Type = Boolean\nPlay a sound for the player when his name is mentioned, or he recieves a PM")
 				.setValue(chatPling);
-		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console")
-				.setValue(debug);
+		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console").setValue(debug);
 	}
 
 	public void loadFile() {
@@ -211,7 +210,7 @@ public class ConfigSettings {
 	public static Text getDefaultSuffix() {
 		return cfg.defaultSuffix;
 	}
-	
+
 	public static Text getGlobalChannelPrefix() {
 		return cfg.globalPrefix;
 	}
@@ -243,7 +242,7 @@ public class ConfigSettings {
 	public static TextTemplate getChannelTemplate() {
 		return cfg.channelTemplate;
 	}
-	
+
 	public static TextTemplate getAnnounceTemplate() {
 		return cfg.announceTemplate;
 	}
@@ -251,7 +250,7 @@ public class ConfigSettings {
 	public static boolean getChatPling() {
 		return cfg.chatPling;
 	}
-	
+
 	public static boolean getDebug() {
 		return cfg.debug;
 	}
