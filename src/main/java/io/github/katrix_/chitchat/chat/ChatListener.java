@@ -33,11 +33,14 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -71,7 +74,14 @@ public class ChatListener {
 		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
 			if(applier.getParameters().containsKey("header")) {
 				applier.setTemplate(ConfigSettings.getHeaderTemplate());
-				applier.setParameter("header", prefixName);
+				
+				Text oldHeader = Text.of(applier.getParameter("header"));
+				Text.Builder newHeader = Text.builder();
+				newHeader.append(prefixName);
+				newHeader.onHover(oldHeader.getHoverAction().orElse(null));
+				newHeader.onClick(oldHeader.getClickAction().orElse(null));
+				newHeader.onShiftClick(oldHeader.getShiftClickAction().orElse(null));
+				applier.setParameter("header", newHeader);
 			}
 		}
 
