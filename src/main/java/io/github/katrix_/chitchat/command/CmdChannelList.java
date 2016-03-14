@@ -56,9 +56,11 @@ public class CmdChannelList extends CommandBase {
 		List<Text> list = new ArrayList<>();
 
 		for(String channel : channels.keySet()) {
-			list.add(Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
-					.onClick(TextActions.runCommand("/channel join " + channel)).append(Text.of(channel))
-					.append(Text.of(" - ", channels.get(channel).getDescription())).build());
+			if(src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel)) {
+				list.add(Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
+						.onClick(TextActions.runCommand("/channel join " + channel)).append(Text.of(channel))
+						.append(Text.of(" - ", channels.get(channel).getDescription())).build());
+			}
 		}
 
 		pages.contents(list);
