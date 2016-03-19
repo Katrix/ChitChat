@@ -62,6 +62,7 @@ public class CmdChannelList extends CommandBase {
 						.append(Text.of(" - ", channels.get(channel).getDescription())).build());
 			}
 		}
+		list.sort(null);
 
 		pages.contents(list);
 		pages.sendTo(src);
