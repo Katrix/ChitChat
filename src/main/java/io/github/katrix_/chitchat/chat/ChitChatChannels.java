@@ -22,10 +22,9 @@ package io.github.katrix_.chitchat.chat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -40,28 +39,11 @@ public class ChitChatChannels {
 	private static final String GLOBAL_NAME = "Global";
 	private static final ChannelChitChat GLOBAL = new ChannelChitChat(GLOBAL_NAME, Text.of("The global channel"),
 			ConfigSettings.getGlobalChannelPrefix());
-	private static final Map<Player, ChannelChitChat> CHANNEL_PLAYER_MAP = new WeakHashMap<>();
 	private static final Map<String, ChannelChitChat> CHANNELS = new HashMap<>();
 
 	public static void initChannels() {
 		Sponge.getEventManager().registerListeners(ChitChat.getPlugin(), new ChatListener());
 		addChannel(GLOBAL);
-	}
-
-	public static void setChannelForPlayer(Player player, String channelName) {
-		setChannelForPlayer(player, getChannel(channelName));
-	}
-
-	public static void setChannelForPlayer(Player player, ChannelChitChat channel) {
-		if(CHANNEL_PLAYER_MAP.containsKey(player)) {
-			getChannelForPlayer(player).removeMember(player);
-		}
-		CHANNEL_PLAYER_MAP.put(player, channel);
-		channel.addMember(player);
-	}
-
-	public static ChannelChitChat getChannelForPlayer(Player player) {
-		return CHANNEL_PLAYER_MAP.get(player);
 	}
 
 	public static void addChannel(ChannelChitChat channel) {
@@ -77,12 +59,9 @@ public class ChitChatChannels {
 		if(channel.equals(GLOBAL)) return;
 
 		LogHelper.info("Removing channel " + channel.getName());
-		Map<Player, ChannelChitChat> map = getChannelPlayerMap();
-		map.keySet().stream().filter(player -> map.get(player).equals(channel)).forEach(player -> {
-			player.sendMessage(Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed."));
-			setChannelForPlayer(player, GLOBAL);
-		});
-		channel.clearMembers();
+		ChitChatPlayers.movePlayersInChannelToGlobal(channel,
+				Optional.of(Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed.")));
+		channel.clearMembers(); //As an extra precaution
 
 		CHANNELS.remove(channel.getName());
 	}
@@ -105,19 +84,9 @@ public class ChitChatChannels {
 		return ImmutableMap.copyOf(CHANNELS);
 	}
 
-	public static ImmutableMap<Player, ChannelChitChat> getChannelPlayerMap() {
-		return ImmutableMap.copyOf(CHANNEL_PLAYER_MAP);
-	}
-
 	public static void clearChannelMap() {
 		for(ChannelChitChat channel : CHANNELS.values()) {
 			removeChannel(channel);
-		}
-	}
-
-	public static void moveAllPlayersToGlobal() {
-		for(Player player : CHANNEL_PLAYER_MAP.keySet()) {
-			setChannelForPlayer(player, GLOBAL);
 		}
 	}
 

@@ -21,8 +21,9 @@
 package io.github.katrix_.chitchat.command;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -39,7 +40,7 @@ import org.spongepowered.api.text.format.TextColors;
 import com.google.common.collect.ImmutableList;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.ChitChatPlayers;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -65,10 +66,21 @@ public class CmdChannelProperties extends CommandBase {
 		list.add(Text.of("Channel description: ", channel.getDescription()));
 		list.add(Text.of("Channel members:"));
 
-		Map<Player, ChannelChitChat> playerChannelMap = ChitChatChannels.getChannelPlayerMap();
-
-		playerChannelMap.keySet().stream().filter(player -> playerChannelMap.get(player).equals(channel))
-				.forEach(player -> list.add(Text.of(player.getName())));
+		StringBuilder players = new StringBuilder();
+		Iterator<Player> iterator = ChitChatPlayers.getPlayerMap().values().stream()
+				.filter(player -> player.getChannel().equals(channel))
+				.map(player -> player.getPlayer())
+				.collect(Collectors.toList()).iterator();
+		
+		while(iterator.hasNext()) {
+			Player player = iterator.next();
+			players.append(player.getName());
+			if(iterator.hasNext()) {
+				players.append(", ");
+			}
+		}
+		
+		list.add(Text.of(players));
 
 		pages.contents(list);
 		pages.sendTo(src);

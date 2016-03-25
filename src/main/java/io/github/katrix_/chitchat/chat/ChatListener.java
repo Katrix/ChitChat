@@ -88,23 +88,18 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat channel = ChitChatChannels.getChannelForPlayer(player);
+		ChannelChitChat channel = ChitChatPlayers.getOrCreatePlayer(player).getChannel();
 		event.setChannel(channel);
 
 		if(ConfigSettings.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
-			ChitChatChannels.getChannelPlayerMap().keySet().stream()
-					.filter(channelPlayer -> ChitChatChannels.getChannelForPlayer(channelPlayer).equals(channel))
-					.filter(channelPlayer -> message.contains(channelPlayer.getName()))
+			ChitChatPlayers.getPlayerMap().values().stream().filter(channelPlayer -> channelPlayer.getChannel().equals(channel))
+					.map(channelPlayer -> channelPlayer.getPlayer()).filter(channelPlayer -> message.contains(channelPlayer.getName()))
 					.forEach(channelPlayer -> channelPlayer.playSound(SoundTypes.ORB_PICKUP, channelPlayer.getLocation().getPosition(), 0.5D));
 		}
 	}
-
-	@Listener
-	public void onJoin(ClientConnectionEvent.Join event) {
-		Player player = event.getTargetEntity();
-		ChannelChitChat global = ChitChatChannels.getGlobalChannel();
-		global.addMember(player);
-		ChitChatChannels.setChannelForPlayer(player, global);
+	
+	public void onLeave(ClientConnectionEvent.Disconnect event) {
+		ChitChatPlayers.removePlayer(event.getTargetEntity());
 	}
 }

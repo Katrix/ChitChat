@@ -30,7 +30,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.ChitChatPlayers;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -47,7 +47,7 @@ public class CmdChannelJoin extends CommandBase {
 		ChannelChitChat channel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME).get();
 		if(!sourceIsPlayer(src) || !permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) return CommandResult.empty();
 
-		ChitChatChannels.setChannelForPlayer((Player)src, channel);
+		ChitChatPlayers.getOrCreatePlayer((Player)src).setChannel(channel);
 		src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
 		return CommandResult.success();
 	}
