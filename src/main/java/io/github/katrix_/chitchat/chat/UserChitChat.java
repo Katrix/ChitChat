@@ -26,6 +26,8 @@ import java.util.UUID;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 
+import io.github.katrix_.chitchat.io.SQLStorage;
+
 public class UserChitChat {
 
 	private final UUID uuid;
@@ -46,6 +48,10 @@ public class UserChitChat {
 		channel.addMember(player);
 	}
 
+	public UUID getUUID() {
+		return uuid;
+	}
+
 	public Optional<Player> getPlayer() {
 		return Sponge.getServer().getPlayer(uuid);
 	}
@@ -62,8 +68,6 @@ public class UserChitChat {
 			this.channel = channel;
 			this.channel.addMember(player);
 		}
-		else {
-			//TODO: SQL stuff here
-		}
+		SQLStorage.updateUserChannel(this);
 	}
 }

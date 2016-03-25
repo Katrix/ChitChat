@@ -26,17 +26,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.text.Text;
 
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.UserChitChat;
 
 public class SQLStorage {
 
@@ -112,6 +116,43 @@ public class SQLStorage {
 		}
 	}
 
+	public static ChannelChitChat getChannelForUser(User user) {
+		return getChannelForUser(user.getUniqueId());
+	}
+
+	public static ChannelChitChat getChannelForUser(UUID uuid) {
+		try {
+			Optional<String> channelName = INSTANCE.getChannelForUserDatabase(uuid);
+			if(channelName.isPresent() && ChitChatChannels.doesChannelExist(channelName.get())) {
+				return ChitChatChannels.getChannel(channelName.get());
+			}
+			else {
+				return ChitChatChannels.getGlobalChannel();
+			}
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+			return ChitChatChannels.getGlobalChannel();
+		}
+	}
+
+	public static void updateUserChannel(UserChitChat user) {
+		updateUserChannel(user.getUUID(), user.getChannel());
+	}
+
+	public static void updateUserChannel(User user, ChannelChitChat channel) {
+		updateUserChannel(user.getUniqueId(), channel);
+	}
+
+	public static void updateUserChannel(UUID uuid, ChannelChitChat channel) {
+		try {
+			INSTANCE.updateUserChannelDatabase(uuid, channel.getName());
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private Connection getConnection() throws SQLException {
 		return source.getConnection();
 	}
@@ -120,7 +161,7 @@ public class SQLStorage {
 		try(Connection con = getConnection()) {
 			String sql = "CREATE TABLE IF NOT EXISTS channels(id int primary key auto_increment, name varchar, prefix varchar, description varchar)";
 			con.prepareStatement(sql).execute();
-			sql = "CREATE TABLE IF NOT EXISTS user(uuid UUID, channel varchar)";
+			sql = "CREATE TABLE IF NOT EXISTS users(uuid UUID primary key, channel varchar)";
 			con.prepareStatement(sql).execute();
 		}
 	}
@@ -173,6 +214,30 @@ public class SQLStorage {
 		try(PreparedStatement stat = getConnection().prepareStatement(sql)) {
 			stat.setString(1, channelName);
 			stat.executeUpdate();
+		}
+	}
+
+	private Optional<String> getChannelForUserDatabase(UUID uuid) throws SQLException {
+		String sql = "SELECT * FROM channels WHERE uuid = ?";
+		try(ResultSet result = getConnection().prepareStatement(sql).executeQuery()) {
+			return Optional.ofNullable(result.getString("channel"));
+		}
+	}
+
+	private void updateUserChannelDatabase(UUID uuid, String channelName) throws SQLException {
+		String sqlUpdate = "UPDATE users SET channel = ? WHERE uuid = ?";
+		try(PreparedStatement statUpdate = getConnection().prepareStatement(sqlUpdate)) {
+			statUpdate.setString(1, channelName);
+			statUpdate.setObject(2, uuid);
+			int success = statUpdate.executeUpdate();
+			if(success == 0) {
+				String sqlInsert = "INSERT INTO users (uuid, channel) VALUES (?,?)";
+				try(PreparedStatement statInsert = getConnection().prepareStatement(sqlInsert)) {
+					statInsert.setObject(1, uuid);
+					statInsert.setString(2, channelName);
+					statInsert.executeUpdate();
+				}
+			}
 		}
 	}
 }

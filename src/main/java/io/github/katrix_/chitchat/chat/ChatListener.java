@@ -30,6 +30,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
@@ -39,6 +40,7 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class ChatListener {
@@ -97,5 +99,11 @@ public class ChatListener {
 			playerMap.keySet().stream().filter(player1 -> playerMap.get(player1).getChannel().equals(channel) && message.contains(player1.getName()))
 					.forEach(player1 -> player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D));
 		}
+	}
+
+	@Listener
+	public void onJoin(ClientConnectionEvent.Join event) {
+		Player player = event.getTargetEntity();
+		ChitChatPlayers.getOrCreatePlayer(player).setChannel(SQLStorage.getChannelForUser(player));
 	}
 }
