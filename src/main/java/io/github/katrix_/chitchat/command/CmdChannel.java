@@ -65,9 +65,8 @@ public class CmdChannel extends CommandBase {
 				CmdChannelRemove.INSTACE,
 				CmdChannelJoin.INSTACE,
 				CmdChannelList.INSTACE,
-				CmdChannelProperties.INSTACE
-				//, CmdChannelSave.INSTACE,
-				//CmdChannelLoad.INSTACE
+				CmdChannelProperties.INSTACE,
+				CmdChannelLoad.INSTACE
 				);
 		//@formatter:on
 	}

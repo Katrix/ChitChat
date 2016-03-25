@@ -44,10 +44,6 @@ public class ChitChatPlayers {
 		return playerChitChat;
 	}
 
-	public static void removePlayer(Player player) {
-		PLAYER_MAP.remove(player);
-	}
-
 	public static void moveAllPlayersToGlobal(@Nullable Text message) {
 		ChannelChitChat global = ChitChatChannels.getGlobalChannel();
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being sent to the global channel");

@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.io.SQLStorage;
 
 public class ChitChatChannels {
 
@@ -43,11 +44,13 @@ public class ChitChatChannels {
 	public static void initChannels() {
 		Sponge.getEventManager().registerListeners(ChitChat.getPlugin(), new ChatListener());
 		addChannel(GLOBAL);
+		SQLStorage.reloadChannels(); //Hacky yeah, but it works
 	}
 
 	public static void addChannel(ChannelChitChat channel) {
 		LogHelper.info("Creating channel " + channel.getName());
 		CHANNELS.put(channel.getName(), channel);
+		SQLStorage.saveChannel(channel);
 	}
 
 	public static void removeChannel(String name) {
@@ -63,6 +66,7 @@ public class ChitChatChannels {
 		channel.clearMembers(); //As an extra precaution
 
 		CHANNELS.remove(channel.getName());
+		SQLStorage.deleteChannel(channel);
 	}
 
 	public static boolean doesChannelExist(String name) {
@@ -77,6 +81,8 @@ public class ChitChatChannels {
 		LogHelper.info("Remmaping channel " + oldName + " to " + channel.getName());
 		CHANNELS.remove(oldName);
 		CHANNELS.put(channel.getName(), channel);
+		SQLStorage.deleteChannel(oldName);
+		SQLStorage.saveChannel(channel);
 	}
 
 	public static ImmutableMap<String, ChannelChitChat> getChannelMap() {
@@ -84,9 +90,7 @@ public class ChitChatChannels {
 	}
 
 	public static void clearChannelMap() {
-		for(ChannelChitChat channel : CHANNELS.values()) {
-			removeChannel(channel);
-		}
+		CHANNELS.values().stream().filter(channel -> !channel.equals(GLOBAL)).forEach(ChitChatChannels::removeChannel);
 	}
 
 	public static ChannelChitChat getGlobalChannel() {

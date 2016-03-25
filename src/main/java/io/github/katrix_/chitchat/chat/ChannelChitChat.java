@@ -33,6 +33,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.io.SQLStorage;
 
 public class ChannelChitChat extends AbstractMutableMessageChannel {
 
@@ -71,10 +72,12 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public void setDescription(Text description) {
 		this.description = description;
+		SQLStorage.updateChannel(this, null, description);
 	}
 
 	public void setDescription(String description) {
 		this.description = TextSerializers.FORMATTING_CODE.deserialize(description);
+		SQLStorage.updateChannel(this, null, this.description);
 	}
 
 	public Text getPrefix() {
@@ -83,9 +86,11 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public void setPrefix(Text prefix) {
 		this.prefix = prefix;
+		SQLStorage.updateChannel(this, prefix, null);
 	}
 
 	public void setPrefix(String prefix) {
 		this.prefix = TextSerializers.FORMATTING_CODE.deserialize(prefix);
+		SQLStorage.updateChannel(this, this.prefix, null);
 	}
 }

@@ -30,7 +30,6 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
@@ -98,9 +97,5 @@ public class ChatListener {
 			playerMap.keySet().stream().filter(player1 -> playerMap.get(player1).getChannel().equals(channel) && message.contains(player1.getName()))
 					.forEach(player1 -> player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D));
 		}
-	}
-
-	public void onLeave(ClientConnectionEvent.Disconnect event) {
-		ChitChatPlayers.removePlayer(event.getTargetEntity());
 	}
 }

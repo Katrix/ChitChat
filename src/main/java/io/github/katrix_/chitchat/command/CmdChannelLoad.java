@@ -26,7 +26,9 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelLoad extends CommandBase {
@@ -39,9 +41,14 @@ public class CmdChannelLoad extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		//SQLChannels.load();
-		//src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk succesfully."));
-		return CommandResult.success();
+		if(SQLStorage.reloadChannels()) {
+			src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk succesfully."));
+			return CommandResult.success();
+		}
+		else {
+			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when loading channels from disk"));
+			return CommandResult.empty();
+		}
 	}
 
 	@Override
