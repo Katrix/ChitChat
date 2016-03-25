@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.spongepowered.api.effect.sound.SoundTypes;
@@ -93,12 +94,12 @@ public class ChatListener {
 
 		if(ConfigSettings.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
-			ChitChatPlayers.getPlayerMap().values().stream().filter(channelPlayer -> channelPlayer.getChannel().equals(channel))
-					.map(channelPlayer -> channelPlayer.getPlayer()).filter(channelPlayer -> message.contains(channelPlayer.getName()))
-					.forEach(channelPlayer -> channelPlayer.playSound(SoundTypes.ORB_PICKUP, channelPlayer.getLocation().getPosition(), 0.5D));
+			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
+			playerMap.keySet().stream().filter(player1 -> playerMap.get(player1).getChannel().equals(channel) && message.contains(player1.getName()))
+					.forEach(player1 -> player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D));
 		}
 	}
-	
+
 	public void onLeave(ClientConnectionEvent.Disconnect event) {
 		ChitChatPlayers.removePlayer(event.getTargetEntity());
 	}

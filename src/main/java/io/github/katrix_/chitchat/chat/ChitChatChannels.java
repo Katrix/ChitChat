@@ -22,7 +22,6 @@ package io.github.katrix_.chitchat.chat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
@@ -60,7 +59,7 @@ public class ChitChatChannels {
 
 		LogHelper.info("Removing channel " + channel.getName());
 		ChitChatPlayers.movePlayersInChannelToGlobal(channel,
-				Optional.of(Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed.")));
+				Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed."));
 		channel.clearMembers(); //As an extra precaution
 
 		CHANNELS.remove(channel.getName());

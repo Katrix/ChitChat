@@ -22,6 +22,7 @@ package io.github.katrix_.chitchat.chat;
 
 import java.util.Map;
 import java.util.WeakHashMap;
+
 import javax.annotation.Nullable;
 
 import org.spongepowered.api.entity.living.player.Player;
@@ -42,7 +43,7 @@ public class ChitChatPlayers {
 		}
 		return playerChitChat;
 	}
-	
+
 	public static void removePlayer(Player player) {
 		PLAYER_MAP.remove(player);
 	}

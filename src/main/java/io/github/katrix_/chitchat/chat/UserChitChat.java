@@ -36,12 +36,12 @@ public class UserChitChat {
 	}
 
 	public UserChitChat(Player player) {
-		this.uuid = player.getUniqueId();
+		uuid = player.getUniqueId();
 		channel.addMember(player);
 	}
 
-	public  UserChitChat(Player player, ChannelChitChat channel) {
-		this.uuid = player.getUniqueId();
+	public UserChitChat(Player player, ChannelChitChat channel) {
+		uuid = player.getUniqueId();
 		this.channel = channel;
 		channel.addMember(player);
 	}
