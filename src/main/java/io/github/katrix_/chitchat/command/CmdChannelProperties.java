@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
@@ -56,7 +57,9 @@ public class CmdChannelProperties extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		ChannelChitChat channel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME).get();
+		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
+		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		ChannelChitChat channel = optChannel.get();
 		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) return CommandResult.empty();
 
 		Builder pages = Sponge.getGame().getServiceManager().provide(PaginationService.class).get().builder();

@@ -20,6 +20,8 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Optional;
+
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -44,8 +46,10 @@ public class CmdChannelJoin extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		ChannelChitChat channel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME).get();
-		if(!sourceIsPlayer(src) || !permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) return CommandResult.empty();
+		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
+		if(!sourceIsPlayer(src) || !channelExists(src, optChannel)) return CommandResult.empty();
+		ChannelChitChat channel = optChannel.get();
+		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) return CommandResult.empty();
 
 		ChitChatPlayers.getOrCreatePlayer((Player)src).setChannel(channel);
 		src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));

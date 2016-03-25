@@ -20,6 +20,8 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Optional;
+
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -29,6 +31,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 
 public abstract class CommandBase implements CommandExecutor {
@@ -99,6 +102,14 @@ public abstract class CommandBase implements CommandExecutor {
 		if(!subject.hasPermission(basePerm + "." + channelName)) {
 			subject.sendMessage(Text.of(TextColors.RED, "You don't have the permissions to do that for this channel"));
 			return false;
+		}
+		return true;
+	}
+
+	protected boolean channelExists(CommandSource src, Optional<ChannelChitChat> channel) {
+		if(!channel.isPresent()) {
+			src.sendMessage(Text.of(TextColors.RED, "This channel does not exist"));
+			return  false;
 		}
 		return true;
 	}

@@ -20,6 +20,8 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Optional;
+
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -45,7 +47,9 @@ public class CmdChannelModifyPrefix extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		ChannelChitChat channel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME).get();
+		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
+		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		ChannelChitChat channel = optChannel.get();
 		String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName());
 		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) return CommandResult.empty();
 
