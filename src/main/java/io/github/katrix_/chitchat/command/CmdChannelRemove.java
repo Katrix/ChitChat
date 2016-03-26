@@ -47,7 +47,7 @@ public class CmdChannelRemove extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		if(!channelExists(src, optChannel)) return CommandResult.empty();
 		ChannelChitChat channel = optChannel.get();
 		if(channel.equals(ChitChatChannels.getGlobalChannel())) {
 			src.sendMessage(Text.of(TextColors.RED, "You can't remove the global channel"));

@@ -58,7 +58,7 @@ public class CmdChannelProperties extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		if(!channelExists(src, optChannel)) return CommandResult.empty();
 		ChannelChitChat channel = optChannel.get();
 		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) return CommandResult.empty();
 

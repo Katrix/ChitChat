@@ -49,7 +49,7 @@ public class CmdChannelModifyDescription extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		if(!channelExists(src, optChannel)) return CommandResult.empty();
 		ChannelChitChat channel = optChannel.get();
 		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_DESCRIPTION)) return CommandResult.empty();
 

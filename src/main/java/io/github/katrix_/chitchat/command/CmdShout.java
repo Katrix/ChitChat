@@ -50,7 +50,7 @@ public class CmdShout extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		if(!channelExists(src, optChannel)) return CommandResult.empty();
 		ChannelChitChat channel = optChannel.get();
 		if(!permissionChannel(channel.getName(), src, LibPerm.SHOUT)) return CommandResult.empty();
 

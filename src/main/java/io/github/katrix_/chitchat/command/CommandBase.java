@@ -109,7 +109,7 @@ public abstract class CommandBase implements CommandExecutor {
 	protected boolean channelExists(CommandSource src, Optional<ChannelChitChat> channel) {
 		if(!channel.isPresent()) {
 			src.sendMessage(Text.of(TextColors.RED, "This channel does not exist"));
-			return  false;
+			return false;
 		}
 		return true;
 	}

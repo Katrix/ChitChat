@@ -48,7 +48,7 @@ public class CmdChannelModifyName extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).get();
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return  CommandResult.empty();
+		if(!channelExists(src, optChannel)) return CommandResult.empty();
 		ChannelChitChat channel = optChannel.get();
 		if(!channelNameNotUsed(nameNew, src) || !permissionChannel(channel.getName(), src, LibPerm.CHANNEL_NAME)
 				|| !permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME))
