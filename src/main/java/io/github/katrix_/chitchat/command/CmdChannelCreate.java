@@ -58,7 +58,8 @@ public class CmdChannelCreate extends CommandBase {
 			src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
 		}
 		else {
-			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when saving the new channel " + name + ". You can use it for now, but it will not persist after a restart."));
+			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when saving the new channel " + name
+					+ ". You can use it for now, but it will not persist after a restart."));
 			LogHelper.error("Failed to write new channel " + name + " to the database");
 		}
 		return CommandResult.success();

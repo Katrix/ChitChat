@@ -55,12 +55,13 @@ public class CmdChannelModifyDescription extends CommandBase {
 
 		if(channel.setDescription(description)) {
 			src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-									TextSerializers.FORMATTING_CODE.deserialize(description)));
+					TextSerializers.FORMATTING_CODE.deserialize(description)));
 			LogHelper.info("Description of " + channel.getName() + " changed to: " + description);
 		}
 		else {
 			src.sendMessage(Text.of(TextColors.RED, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-									TextSerializers.FORMATTING_CODE.deserialize(description), TextColors.RED, "\n However, this change did not save properly to the database"));
+					TextSerializers.FORMATTING_CODE.deserialize(description), TextColors.RED,
+					"\n However, this change did not save properly to the database"));
 			LogHelper.error("Failed to write new description " + description + " of channel " + channel.getName() + " to the database");
 		}
 		return CommandResult.success();

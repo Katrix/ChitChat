@@ -61,7 +61,8 @@ public class CmdChannelRemove extends CommandBase {
 			src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
 		}
 		else {
-			src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName() + " from the database. It will be gone for now, but it will be back when the server restarts."));
+			src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
+					+ " from the database. It will be gone for now, but it will be back when the server restarts."));
 			LogHelper.error("Failed to delete the channel " + channel.getName() + " from the database");
 		}
 		return CommandResult.success();

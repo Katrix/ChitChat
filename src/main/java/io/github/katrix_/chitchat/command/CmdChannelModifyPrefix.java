@@ -55,12 +55,13 @@ public class CmdChannelModifyPrefix extends CommandBase {
 
 		if(channel.setPrefix(prefix)) {
 			src.sendMessage(Text.of(TextColors.GREEN, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-									TextSerializers.FORMATTING_CODE.deserialize(prefix)));
+					TextSerializers.FORMATTING_CODE.deserialize(prefix)));
 			LogHelper.info("Prefix of " + channel.getName() + " changed to: " + prefix);
 		}
 		else {
 			src.sendMessage(Text.of(TextColors.RED, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-									TextSerializers.FORMATTING_CODE.deserialize(prefix), TextColors.RED, "\n However, this change did not save properly to the database"));
+					TextSerializers.FORMATTING_CODE.deserialize(prefix), TextColors.RED,
+					"\n However, this change did not save properly to the database"));
 			LogHelper.error("Failed to write new prefix " + prefix + " of channel " + channel.getName() + " to the database");
 		}
 		return CommandResult.success();
