@@ -95,7 +95,7 @@ public class CmdHelp extends CommandBase {
 			Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, "/" + commandName));
 			commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
 			src.sendMessage(commandText.build());
-			commandSpec.getHelp(src).ifPresent(text -> src.sendMessage(text));
+			commandSpec.getHelp(src).ifPresent(src::sendMessage);
 			return CommandResult.success();
 		}
 	}

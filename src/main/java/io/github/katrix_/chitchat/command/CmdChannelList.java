@@ -20,9 +20,9 @@
  */
 package io.github.katrix_.chitchat.command;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -53,15 +53,13 @@ public class CmdChannelList extends CommandBase {
 		Builder pages = Sponge.getGame().getServiceManager().provide(PaginationService.class).get().builder();
 		pages.title(Text.of(TextColors.RED, "Channels"));
 		Map<String, ChannelChitChat> channels = ChitChatChannels.getChannelMap();
-		List<Text> list = new ArrayList<>();
+		List<Text> list = channels.keySet().stream().filter(channel -> src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel))
+				.map(channel -> Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
+						.onClick(TextActions.runCommand("/channel join " + channel))
+						.append(Text.of(channel, " - ", channels.get(channel).getDescription()))
+						.build())
+				.collect(Collectors.toList());
 
-		for(String channel : channels.keySet()) {
-			if(src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel)) {
-				list.add(Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
-						.onClick(TextActions.runCommand("/channel join " + channel)).append(Text.of(channel))
-						.append(Text.of(" - ", channels.get(channel).getDescription())).build());
-			}
-		}
 		list.sort(null);
 
 		pages.contents(list);
