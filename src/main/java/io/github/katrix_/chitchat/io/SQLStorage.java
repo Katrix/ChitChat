@@ -158,11 +158,13 @@ public class SQLStorage {
 	}
 
 	private void createTables() throws SQLException {
-		try(Connection con = getConnection()) {
-			String sql = "CREATE TABLE IF NOT EXISTS channels(id int primary key auto_increment, name varchar, prefix varchar, description varchar)";
-			con.prepareStatement(sql).execute();
-			sql = "CREATE TABLE IF NOT EXISTS users(uuid UUID primary key, channel varchar)";
-			con.prepareStatement(sql).execute();
+		String channels = "CREATE TABLE IF NOT EXISTS channels(id int primary key auto_increment, name varchar, prefix varchar, description varchar)";
+		String users = "CREATE TABLE IF NOT EXISTS users(uuid UUID primary key, channel varchar)";
+		try(Connection con = getConnection();
+				PreparedStatement statChannels = con.prepareStatement(channels);
+				PreparedStatement statUsers = con.prepareStatement(users)) {
+			statChannels.execute();
+			statUsers.execute();
 		}
 	}
 
@@ -179,7 +181,7 @@ public class SQLStorage {
 	private List<ChannelChitChat> getChannelList() throws SQLException {
 		List<ChannelChitChat> list = new ArrayList<>();
 		String sql = "SELECT * FROM channels";
-		try(ResultSet result = getConnection().prepareStatement(sql).executeQuery()) {
+		try(PreparedStatement stat = getConnection().prepareStatement(sql); ResultSet result = stat.executeQuery()) {
 			while(result.next()) {
 				if(result.getString("name").equalsIgnoreCase("Global")) result.next();
 				String name = result.getString("name");
