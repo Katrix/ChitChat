@@ -31,6 +31,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -52,6 +53,7 @@ public class CmdChannelCreate extends CommandBase {
 
 		ChannelChitChat channel = new ChannelChitChat(name, description, prefix);
 		ChitChatChannels.addChannel(channel);
+		SQLStorage.saveChannel(channel);
 		src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name + " sucsesfully."));
 		return CommandResult.success();
 	}

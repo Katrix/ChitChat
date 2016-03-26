@@ -49,7 +49,7 @@ public class SQLStorage {
 	private DataSource source;
 
 	private SQLStorage() {
-		String path = ChitChat.getPlugin().getConfigDir().toAbsolutePath().toString() + "/channels";
+		String path = "jdbc:h2:" + ChitChat.getPlugin().getConfigDir().toAbsolutePath().toString() + "/chitChat";
 		try {
 			SqlService sql = Sponge.getServiceManager().provide(SqlService.class).get();
 			source = sql.getDataSource(path);
@@ -181,11 +181,11 @@ public class SQLStorage {
 		String sql = "SELECT * FROM channels";
 		try(ResultSet result = getConnection().prepareStatement(sql).executeQuery()) {
 			while(result.next()) {
-				if(result.getString("name").equals("Global")) result.next(); //TODO: Make sure no NPE
+				if(result.getString("name").equalsIgnoreCase("Global")) result.next();
 				String name = result.getString("name");
 				String prefix = result.getString("prefix");
 				String description = result.getString("description");
-				list.add(new ChannelChitChat(name, prefix, description));
+				list.add(new ChannelChitChat(name, description, prefix));
 			}
 		}
 		return list;
@@ -218,9 +218,13 @@ public class SQLStorage {
 	}
 
 	private Optional<String> getChannelForUserDatabase(UUID uuid) throws SQLException {
-		String sql = "SELECT * FROM channels WHERE uuid = ?";
-		try(ResultSet result = getConnection().prepareStatement(sql).executeQuery()) {
-			return Optional.ofNullable(result.getString("channel"));
+		String sql = "SELECT * FROM users WHERE uuid = ?";
+		try(PreparedStatement stat = getConnection().prepareStatement(sql)) {
+			stat.setObject(1, uuid);
+			try(ResultSet result = stat.executeQuery()) {
+				result.next();
+				return Optional.ofNullable(result.getString("channel"));
+			}
 		}
 	}
 

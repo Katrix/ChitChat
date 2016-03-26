@@ -50,7 +50,6 @@ public class ChitChatChannels {
 	public static void addChannel(ChannelChitChat channel) {
 		LogHelper.info("Creating channel " + channel.getName());
 		CHANNELS.put(channel.getName(), channel);
-		SQLStorage.saveChannel(channel);
 	}
 
 	public static void removeChannel(String name) {
@@ -66,7 +65,6 @@ public class ChitChatChannels {
 		channel.clearMembers(); //As an extra precaution
 
 		CHANNELS.remove(channel.getName());
-		SQLStorage.deleteChannel(channel);
 	}
 
 	public static boolean doesChannelExist(String name) {
