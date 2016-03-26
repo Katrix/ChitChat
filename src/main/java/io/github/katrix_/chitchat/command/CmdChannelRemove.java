@@ -32,6 +32,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -56,8 +57,13 @@ public class CmdChannelRemove extends CommandBase {
 		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) return CommandResult.empty();
 
 		ChitChatChannels.removeChannel(channel);
-		SQLStorage.deleteChannel(channel);
-		src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+		if(SQLStorage.deleteChannel(channel)) {
+			src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+		}
+		else {
+			src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName() + " from the database. It will be gone for now, but it will be back when the server restarts."));
+			LogHelper.error("Failed to delete the channel " + channel.getName() + " from the database");
+		}
 		return CommandResult.success();
 	}
 

@@ -70,27 +70,25 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		return description;
 	}
 
-	public void setDescription(Text description) {
+	public boolean setDescription(Text description) {
 		this.description = description;
-		SQLStorage.updateChannel(this, null, description);
+		return SQLStorage.updateChannel(this, null, description);
 	}
 
-	public void setDescription(String description) {
-		this.description = TextSerializers.FORMATTING_CODE.deserialize(description);
-		SQLStorage.updateChannel(this, null, this.description);
+	public boolean setDescription(String description) {
+		return setDescription(TextSerializers.FORMATTING_CODE.deserialize(description));
 	}
 
 	public Text getPrefix() {
 		return prefix;
 	}
 
-	public void setPrefix(Text prefix) {
+	public boolean setPrefix(Text prefix) {
 		this.prefix = prefix;
-		SQLStorage.updateChannel(this, prefix, null);
+		return SQLStorage.updateChannel(this, prefix, null);
 	}
 
-	public void setPrefix(String prefix) {
-		this.prefix = TextSerializers.FORMATTING_CODE.deserialize(prefix);
-		SQLStorage.updateChannel(this, this.prefix, null);
+	public boolean setPrefix(String prefix) {
+		return setPrefix(TextSerializers.FORMATTING_CODE.deserialize(prefix));
 	}
 }
