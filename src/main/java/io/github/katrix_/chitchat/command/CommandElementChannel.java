@@ -23,8 +23,6 @@ package io.github.katrix_.chitchat.command;
 import javax.annotation.Nullable;
 
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.ArgumentParseException;
-import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.PatternMatchingCommandElement;
 import org.spongepowered.api.text.Text;
 
@@ -34,11 +32,6 @@ public class CommandElementChannel extends PatternMatchingCommandElement {
 
 	public CommandElementChannel(@Nullable Text key) {
 		super(key);
-	}
-
-	@Override
-	protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
-		return super.parseValue(source, args);
 	}
 
 	@Override
