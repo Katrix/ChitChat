@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -192,8 +193,12 @@ public class ConfigSettings {
 			loadFile();
 		}
 
-		if(!cfgFile.getParent().toFile().exists()) {
-			cfgFile.getParent().toFile().mkdirs();
+		File parent = cfgFile.getParent().toFile();
+		if(!parent.exists()) {
+			if(!parent.mkdirs()) {
+				LogHelper.error("Something went wring when creating the parent directory for the config");
+				return;
+			}
 		}
 
 		saveFile();
