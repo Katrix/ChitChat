@@ -26,6 +26,7 @@ public class LibCommandKey {
 
 	public static final Text PLAYER = Text.of("player");
 	public static final Text MESSAGE = Text.of("message");
+	public static final Text USER = Text.of("user");
 
 	public static final Text CHANNEL_NAME = Text.of("channel name");
 	public static final Text CHANNEL_NAME_NEW = Text.of("new channel name");

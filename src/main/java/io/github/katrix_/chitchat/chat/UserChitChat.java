@@ -68,6 +68,9 @@ public class UserChitChat {
 			this.channel = channel;
 			this.channel.addMember(player);
 		}
+		else {
+			this.channel = channel;
+		}
 		SQLStorage.updateUserChannel(this);
 	}
 }

@@ -21,6 +21,7 @@
 package io.github.katrix_.chitchat.chat;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
@@ -42,6 +43,10 @@ public class ChitChatPlayers {
 			PLAYER_MAP.put(player, playerChitChat);
 		}
 		return playerChitChat;
+	}
+
+	public static UserChitChat getUserFromUuid(UUID uuid) {
+		return new UserChitChat(uuid);
 	}
 
 	public static void moveAllPlayersToGlobal(@Nullable Text message) {

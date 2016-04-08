@@ -56,4 +56,6 @@ public class LibPerm {
 	public static final String CHANNEL_PREFIX = CHANNEL_MODIFY + ".prefix";
 	public static final String CHANNEL_CREATE = CHANNEL_MOD + ".create";
 	public static final String CHANNEL_REMOVE = CHANNEL_MOD + ".remove";
+	public static final String CHANNEL_MOVE = CHANNEL_MOD + ".move";
+	public static final String CHANNEL_MOVE_OFFLINE = CHANNEL_MOVE + ".offline";
 }
