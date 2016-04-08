@@ -38,7 +38,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelCreate extends CommandBase {
 
-	public static final CmdChannelCreate INSTACE = new CmdChannelCreate(CmdChannel.INSTACE);
+	public static final CmdChannelCreate INSTANCE = new CmdChannelCreate(CmdChannel.INSTANCE);
 
 	private CmdChannelCreate(CommandBase parent) {
 		super(parent);

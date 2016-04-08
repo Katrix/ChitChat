@@ -48,7 +48,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdHelp extends CommandBase {
 
-	public static final CmdHelp INSTACE = new CmdHelp(CmdChitChat.INSTACE);
+	public static final CmdHelp INSTANCE = new CmdHelp(CmdChitChat.INSTANCE);
 	private BiMap<CommandBase, List<String>> commandMap = HashBiMap.create();
 
 	private CmdHelp(CommandBase parent) {
@@ -117,17 +117,17 @@ public class CmdHelp extends CommandBase {
 		if(parent == null) {
 			List<String> list = Arrays.asList(aliases);
 			LogHelper.debug("Registering help command: " + list);
-			INSTACE.commandMap.put(command, list);
+			INSTANCE.commandMap.put(command, list);
 		}
 		else {
-			List<String> existingList = INSTACE.commandMap.get(command);
-			List<String> list = existingList != null ? new ArrayList<>(INSTACE.commandMap.get(command)) : new ArrayList<>();
+			List<String> existingList = INSTANCE.commandMap.get(command);
+			List<String> list = existingList != null ? new ArrayList<>(INSTANCE.commandMap.get(command)) : new ArrayList<>();
 
 			for(String string : aliases) {
 				list.add(parent + " " + string);
 			}
 			LogHelper.debug("Registering help command: " + list);
-			INSTACE.commandMap.put(command, list);
+			INSTANCE.commandMap.put(command, list);
 		}
 	}
 

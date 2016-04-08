@@ -64,12 +64,12 @@ public class ChitChat {
 	public void init(GameInitializationEvent event) {
 		ConfigSettings.getConfig().initFile();
 
-		registerCommand(CmdChannel.INSTACE);
-		registerCommand(CmdShout.INSTACE);
-		registerCommand(CmdPM.INSTACE);
-		registerCommand(CmdReply.INSTACE);
-		registerCommand(CmdMe.INSTACE);
-		registerCommand(CmdChitChat.INSTACE);
+		registerCommand(CmdChannel.INSTANCE);
+		registerCommand(CmdShout.INSTANCE);
+		registerCommand(CmdPM.INSTANCE);
+		registerCommand(CmdReply.INSTANCE);
+		registerCommand(CmdMe.INSTANCE);
+		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
 
 		ChitChatChannels.initChannels();

@@ -40,7 +40,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdShout extends CommandBase {
 
-	public static final CmdShout INSTACE = new CmdShout(null);
+	public static final CmdShout INSTANCE = new CmdShout(null);
 
 	private CmdShout(CommandBase parent) {
 		super(parent);

@@ -33,7 +33,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdReloadConfigs extends CommandBase {
 
-	public static final CmdReloadConfigs INSTACE = new CmdReloadConfigs(CmdChitChat.INSTACE);
+	public static final CmdReloadConfigs INSTANCE = new CmdReloadConfigs(CmdChitChat.INSTANCE);
 
 	private CmdReloadConfigs(CommandBase parent) {
 		super(parent);

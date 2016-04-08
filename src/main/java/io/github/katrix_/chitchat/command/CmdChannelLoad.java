@@ -33,7 +33,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelLoad extends CommandBase {
 
-	public static final CmdChannelLoad INSTACE = new CmdChannelLoad(CmdChannel.INSTACE);
+	public static final CmdChannelLoad INSTANCE = new CmdChannelLoad(CmdChannel.INSTANCE);
 
 	private CmdChannelLoad(CommandBase parent) {
 		super(parent);
@@ -42,7 +42,7 @@ public class CmdChannelLoad extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		if(SQLStorage.reloadChannels()) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk succesfully."));
+			src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk successfully."));
 			return CommandResult.success();
 		}
 		else {

@@ -42,7 +42,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdPM extends CommandBase {
 
-	public static final CmdPM INSTACE = new CmdPM(null);
+	public static final CmdPM INSTANCE = new CmdPM(null);
 	private Map<CommandSource, CommandSource> conversations = new WeakHashMap<>();
 
 	private CmdPM(CommandBase parent) {
@@ -55,7 +55,7 @@ public class CmdPM extends CommandBase {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
 		conversations.put(src, player);
 		conversations.put(player, src);
-		player.sendMessage(ConfigSettings.getPmRecieverTemplate(),
+		player.sendMessage(ConfigSettings.getPmReceiverTemplate(),
 				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
 		src.sendMessage(ConfigSettings.getPmSenderTemplate(),
 				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));

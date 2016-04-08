@@ -20,7 +20,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelMove extends CommandBase {
 
-	public static final CmdChannelMove INSTANCE = new CmdChannelMove(CmdChannel.INSTACE);
+	public static final CmdChannelMove INSTANCE = new CmdChannelMove(CmdChannel.INSTANCE);
 
 	protected CmdChannelMove(CommandBase parent) {
 		super(parent);
@@ -59,8 +59,9 @@ public class CmdChannelMove extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Move a player into a channel")).extendedDescription(Text.of("You can also use this command on offline players")).permission(
-				LibPerm.CHANNEL_MOVE).arguments(GenericArguments.user(LibCommandKey.USER), new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this).build();
+		return CommandSpec.builder().description(Text.of("Move a player into a channel"))
+				.extendedDescription(Text.of("You can also use this command on offline players")).permission(LibPerm.CHANNEL_MOVE)
+				.arguments(GenericArguments.user(LibCommandKey.USER), new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this).build();
 	}
 
 

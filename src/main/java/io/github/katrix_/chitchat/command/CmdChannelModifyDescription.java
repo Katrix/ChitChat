@@ -39,7 +39,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelModifyDescription extends CommandBase {
 
-	public static final CmdChannelModifyDescription INSTACE = new CmdChannelModifyDescription(CmdChannelProperties.INSTACE);
+	public static final CmdChannelModifyDescription INSTANCE = new CmdChannelModifyDescription(CmdChannelProperties.INSTANCE);
 
 	private CmdChannelModifyDescription(CommandBase parent) {
 		super(parent);

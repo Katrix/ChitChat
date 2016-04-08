@@ -36,7 +36,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdMe extends CommandBase {
 
-	public static final CmdMe INSTACE = new CmdMe(null);
+	public static final CmdMe INSTANCE = new CmdMe(null);
 
 	private CmdMe(CommandBase parent) {
 		super(parent);

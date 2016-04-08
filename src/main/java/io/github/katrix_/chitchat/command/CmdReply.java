@@ -41,7 +41,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdReply extends CommandBase {
 
-	public static final CmdReply INSTACE = new CmdReply(null);
+	public static final CmdReply INSTANCE = new CmdReply(null);
 
 	private CmdReply(CommandBase parent) {
 		super(parent);
@@ -50,20 +50,20 @@ public class CmdReply extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
-		Optional<CommandSource> recieverOpt = CmdPM.INSTACE.getConversationPartner(src);
+		Optional<CommandSource> receiverOpt = CmdPM.INSTANCE.getConversationPartner(src);
 
-		if(!recieverOpt.isPresent()) {
+		if(!receiverOpt.isPresent()) {
 			src.sendMessage(Text.of(TextColors.RED, "You don't have anyone to reply to"));
 			return CommandResult.empty();
 		}
-		CommandSource reciever = recieverOpt.get();
+		CommandSource receiver = receiverOpt.get();
 
-		reciever.sendMessage(ConfigSettings.getPmRecieverTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(reciever.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
+		receiver.sendMessage(ConfigSettings.getPmReceiverTemplate(),
+				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
 		src.sendMessage(ConfigSettings.getPmSenderTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(reciever.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
-		if(ConfigSettings.getChatPling() && reciever instanceof Player) {
-			Player player = (Player)reciever;
+				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
+		if(ConfigSettings.getChatPling() && receiver instanceof Player) {
+			Player player = (Player)receiver;
 			player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
 		}
 		return CommandResult.success();

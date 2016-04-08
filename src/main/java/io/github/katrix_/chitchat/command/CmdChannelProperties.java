@@ -49,7 +49,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelProperties extends CommandBase {
 
-	public static final CmdChannelProperties INSTACE = new CmdChannelProperties(CmdChannel.INSTACE);
+	public static final CmdChannelProperties INSTANCE = new CmdChannelProperties(CmdChannel.INSTANCE);
 
 	private CmdChannelProperties(CommandBase parent) {
 		super(parent);
@@ -95,7 +95,7 @@ public class CmdChannelProperties extends CommandBase {
 	public CommandSpec getCommand() {
 		CommandSpec.Builder builder = CommandSpec.builder().permission(LibPerm.CHANNEL_INFO)
 				.description(Text.of("Shows you information about a channel."))
-				.extendedDescription(Text.of("If you specify a channel as a paremater \nyou can see the currently set paramters \nfor that channel"))
+				.extendedDescription(Text.of("If you specify a channel as a parameter \nyou can see the currently set parameters \nfor that channel"))
 				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this);
 		registerSubcommands(builder);
 		return builder.build();
@@ -110,9 +110,9 @@ public class CmdChannelProperties extends CommandBase {
 	public ImmutableList<CommandBase> getChildren() {
 		//@formatter:off
 		return ImmutableList.of(
-				CmdChannelModifyName.INSTACE,
-				CmdChannelModifyPrefix.INSTACE,
-				CmdChannelModifyDescription.INSTACE);
+				CmdChannelModifyName.INSTANCE,
+				CmdChannelModifyPrefix.INSTANCE,
+				CmdChannelModifyDescription.INSTANCE);
 		//@formatter:on
 	}
 }

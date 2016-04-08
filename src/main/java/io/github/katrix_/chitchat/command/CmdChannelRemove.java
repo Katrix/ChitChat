@@ -39,7 +39,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelRemove extends CommandBase {
 
-	public static final CmdChannelRemove INSTACE = new CmdChannelRemove(CmdChannel.INSTACE);
+	public static final CmdChannelRemove INSTANCE = new CmdChannelRemove(CmdChannel.INSTANCE);
 
 	private CmdChannelRemove(CommandBase parent) {
 		super(parent);

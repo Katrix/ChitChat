@@ -38,7 +38,7 @@ import io.github.katrix_.chitchat.lib.LibPlugin;
 
 public class CmdChitChat extends CommandBase {
 
-	public static final CmdChitChat INSTACE = new CmdChitChat(null);
+	public static final CmdChitChat INSTANCE = new CmdChitChat(null);
 
 	private CmdChitChat(CommandBase parent) {
 		super(parent);
@@ -66,8 +66,8 @@ public class CmdChitChat extends CommandBase {
 	public ImmutableList<CommandBase> getChildren() {
 		//@formatter:off
 		return ImmutableList.of(
-				CmdHelp.INSTACE,
-				CmdReloadConfigs.INSTACE);
+				CmdHelp.INSTANCE,
+				CmdReloadConfigs.INSTANCE);
 		//@formatter:on
 	}
 }

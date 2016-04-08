@@ -74,11 +74,12 @@ public class ConfigSettings {
 			Text.of(TextColors.WHITE, "] "));
 	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER),
 			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "), TextTemplate.arg(TEMPLATE_CHANNEL));
-	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "), TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE),
-			Text.of(TextColors.GREEN, " has joined the server"));
-	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "), TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE),
-			Text.of(TextColors.RED, " has left the server"));
+	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "),
+			TextTemplate.arg(TEMPLATE_CHANNEL));
+	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "),
+			TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE), Text.of(TextColors.GREEN, " has joined the server"));
+	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "),
+			TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE), Text.of(TextColors.RED, " has left the server"));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -163,12 +164,13 @@ public class ConfigSettings {
 					.setValue(TypeToken.of(TextTemplate.class), channelTemplate);
 			cfgRoot.getNode("chat", "joinTemplate").setComment("Type = TextTemplate\nThe format that will be used when a player joins the server.")
 					.setValue(TypeToken.of(TextTemplate.class), joinTemplate);
-			cfgRoot.getNode("chat", "disconnectTemplate").setComment("Type = TextTemplate\nThe format that will be used when a player leaves the server.")
+			cfgRoot.getNode("chat", "disconnectTemplate")
+					.setComment("Type = TextTemplate\nThe format that will be used when a player leaves the server.")
 					.setValue(TypeToken.of(TextTemplate.class), disconnectTemplate);
 
 			cfgRoot.getNode("command", "meTemplate").setComment("Type = TextTemplate\nThe format that will be used for the me command.")
 					.setValue(TypeToken.of(TextTemplate.class), meTemplate);
-			cfgRoot.getNode("command", "pmReciever").setComment("Type = TextTemplate\nThe format that will be used for the reciever of a PM.")
+			cfgRoot.getNode("command", "pmReciever").setComment("Type = TextTemplate\nThe format that will be used for the receiver of a PM.")
 					.setValue(TypeToken.of(TextTemplate.class), pmReciever);
 			cfgRoot.getNode("command", "pmSender").setComment("Type = TextTemplate\nThe format that will be used for the sender of a PM.")
 					.setValue(TypeToken.of(TextTemplate.class), pmSender);
@@ -181,7 +183,7 @@ public class ConfigSettings {
 			e.printStackTrace();
 		}
 
-		cfgRoot.getNode("chat", "chatPling").setComment("Type = Boolean\nPlay a sound for the player when his name is mentioned, or he recieves a PM")
+		cfgRoot.getNode("chat", "chatPling").setComment("Type = Boolean\nPlay a sound for the player when his name is mentioned, or he receives a PM")
 				.setValue(chatPling);
 		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console").setValue(debug);
 	}
@@ -251,7 +253,7 @@ public class ConfigSettings {
 		return cfg.meTemplate;
 	}
 
-	public static TextTemplate getPmRecieverTemplate() {
+	public static TextTemplate getPmReceiverTemplate() {
 		return cfg.pmReciever;
 	}
 

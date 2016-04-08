@@ -76,7 +76,7 @@ public class ChitChatChannels {
 	}
 
 	public static void remapChannelName(ChannelChitChat channel, String oldName) {
-		LogHelper.info("Remmaping channel " + oldName + " to " + channel.getName());
+		LogHelper.info("Remapping channel " + oldName + " to " + channel.getName());
 		CHANNELS.remove(oldName);
 		CHANNELS.put(channel.getName(), channel);
 		SQLStorage.deleteChannel(oldName);

@@ -34,7 +34,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannel extends CommandBase {
 
-	public static final CmdChannel INSTACE = new CmdChannel(null);
+	public static final CmdChannel INSTANCE = new CmdChannel(null);
 
 	private CmdChannel(CommandBase parent) {
 		super(parent);
@@ -61,12 +61,12 @@ public class CmdChannel extends CommandBase {
 	public ImmutableList<CommandBase> getChildren() {
 		//@formatter:off
 		return ImmutableList.of(
-				CmdChannelCreate.INSTACE,
-				CmdChannelRemove.INSTACE,
-				CmdChannelJoin.INSTACE,
-				CmdChannelList.INSTACE,
-				CmdChannelProperties.INSTACE,
-				CmdChannelLoad.INSTACE,
+				CmdChannelCreate.INSTANCE,
+				CmdChannelRemove.INSTANCE,
+				CmdChannelJoin.INSTANCE,
+				CmdChannelList.INSTANCE,
+				CmdChannelProperties.INSTANCE,
+				CmdChannelLoad.INSTANCE,
 				CmdChannelMove.INSTANCE
 				);
 		//@formatter:on

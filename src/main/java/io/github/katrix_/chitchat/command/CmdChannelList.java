@@ -42,7 +42,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelList extends CommandBase {
 
-	public static final CmdChannelList INSTACE = new CmdChannelList(CmdChannel.INSTACE);
+	public static final CmdChannelList INSTANCE = new CmdChannelList(CmdChannel.INSTANCE);
 
 	private CmdChannelList(CommandBase parent) {
 		super(parent);
@@ -56,8 +56,7 @@ public class CmdChannelList extends CommandBase {
 		List<Text> list = channels.keySet().stream().filter(channel -> src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel))
 				.map(channel -> Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
 						.onClick(TextActions.runCommand("/channel join " + channel))
-						.append(Text.of(channel, " - ", channels.get(channel).getDescription()))
-						.build())
+						.append(Text.of(channel, " - ", channels.get(channel).getDescription())).build())
 				.collect(Collectors.toList());
 
 		list.sort(null);

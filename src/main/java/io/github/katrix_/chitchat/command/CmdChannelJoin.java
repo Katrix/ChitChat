@@ -38,7 +38,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelJoin extends CommandBase {
 
-	public static final CmdChannelJoin INSTACE = new CmdChannelJoin(CmdChannel.INSTACE);
+	public static final CmdChannelJoin INSTANCE = new CmdChannelJoin(CmdChannel.INSTANCE);
 
 	private CmdChannelJoin(CommandBase parent) {
 		super(parent);

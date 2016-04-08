@@ -44,7 +44,6 @@ public class LibPerm {
 	public static final String CHAT_COLOR = CHAT + ".color";
 
 	public static final String RELOAD = ADMIN + ".reload";
-	public static final String CHANNEL_SAVE = ADMIN + ".save";
 	public static final String CHANNEL_LOAD = ADMIN + ".load";
 
 	public static final String CHANNEL_JOIN = CHANNEL + ".join";
