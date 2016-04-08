@@ -34,6 +34,8 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.channel.type.CombinedMessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
@@ -90,13 +92,13 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat channel = ChitChatPlayers.getOrCreatePlayer(player).getChannel();
-		event.setChannel(channel);
+		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreatePlayer(player).getChannel();
+		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(ConfigSettings.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
 			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
-			playerMap.keySet().stream().filter(player1 -> playerMap.get(player1).getChannel().equals(channel) && message.contains(player1.getName()))
+			playerMap.keySet().stream().filter(player1 -> playerMap.get(player1).getChannel().equals(playerChannel) && message.contains(player1.getName()))
 					.forEach(player1 -> player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D));
 		}
 	}
