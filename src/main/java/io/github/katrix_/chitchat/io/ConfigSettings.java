@@ -74,7 +74,11 @@ public class ConfigSettings {
 			Text.of(TextColors.WHITE, "] "));
 	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER),
 			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate chattingJoinTemplate = TextTemplate.of(Text.of("You are currently chatting in the channel "), TextTemplate.arg(TEMPLATE_CHANNEL));
+	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "), TextTemplate.arg(TEMPLATE_CHANNEL));
+	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "), TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE),
+			Text.of(TextColors.GREEN, " has joined the server"));
+	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "), TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE),
+			Text.of(TextColors.RED, " has left the server"));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -102,6 +106,12 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("chat", "chattingJoinTemplate");
 			chattingJoinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : chattingJoinTemplate;
+
+			node = cfgRoot.getNode("chat", "joinTemplate");
+			joinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : joinTemplate;
+
+			node = cfgRoot.getNode("chat", "disconnectTemplate");
+			disconnectTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : disconnectTemplate;
 
 			node = cfgRoot.getNode("command", "meTemplate");
 			meTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : meTemplate;
@@ -151,8 +161,10 @@ public class ConfigSettings {
 					.setValue(TypeToken.of(TextTemplate.class), suffixTemplate);
 			cfgRoot.getNode("chat", "channelTemplate").setComment("Type = TextTemplate\nThe format that will be used for the channel.")
 					.setValue(TypeToken.of(TextTemplate.class), channelTemplate);
-			cfgRoot.getNode("chat", "chattingJoinTemplate").setComment("Type = TextTemplate\nThe format that will be used for telling players what channel they are in when they join the server.")
-					.setValue(TypeToken.of(TextTemplate.class), chattingJoinTemplate);
+			cfgRoot.getNode("chat", "joinTemplate").setComment("Type = TextTemplate\nThe format that will be used when a player joins the server.")
+					.setValue(TypeToken.of(TextTemplate.class), joinTemplate);
+			cfgRoot.getNode("chat", "disconnectTemplate").setComment("Type = TextTemplate\nThe format that will be used when a player leaves the server.")
+					.setValue(TypeToken.of(TextTemplate.class), disconnectTemplate);
 
 			cfgRoot.getNode("command", "meTemplate").setComment("Type = TextTemplate\nThe format that will be used for the me command.")
 					.setValue(TypeToken.of(TextTemplate.class), meTemplate);
@@ -261,6 +273,14 @@ public class ConfigSettings {
 
 	public static TextTemplate getChattingJoinTemplate() {
 		return cfg.chattingJoinTemplate;
+	}
+
+	public static TextTemplate getJoinTemplate() {
+		return cfg.joinTemplate;
+	}
+
+	public static TextTemplate getDisconnectTemplate() {
+		return cfg.disconnectTemplate;
 	}
 
 	public static boolean getChatPling() {

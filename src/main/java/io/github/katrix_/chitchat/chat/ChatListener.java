@@ -34,6 +34,8 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
+import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.type.CombinedMessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -105,9 +107,44 @@ public class ChatListener {
 
 	@Listener
 	public void onJoin(ClientConnectionEvent.Join event) {
+		for(SimpleTextTemplateApplier applier : event.getFormatter().getBody().getAll()) {
+			if(applier.getParameters().containsKey("body")) {
+				TextElement textElement = applier.getParameter("body");
+				TextElement playerName = Text.of(event.getTargetEntity().getName());
+				if(textElement instanceof TranslatableText) {
+					TranslatableText translatable = (TranslatableText)textElement;
+					Object potentialName = translatable.getArguments().get(0);
+					if(potentialName instanceof TextElement) {
+						playerName = (TextElement)potentialName;
+					}
+				}
+				applier.setTemplate(ConfigSettings.getJoinTemplate());
+				applier.setParameter("body", playerName);
+			}
+		}
+
 		Player player = event.getTargetEntity();
 		ChannelChitChat channel = SQLStorage.getChannelForUser(player);
 		ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
 		player.sendMessage(ConfigSettings.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
+	}
+
+	@Listener
+	public void onQuit(ClientConnectionEvent.Disconnect event) {
+		for(SimpleTextTemplateApplier applier : event.getFormatter().getBody().getAll()) {
+			if(applier.getParameters().containsKey("body")) {
+				TextElement textElement = applier.getParameter("body");
+				TextElement playerName = Text.of(event.getTargetEntity().getName());
+				if(textElement instanceof TranslatableText) {
+					TranslatableText translatable = (TranslatableText)textElement;
+					Object potentialName = translatable.getArguments().get(0);
+					if(potentialName instanceof TextElement) {
+						playerName = (TextElement)potentialName;
+					}
+				}
+				applier.setTemplate(ConfigSettings.getDisconnectTemplate());
+				applier.setParameter("body", playerName);
+			}
+		}
 	}
 }
