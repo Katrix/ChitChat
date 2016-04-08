@@ -106,6 +106,6 @@ public class ChatListener {
 		Player player = event.getTargetEntity();
 		ChannelChitChat channel = SQLStorage.getChannelForUser(player);
 		ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
-		player.sendMessage(ConfigSettings.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel)));
+		player.sendMessage(ConfigSettings.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 }

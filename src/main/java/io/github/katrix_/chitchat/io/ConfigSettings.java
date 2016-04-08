@@ -100,6 +100,9 @@ public class ConfigSettings {
 			node = cfgRoot.getNode("chat", "channelTemplate");
 			channelTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : channelTemplate;
 
+			node = cfgRoot.getNode("chat", "chattingJoinTemplate");
+			chattingJoinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : chattingJoinTemplate;
+
 			node = cfgRoot.getNode("command", "meTemplate");
 			meTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : meTemplate;
 
@@ -114,9 +117,6 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("command", "announceTemplate");
 			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
-
-			node = cfgRoot.getNode("command", "chattingJoinTemplate");
-			chattingJoinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : chattingJoinTemplate;
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -151,6 +151,8 @@ public class ConfigSettings {
 					.setValue(TypeToken.of(TextTemplate.class), suffixTemplate);
 			cfgRoot.getNode("chat", "channelTemplate").setComment("Type = TextTemplate\nThe format that will be used for the channel.")
 					.setValue(TypeToken.of(TextTemplate.class), channelTemplate);
+			cfgRoot.getNode("chat", "chattingJoinTemplate").setComment("Type = TextTemplate\nThe format that will be used for telling players what channel they are in when they join the server.")
+					.setValue(TypeToken.of(TextTemplate.class), chattingJoinTemplate);
 
 			cfgRoot.getNode("command", "meTemplate").setComment("Type = TextTemplate\nThe format that will be used for the me command.")
 					.setValue(TypeToken.of(TextTemplate.class), meTemplate);
@@ -161,8 +163,6 @@ public class ConfigSettings {
 			cfgRoot.getNode("command", "shoutTemplate").setComment("Type = TextTemplate\nThe format that will be used for the shout command.")
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
-					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
-			cfgRoot.getNode("command", "chattingJoinTemplate").setComment("Type = TextTemplate\nThe format that will be used for telling players what channel they are in when they join the server.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
 		}
 		catch(ObjectMappingException e) {
