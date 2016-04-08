@@ -48,6 +48,7 @@ public class ConfigSettings {
 	public static final String TEMPLATE_SUFFIX = "suffix";
 	public static final String TEMPLATE_PREFIX = "prefix";
 	public static final String TEMPLATE_MESSAGE = "message";
+	public static final String TEMPLATE_CHANNEL = "channel";
 
 	private static ConfigSettings cfg = new ConfigSettings();
 
@@ -73,6 +74,7 @@ public class ConfigSettings {
 			Text.of(TextColors.WHITE, "] "));
 	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER),
 			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
+	private TextTemplate chattingJoinTemplate = TextTemplate.of(Text.of("You are currently chatting in the channel "), TextTemplate.arg(TEMPLATE_CHANNEL));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -112,6 +114,9 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("command", "announceTemplate");
 			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
+
+			node = cfgRoot.getNode("command", "chattingJoinTemplate");
+			chattingJoinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : chattingJoinTemplate;
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -156,6 +161,8 @@ public class ConfigSettings {
 			cfgRoot.getNode("command", "shoutTemplate").setComment("Type = TextTemplate\nThe format that will be used for the shout command.")
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
+					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
+			cfgRoot.getNode("command", "chattingJoinTemplate").setComment("Type = TextTemplate\nThe format that will be used for telling players what channel they are in when they join the server.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
 		}
 		catch(ObjectMappingException e) {
@@ -250,6 +257,10 @@ public class ConfigSettings {
 
 	public static TextTemplate getAnnounceTemplate() {
 		return cfg.announceTemplate;
+	}
+
+	public static TextTemplate getChattingJoinTemplate() {
+		return cfg.chattingJoinTemplate;
 	}
 
 	public static boolean getChatPling() {
