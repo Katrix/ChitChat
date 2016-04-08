@@ -41,6 +41,7 @@ import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
+import io.github.katrix_.chitchat.helper.LogHelper;
 
 public class SQLStorage {
 
@@ -224,8 +225,13 @@ public class SQLStorage {
 		try(PreparedStatement stat = getConnection().prepareStatement(sql)) {
 			stat.setObject(1, uuid);
 			try(ResultSet result = stat.executeQuery()) {
-				result.next();
-				return Optional.ofNullable(result.getString("channel"));
+				if(result.next()) {
+					return Optional.ofNullable(result.getString("channel"));
+				}
+				else {
+					LogHelper.debug("No channel for player found in database, using global");
+					return Optional.empty();
+				}
 			}
 		}
 	}
