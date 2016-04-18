@@ -77,9 +77,9 @@ public class ConfigSettings {
 	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "),
 			TextTemplate.arg(TEMPLATE_CHANNEL));
 	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "),
-			TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE), Text.of(TextColors.GREEN, " has joined the server"));
+			TextTemplate.arg("body").color(TextColors.AQUA), Text.of(TextColors.GREEN, " has joined the server"));
 	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "),
-			TextTemplate.arg("body").color(TextColors.LIGHT_PURPLE), Text.of(TextColors.RED, " has left the server"));
+			TextTemplate.arg("body").color(TextColors.AQUA), Text.of(TextColors.RED, " has left the server"));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
