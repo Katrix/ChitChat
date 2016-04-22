@@ -30,10 +30,10 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.helper.LogHelper;
-import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -57,7 +57,7 @@ public class CmdChannelRemove extends CommandBase {
 
 			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) {
 				ChitChatChannels.removeChannel(channel);
-				if(SQLStorage.deleteChannel(channel)) {
+				if(ChitChat.getStorage().deleteChannel(channel)) {
 					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
 				}
 				else {

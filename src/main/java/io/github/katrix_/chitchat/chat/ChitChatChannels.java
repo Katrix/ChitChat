@@ -32,7 +32,6 @@ import com.google.common.collect.ImmutableMap;
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
-import io.github.katrix_.chitchat.io.SQLStorage;
 
 public class ChitChatChannels {
 
@@ -44,7 +43,7 @@ public class ChitChatChannels {
 	public static void initChannels() {
 		Sponge.getEventManager().registerListeners(ChitChat.getPlugin(), new ChatListener());
 		addChannel(GLOBAL);
-		SQLStorage.reloadChannels(); //Hacky yeah, but it works
+		ChitChat.getStorage().reloadChannels(); //Hacky yeah, but it works
 	}
 
 	public static void addChannel(ChannelChitChat channel) {
@@ -81,8 +80,8 @@ public class ChitChatChannels {
 		LogHelper.info("Remapping channel " + oldName + " to " + channel.getName());
 		CHANNELS.remove(oldName);
 		CHANNELS.put(channel.getName(), channel);
-		SQLStorage.deleteChannel(oldName);
-		SQLStorage.saveChannel(channel);
+		ChitChat.getStorage().deleteChannel(oldName);
+		ChitChat.getStorage().saveChannel(channel);
 	}
 
 	public static ImmutableMap<String, ChannelChitChat> getChannelMap() {

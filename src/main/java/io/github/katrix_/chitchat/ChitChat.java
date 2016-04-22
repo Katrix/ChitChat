@@ -21,6 +21,7 @@
 package io.github.katrix_.chitchat;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -41,13 +42,17 @@ import io.github.katrix_.chitchat.command.CmdPM;
 import io.github.katrix_.chitchat.command.CmdReply;
 import io.github.katrix_.chitchat.command.CmdShout;
 import io.github.katrix_.chitchat.command.CommandBase;
+import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.io.IPersistentStorage;
+import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibPlugin;
 
 @Plugin(id = LibPlugin.ID, name = LibPlugin.NAME, version = LibPlugin.VERSION, authors = LibPlugin.AUTHORS, description = LibPlugin.DESCRIPTION)
 public class ChitChat {
 
 	private static ChitChat plugin;
+	private IPersistentStorage storage;
 
 	@Inject
 	private Logger log;
@@ -63,6 +68,14 @@ public class ChitChat {
 	@Listener
 	public void init(GameInitializationEvent event) {
 		ConfigSettings.getConfig().initFile();
+
+		try {
+			storage = new SQLStorage();
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+			LogHelper.error("Something went really wrong when initiating the persistent storage for ChitChat");
+		}
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);
@@ -85,6 +98,10 @@ public class ChitChat {
 
 	public Path getConfigDir() {
 		return configDir;
+	}
+
+	public static IPersistentStorage getStorage() {
+		return plugin.storage;
 	}
 
 	/**

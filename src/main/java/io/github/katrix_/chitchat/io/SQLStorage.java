@@ -43,41 +43,39 @@ import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 
-public class SQLStorage {
-
-	private static final SQLStorage INSTANCE = new SQLStorage();
+public class SQLStorage implements IPersistentStorage {
 
 	private DataSource source;
 
-	private SQLStorage() {
+	public SQLStorage() throws SQLException {
 		String path = "jdbc:h2:" + ChitChat.getPlugin().getConfigDir().toAbsolutePath().toString() + "/chitChat";
-		try {
-			SqlService sql = Sponge.getServiceManager().provide(SqlService.class).get();
-			source = sql.getDataSource(path);
-			createTables();
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
-		}
+		SqlService sql = Sponge.getServiceManager().provideUnchecked(SqlService.class);
+		source = sql.getDataSource(path);
+		createTables();
 	}
 
-	public static boolean reloadChannels() {
+	@Override
+	public boolean reloadChannels() {
 		List<ChannelChitChat> channelList = null;
+
 		try {
-			channelList = INSTANCE.getChannelList();
+			channelList = getChannelList();
 			ChitChatChannels.clearChannelMap();
 			channelList.forEach(ChitChatChannels::addChannel);
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
 		}
+
 		return channelList != null;
 	}
 
-	public static boolean saveChannel(ChannelChitChat channel) {
+	@Override
+	public boolean saveChannel(ChannelChitChat channel) {
 		if(channel.equals(ChitChatChannels.getGlobalChannel())) return false;
+
 		try {
-			INSTANCE.saveChannelDatabase(channel);
+			saveChannelDatabase(channel);
 			return true;
 		}
 		catch(SQLException e) {
@@ -86,14 +84,16 @@ public class SQLStorage {
 		}
 	}
 
-	public static boolean updateChannel(ChannelChitChat channel, @Nullable Text prefix, @Nullable Text description) {
+	@Override
+	public boolean updateChannel(ChannelChitChat channel, @Nullable Text prefix, @Nullable Text description) {
 		return updateChannel(channel.getName(), prefix, description);
 	}
 
-	public static boolean updateChannel(String channelName, @Nullable Text prefix, @Nullable Text description) {
+	@Override
+	public boolean updateChannel(String channelName, @Nullable Text prefix, @Nullable Text description) {
 		try {
-			if(prefix != null) INSTANCE.updateChannelPrefix(channelName, prefix.toPlain());
-			if(description != null) INSTANCE.updateChannelDescription(channelName, description.toPlain());
+			if(prefix != null) updateChannelPrefix(channelName, prefix.toPlain());
+			if(description != null) updateChannelDescription(channelName, description.toPlain());
 			return !(prefix == null || description == null);
 		}
 		catch(SQLException e) {
@@ -102,13 +102,15 @@ public class SQLStorage {
 		}
 	}
 
-	public static boolean deleteChannel(ChannelChitChat channel) {
+	@Override
+	public boolean deleteChannel(ChannelChitChat channel) {
 		return deleteChannel(channel.getName());
 	}
 
-	public static boolean deleteChannel(String channelName) {
+	@Override
+	public boolean deleteChannel(String channelName) {
 		try {
-			INSTANCE.deleteChannelDatabase(channelName);
+			deleteChannelDatabase(channelName);
 			return true;
 		}
 		catch(SQLException e) {
@@ -117,13 +119,15 @@ public class SQLStorage {
 		}
 	}
 
-	public static ChannelChitChat getChannelForUser(User user) {
+	@Override
+	public ChannelChitChat getChannelForUser(User user) {
 		return getChannelForUser(user.getUniqueId());
 	}
 
-	public static ChannelChitChat getChannelForUser(UUID uuid) {
+	@Override
+	public ChannelChitChat getChannelForUser(UUID uuid) {
 		try {
-			Optional<String> channelName = INSTANCE.getChannelForUserDatabase(uuid);
+			Optional<String> channelName = getChannelForUserDatabase(uuid);
 			if(channelName.isPresent() && ChitChatChannels.doesChannelExist(channelName.get())) {
 				return ChitChatChannels.getChannel(channelName.get());
 			}
@@ -137,17 +141,20 @@ public class SQLStorage {
 		}
 	}
 
-	public static void updateUserChannel(UserChitChat user) {
+	@Override
+	public void updateUserChannel(UserChitChat user) {
 		updateUserChannel(user.getUUID(), user.getChannel());
 	}
 
-	public static void updateUserChannel(User user, ChannelChitChat channel) {
+	@Override
+	public void updateUserChannel(User user, ChannelChitChat channel) {
 		updateUserChannel(user.getUniqueId(), channel);
 	}
 
-	public static void updateUserChannel(UUID uuid, ChannelChitChat channel) {
+	@Override
+	public void updateUserChannel(UUID uuid, ChannelChitChat channel) {
 		try {
-			INSTANCE.updateUserChannelDatabase(uuid, channel.getName());
+			updateUserChannelDatabase(uuid, channel.getName());
 		}
 		catch(SQLException e) {
 			e.printStackTrace();

@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 
-import io.github.katrix_.chitchat.io.SQLStorage;
+import io.github.katrix_.chitchat.ChitChat;
 
 public class UserChitChat {
 
@@ -71,6 +71,6 @@ public class UserChitChat {
 		else {
 			this.channel = channel;
 		}
-		SQLStorage.updateUserChannel(this);
+		ChitChat.getStorage().updateUserChannel(this);
 	}
 }

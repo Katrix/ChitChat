@@ -29,10 +29,10 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.helper.LogHelper;
-import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -54,7 +54,7 @@ public class CmdChannelCreate extends CommandBase {
 
 		ChannelChitChat channel = new ChannelChitChat(name, description, prefix);
 		ChitChatChannels.addChannel(channel);
-		if(SQLStorage.saveChannel(channel)) {
+		if(ChitChat.getStorage().saveChannel(channel)) {
 			src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
 		}
 		else {

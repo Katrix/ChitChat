@@ -43,8 +43,8 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.io.ConfigSettings;
-import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class ChatListener {
@@ -125,7 +125,7 @@ public class ChatListener {
 		}
 
 		Player player = event.getTargetEntity();
-		ChannelChitChat channel = SQLStorage.getChannelForUser(player);
+		ChannelChitChat channel = ChitChat.getStorage().getChannelForUser(player);
 		ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
 		player.sendMessage(ConfigSettings.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
