@@ -49,22 +49,24 @@ public class CmdChannelModifyDescription extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_DESCRIPTION)) return CommandResult.empty();
-
-		if(channel.setDescription(description)) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-					TextSerializers.FORMATTING_CODE.deserialize(description)));
-			LogHelper.info("Description of " + channel.getName() + " changed to: " + description);
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_DESCRIPTION)) {
+				if(channel.setDescription(description)) {
+					src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
+							TextSerializers.FORMATTING_CODE.deserialize(description)));
+					LogHelper.info("Description of " + channel.getName() + " changed to: " + description);
+				}
+				else {
+					src.sendMessage(Text.of(TextColors.RED, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
+							TextSerializers.FORMATTING_CODE.deserialize(description), TextColors.RED,
+							"\n However, this change did not save properly to the database"));
+					LogHelper.error("Failed to write new description " + description + " of channel " + channel.getName() + " to the database");
+				}
+				return CommandResult.success();
+			}
 		}
-		else {
-			src.sendMessage(Text.of(TextColors.RED, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-					TextSerializers.FORMATTING_CODE.deserialize(description), TextColors.RED,
-					"\n However, this change did not save properly to the database"));
-			LogHelper.error("Failed to write new description " + description + " of channel " + channel.getName() + " to the database");
-		}
-		return CommandResult.success();
+		return CommandResult.empty();
 	}
 
 	@Override

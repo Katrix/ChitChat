@@ -34,7 +34,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.pagination.PaginationList.Builder;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -58,37 +58,39 @@ public class CmdChannelProperties extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) return CommandResult.empty();
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) {
+				PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
+				pages.title(Text.of(TextColors.RED, channel.getName()));
+				List<Text> list = new ArrayList<>();
 
-		Builder pages = Sponge.getGame().getServiceManager().provide(PaginationService.class).get().builder();
-		pages.title(Text.of(TextColors.RED, channel.getName()));
-		List<Text> list = new ArrayList<>();
+				list.add(Text.of("Channel name: ", channel.getName()));
+				list.add(Text.of("Channel prefix: ", channel.getPrefix()));
+				list.add(Text.of("Channel description: ", channel.getDescription()));
+				list.add(Text.of("Channel members:"));
 
-		list.add(Text.of("Channel name: ", channel.getName()));
-		list.add(Text.of("Channel prefix: ", channel.getPrefix()));
-		list.add(Text.of("Channel description: ", channel.getDescription()));
-		list.add(Text.of("Channel members:"));
+				StringBuilder players = new StringBuilder();
+				Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
+				Iterator<Player> iterator = playerMap.keySet().stream().filter(player -> playerMap.get(player).getChannel().equals(channel))
+						.collect(Collectors.toList()).iterator();
 
-		StringBuilder players = new StringBuilder();
-		Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
-		Iterator<Player> iterator = playerMap.keySet().stream().filter(player -> playerMap.get(player).getChannel().equals(channel))
-				.collect(Collectors.toList()).iterator();
+				while(iterator.hasNext()) {
+					Player player = iterator.next();
+					players.append(player.getName());
+					if(iterator.hasNext()) {
+						players.append(", ");
+					}
+				}
 
-		while(iterator.hasNext()) {
-			Player player = iterator.next();
-			players.append(player.getName());
-			if(iterator.hasNext()) {
-				players.append(", ");
+				list.add(Text.of(players));
+
+				pages.contents(list);
+				pages.sendTo(src);
+				return CommandResult.success();
 			}
 		}
-
-		list.add(Text.of(players));
-
-		pages.contents(list);
-		pages.sendTo(src);
-		return CommandResult.success();
+		return CommandResult.empty();
 	}
 
 	@Override

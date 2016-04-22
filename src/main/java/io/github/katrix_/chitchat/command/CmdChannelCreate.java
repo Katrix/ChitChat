@@ -46,7 +46,7 @@ public class CmdChannelCreate extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		String name = args.<String>getOne(LibCommandKey.CHANNEL_NAME).get();
+		String name = args.<String>getOne(LibCommandKey.CHANNEL_NAME).orElse(""); //If name is somehow ever not present this could get ugly
 		String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(name);
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 

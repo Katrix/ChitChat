@@ -70,11 +70,17 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		return description;
 	}
 
+	/**
+	 * Returns false if it somehow failed to save to disk.
+	 */
 	public boolean setDescription(Text description) {
 		this.description = description;
 		return SQLStorage.updateChannel(this, null, description);
 	}
 
+	/**
+	 * Returns false if it somehow failed to save to disk.
+	 */
 	public boolean setDescription(String description) {
 		return setDescription(TextSerializers.FORMATTING_CODE.deserialize(description));
 	}
@@ -83,11 +89,17 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		return prefix;
 	}
 
+	/**
+	 * Returns false if it somehow failed to save to disk.
+	 */
 	public boolean setPrefix(Text prefix) {
 		this.prefix = prefix;
 		return SQLStorage.updateChannel(this, prefix, null);
 	}
 
+	/**
+	 * Returns false if it somehow failed to save to disk.
+	 */
 	public boolean setPrefix(String prefix) {
 		return setPrefix(TextSerializers.FORMATTING_CODE.deserialize(prefix));
 	}

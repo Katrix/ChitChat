@@ -23,6 +23,7 @@ package io.github.katrix_.chitchat.chat;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -50,20 +51,19 @@ public class ChitChatPlayers {
 	}
 
 	public static void moveAllPlayersToGlobal(@Nullable Text message) {
-		ChannelChitChat global = ChitChatChannels.getGlobalChannel();
-		Text text = message != null ? message : Text.of(TextColors.RED, "You are being sent to the global channel");
-		PLAYER_MAP.keySet().stream().forEach(player -> {
-			player.sendMessage(text);
-			PLAYER_MAP.get(player).setChannel(global);
-		});
+		movePlayersToGlobal(message, entry -> true);
 	}
 
 	public static void movePlayersInChannelToGlobal(ChannelChitChat channel, @Nullable Text message) {
+		movePlayersToGlobal(message, entry -> entry.getValue().getChannel().equals(channel));
+	}
+
+	public static void movePlayersToGlobal(@Nullable Text message, Predicate<Map.Entry<Player, UserChitChat>> test) {
 		ChannelChitChat global = ChitChatChannels.getGlobalChannel();
-		Text text = message != null ? message : Text.of(TextColors.RED, "You are being sent to the global channel");
-		PLAYER_MAP.keySet().stream().filter(player -> PLAYER_MAP.get(player).getChannel().equals(channel)).forEach(player -> {
-			player.sendMessage(text);
-			PLAYER_MAP.get(player).setChannel(global);
+		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the global channel");
+		PLAYER_MAP.entrySet().stream().filter(test).forEach(entry -> {
+			entry.getKey().sendMessage(text);
+			entry.getValue().setChannel(global);
 		});
 	}
 

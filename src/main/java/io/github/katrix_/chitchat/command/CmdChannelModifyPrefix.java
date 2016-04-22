@@ -48,23 +48,26 @@ public class CmdChannelModifyPrefix extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName());
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) return CommandResult.empty();
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName());
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) {
+				if(channel.setPrefix(prefix)) {
+					src.sendMessage(Text.of(TextColors.GREEN, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
+							TextSerializers.FORMATTING_CODE.deserialize(prefix)));
+					LogHelper.info("Prefix of " + channel.getName() + " changed to: " + prefix);
+				}
+				else {
+					src.sendMessage(Text.of(TextColors.RED, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
+							TextSerializers.FORMATTING_CODE.deserialize(prefix), TextColors.RED,
+							"\n However, this change did not save properly to the database"));
+					LogHelper.error("Failed to write new prefix " + prefix + " of channel " + channel.getName() + " to the database");
+				}
+				return CommandResult.success();
+			}
 
-		if(channel.setPrefix(prefix)) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-					TextSerializers.FORMATTING_CODE.deserialize(prefix)));
-			LogHelper.info("Prefix of " + channel.getName() + " changed to: " + prefix);
 		}
-		else {
-			src.sendMessage(Text.of(TextColors.RED, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-					TextSerializers.FORMATTING_CODE.deserialize(prefix), TextColors.RED,
-					"\n However, this change did not save properly to the database"));
-			LogHelper.error("Failed to write new prefix " + prefix + " of channel " + channel.getName() + " to the database");
-		}
-		return CommandResult.success();
+		return CommandResult.empty();
 	}
 
 	@Override

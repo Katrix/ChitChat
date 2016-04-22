@@ -53,6 +53,8 @@ public class ChitChatChannels {
 	}
 
 	public static void removeChannel(String name) {
+		if(!doesChannelExist(name)) return;
+
 		removeChannel(getChannel(name));
 	}
 

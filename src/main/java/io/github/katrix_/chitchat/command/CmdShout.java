@@ -48,18 +48,17 @@ public class CmdShout extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
+		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(!permissionChannel(channel.getName(), src, LibPerm.SHOUT)) return CommandResult.empty();
-
-		channel.send(src,
-				ConfigSettings.getShoutTemplate().apply(
-						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
-				.build());
-		src.sendMessage(Text.of(TextColors.GREEN, "Sent message " + message + " to channel " + channel.getName()));
-		return CommandResult.success();
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(permissionChannel(channel.getName(), src, LibPerm.SHOUT)) {
+				channel.send(src, ConfigSettings.getShoutTemplate().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message))).build());
+				src.sendMessage(Text.of(TextColors.GREEN, "Sent message " + message + " to channel " + channel.getName()));
+				return CommandResult.success();
+			}
+		}
+		return CommandResult.empty();
 	}
 
 	@Override

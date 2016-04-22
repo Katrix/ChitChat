@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.spongepowered.api.command.CommandException;
@@ -31,6 +32,7 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableMap;
@@ -49,24 +51,26 @@ public class CmdReply extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
+		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
 		Optional<CommandSource> receiverOpt = CmdPM.INSTANCE.getConversationPartner(src);
 
-		if(!receiverOpt.isPresent()) {
-			src.sendMessage(Text.of(TextColors.RED, "You don't have anyone to reply to"));
-			return CommandResult.empty();
-		}
-		CommandSource receiver = receiverOpt.get();
+		if(receiverOpt.isPresent()) {
+			CommandSource receiver = receiverOpt.get();
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
 
-		receiver.sendMessage(ConfigSettings.getPmReceiverTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
-		src.sendMessage(ConfigSettings.getPmSenderTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
-		if(ConfigSettings.getChatPling() && receiver instanceof Player) {
-			Player player = (Player)receiver;
-			player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+			receiver.sendMessage(ConfigSettings.getPmReceiverTemplate(), templateMap);
+			src.sendMessage(ConfigSettings.getPmSenderTemplate(), templateMap);
+
+			if(ConfigSettings.getChatPling() && receiver instanceof Player) {
+				Player player = (Player)receiver;
+				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+			}
+
+			return CommandResult.success();
 		}
-		return CommandResult.success();
+
+		src.sendMessage(Text.of(TextColors.RED, "You don't have anyone to reply to"));
+		return CommandResult.empty();
 	}
 
 	@Override

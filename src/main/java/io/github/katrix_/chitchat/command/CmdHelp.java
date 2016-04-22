@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -51,6 +53,29 @@ public class CmdHelp extends CommandBase {
 	public static final CmdHelp INSTANCE = new CmdHelp(CmdChitChat.INSTANCE);
 	private BiMap<CommandBase, List<String>> commandMap = HashBiMap.create();
 
+	private String baseCommand(CommandBase command) {
+		StringBuilder completeCommand = new StringBuilder(command.getAliases()[0]);
+		CommandBase commandParent = command;
+
+		while(commandParent.getParent() != null) {
+			commandParent = commandParent.getParent();
+			completeCommand.insert(0, commandParent.getAliases()[0] + " ");
+		}
+		completeCommand.insert(0, "/");
+
+		return completeCommand.toString();
+	}
+
+	private BiFunction<CommandBase, CommandSource, Text> getHelp = (command, src) -> {
+		String stringCommand = baseCommand(command);
+		CommandSpec commandSpec = command.getCommand();
+
+		Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, stringCommand));
+		commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
+		commandText.onClick(TextActions.suggestCommand(stringCommand));
+		return Text.of(commandText, Text.of(" "), commandSpec.getShortDescription(src).orElse(commandSpec.getUsage(src)));
+	};
+
 	private CmdHelp(CommandBase parent) {
 		super(parent);
 	}
@@ -59,29 +84,13 @@ public class CmdHelp extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<String> optCommandName = args.<String>getOne(LibCommandKey.COMMAND);
 		if(!optCommandName.isPresent()) {
-			Builder pages = Sponge.getGame().getServiceManager().provide(PaginationService.class).get().builder();
+			Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 			pages.title(Text.of(TextColors.RED, "ChitChat Help"));
 
-			List<Text> text = new ArrayList<>();
-			commandMap.keySet().stream().forEach(command -> {
-				CommandSpec commandSpec = command.getCommand();
-				StringBuilder completeCommand = new StringBuilder(command.getAliases()[0]);
-				CommandBase commandParent = command;
-				while(commandParent.getParent() != null) {
-					commandParent = commandParent.getParent();
-					completeCommand.insert(0, commandParent.getAliases()[0] + " ");
-				}
-				completeCommand.insert(0, "/");
-				Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, completeCommand));
-				commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
-				commandText.onClick(TextActions.suggestCommand(completeCommand.toString()));
-				text.add(Text.of(commandText, Text.of(" "), commandSpec.getShortDescription(src).orElse(commandSpec.getUsage(src))));
-			});
+			List<Text> text = commandMap.keySet().stream().map(commandBase -> getHelp.apply(commandBase, src)).collect(Collectors.toList());
 			text.sort(null);
 			pages.contents(text);
 			pages.sendTo(src);
-
-			return CommandResult.success();
 		}
 		else {
 			String commandName = optCommandName.get();
@@ -90,14 +99,13 @@ public class CmdHelp extends CommandBase {
 				src.sendMessage(Text.of(TextColors.RED, "Command not found"));
 				return CommandResult.empty();
 			}
-			CommandBase command = optCommand.get();
-			CommandSpec commandSpec = command.getCommand();
+
+			CommandSpec commandSpec = optCommand.get().getCommand();
 			Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, "/" + commandName));
 			commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
 			src.sendMessage(commandText.build());
-			commandSpec.getHelp(src).ifPresent(src::sendMessage);
-			return CommandResult.success();
 		}
+		return CommandResult.success();
 	}
 
 	@Override

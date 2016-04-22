@@ -20,6 +20,8 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Map;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -28,10 +30,10 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
 
 import com.google.common.collect.ImmutableMap;
 
-import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -47,16 +49,15 @@ public class CmdAnnounce extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
+		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse(""); //When would a string be present, but not valid?
 		boolean console = args.<Boolean>getOne(CONSOLE).orElse(Boolean.FALSE);
-		LogHelper.info(console);
 		if(console) {
 			src = Sponge.getServer().getConsole();
 		}
-		Sponge.getServer().getBroadcastChannel().send(src,
-				ConfigSettings.getAnnounceTemplate().apply(
-						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
-				.build());
+
+		Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+
+		Sponge.getServer().getBroadcastChannel().send(src, ConfigSettings.getAnnounceTemplate().apply(templateMap).build());
 		return CommandResult.success();
 	}
 

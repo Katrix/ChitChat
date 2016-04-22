@@ -50,31 +50,36 @@ public class CmdChannelMove extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<User> optUser = args.getOne(LibCommandKey.USER);
 		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		if(!optUser.isPresent()) {
-			src.sendMessage(Text.of(TextColors.RED, "No user by that name found"));
-			return CommandResult.empty();
-		}
-		ChannelChitChat channel = optChannel.get();
-		User user = optUser.get();
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_MOVE)) return CommandResult.empty();
-		Optional<Player> optPlayer = user.getPlayer();
-		if(optPlayer.isPresent()) {
-			Player player = optPlayer.get();
-			ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
-			src.sendMessage(Text.of(TextColors.GREEN, player.getName() + " was move into channel " + channel.getName()));
-			player.sendMessage(Text.of(TextColors.YELLOW, "You were moved into " + channel.getName() + " by " + src.getName()));
-		}
-		else {
-			if(!src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
-				src.sendMessage(Text.of(TextColors.RED, "You do not have permission to move offline players"));
+		if(channelExists(src, optChannel)) {
+			if(!optUser.isPresent()) {
+				src.sendMessage(Text.of(TextColors.RED, "No user by that name found"));
 				return CommandResult.empty();
 			}
-			ChitChatPlayers.getUserFromUuid(user.getUniqueId()).setChannel(channel);
-			src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
-		}
+			ChannelChitChat channel = optChannel.get();
+			User user = optUser.get();
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_MOVE)) {
+				Optional<Player> optPlayer = user.getPlayer();
+				if(optPlayer.isPresent()) {
+					Player player = optPlayer.get();
+					ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
+					src.sendMessage(Text.of(TextColors.GREEN, player.getName() + " was move into channel " + channel.getName()));
+					player.sendMessage(Text.of(TextColors.YELLOW, "You were moved into " + channel.getName() + " by " + src.getName()));
+				}
+				else {
+					if(src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
+						ChitChatPlayers.getUserFromUuid(user.getUniqueId()).setChannel(channel);
+						src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
+					}
+					else {
+						src.sendMessage(Text.of(TextColors.RED, "You do not have permission to move offline players"));
+						return CommandResult.empty();
+					}
+				}
 
-		return CommandResult.success();
+				return CommandResult.success();
+			}
+		}
+		return CommandResult.empty();
 	}
 
 	@Override

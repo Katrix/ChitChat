@@ -46,20 +46,21 @@ public class CmdChannelModifyName extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).get();
+		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).orElse(""); //This could cause problems if ever the name is not present
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(!channelNameNotUsed(nameNew, src) || !permissionChannel(channel.getName(), src, LibPerm.CHANNEL_NAME)
-				|| !permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME))
-			return CommandResult.empty();
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(channelNameNotUsed(nameNew, src) && permissionChannel(channel.getName(), src, LibPerm.CHANNEL_NAME)
+					&& permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME)) {
+				String nameOld = channel.getName();
+				channel.setName(nameNew);
+				ChitChatChannels.remapChannelName(channel, nameOld);
 
-		String nameOld = channel.getName();
-		channel.setName(nameNew);
-		ChitChatChannels.remapChannelName(channel, nameOld);
-
-		src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
-		return CommandResult.success();
+				src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
+				return CommandResult.success();
+			}
+		}
+		return CommandResult.empty();
 	}
 
 	@Override

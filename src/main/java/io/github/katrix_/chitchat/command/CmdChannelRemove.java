@@ -48,24 +48,27 @@ public class CmdChannelRemove extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(channel.equals(ChitChatChannels.getGlobalChannel())) {
-			src.sendMessage(Text.of(TextColors.RED, "You can't remove the global channel"));
-			return CommandResult.empty();
-		}
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) return CommandResult.empty();
+		if(channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(channel.equals(ChitChatChannels.getGlobalChannel())) {
+				src.sendMessage(Text.of(TextColors.RED, "You can't remove the global channel"));
+				return CommandResult.empty();
+			}
 
-		ChitChatChannels.removeChannel(channel);
-		if(SQLStorage.deleteChannel(channel)) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) {
+				ChitChatChannels.removeChannel(channel);
+				if(SQLStorage.deleteChannel(channel)) {
+					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+				}
+				else {
+					src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
+							+ " from the database. It will be gone for now, but it will be back when the server restarts."));
+					LogHelper.error("Failed to delete the channel " + channel.getName() + " from the database");
+				}
+				return CommandResult.success();
+			}
 		}
-		else {
-			src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
-					+ " from the database. It will be gone for now, but it will be back when the server restarts."));
-			LogHelper.error("Failed to delete the channel " + channel.getName() + " from the database");
-		}
-		return CommandResult.success();
+		return CommandResult.empty();
 	}
 
 	@Override

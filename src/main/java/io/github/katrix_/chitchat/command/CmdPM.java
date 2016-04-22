@@ -33,6 +33,8 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
+import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -51,18 +53,24 @@ public class CmdPM extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Player player = args.<Player>getOne(LibCommandKey.PLAYER).get();
-		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
-		conversations.put(src, player);
-		conversations.put(player, src);
-		player.sendMessage(ConfigSettings.getPmReceiverTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
-		src.sendMessage(ConfigSettings.getPmSenderTemplate(),
-				ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)));
-		if(ConfigSettings.getChatPling()) {
-			player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+		Optional<Player> optPlayer = args.<Player>getOne(LibCommandKey.PLAYER);
+		if(optPlayer.isPresent()) {
+			Player player = optPlayer.get();
+			String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
+			conversations.put(src, player);
+			conversations.put(player, src);
+
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+			player.sendMessage(ConfigSettings.getPmReceiverTemplate(), templateMap);
+			src.sendMessage(ConfigSettings.getPmSenderTemplate(), templateMap);
+
+			if(ConfigSettings.getChatPling()) {
+				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+			}
+			return CommandResult.success();
 		}
-		return CommandResult.success();
+		src.sendMessage(Text.of(TextColors.RED, "Player not found"));
+		return CommandResult.empty();
 	}
 
 	@Override

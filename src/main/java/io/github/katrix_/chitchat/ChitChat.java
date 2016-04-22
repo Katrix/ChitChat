@@ -87,6 +87,9 @@ public class ChitChat {
 		return configDir;
 	}
 
+	/**
+	 * Register a command both as a command, and to the help system.
+	 */
 	private void registerCommand(CommandBase command) {
 		Sponge.getCommandManager().register(this, command.getCommand(), command.getAliases());
 		command.registerHelp(null);

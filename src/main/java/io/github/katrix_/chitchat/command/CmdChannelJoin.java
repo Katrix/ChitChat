@@ -47,13 +47,15 @@ public class CmdChannelJoin extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(!sourceIsPlayer(src) || !channelExists(src, optChannel)) return CommandResult.empty();
-		ChannelChitChat channel = optChannel.get();
-		if(!permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) return CommandResult.empty();
-
-		ChitChatPlayers.getOrCreatePlayer((Player)src).setChannel(channel);
-		src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
-		return CommandResult.success();
+		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
+			ChannelChitChat channel = optChannel.get();
+			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) {
+				ChitChatPlayers.getOrCreatePlayer((Player)src).setChannel(channel);
+				src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
+				return CommandResult.success();
+			}
+		}
+		return CommandResult.empty();
 	}
 
 	@Override

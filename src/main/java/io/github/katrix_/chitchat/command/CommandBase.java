@@ -22,6 +22,8 @@ package io.github.katrix_.chitchat.command;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -36,6 +38,9 @@ import io.github.katrix_.chitchat.chat.ChitChatChannels;
 
 public abstract class CommandBase implements CommandExecutor {
 
+	/**
+	 * Some names that don't behave to well.
+	 */
 	private static final ImmutableList<String> BADNAMES = ImmutableList.of("prefix", "description", "name");
 	private final CommandBase parent;
 
@@ -55,7 +60,7 @@ public abstract class CommandBase implements CommandExecutor {
 		return ImmutableList.of();
 	}
 
-	public void registerHelp(CommandBase parent) {
+	public void registerHelp(@Nullable CommandBase parent) {
 		for(CommandBase command : getChildren()) {
 			command.registerHelp(this);
 		}
@@ -76,6 +81,9 @@ public abstract class CommandBase implements CommandExecutor {
 		}
 	}
 
+	/**
+	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it sends an errorto the player.
+	 */
 	protected boolean channelNameNotUsed(String channel, CommandSource src) {
 		if(BADNAMES.contains(channel)) {
 			src.sendMessage(Text.of(TextColors.RED, channel + " is not an allow channel name"));
@@ -90,6 +98,9 @@ public abstract class CommandBase implements CommandExecutor {
 		return true;
 	}
 
+	/**
+	 * Checks that the source is a player, and sends an error message if the source is not a player.
+	 */
 	protected boolean sourceIsPlayer(CommandSource src) {
 		if(!(src instanceof Player)) {
 			src.sendMessage(Text.of(TextColors.RED, "Only players can use this command"));
@@ -98,6 +109,10 @@ public abstract class CommandBase implements CommandExecutor {
 		return true;
 	}
 
+	/**
+	 * Checks that a player has the permission to do something with a given channel,
+	 * and sends an error message to the player if they don't have permission for the given channel.
+	 */
 	protected boolean permissionChannel(String channelName, CommandSource subject, String basePerm) {
 		if(!subject.hasPermission(basePerm + "." + channelName)) {
 			subject.sendMessage(Text.of(TextColors.RED, "You don't have the permissions to do that for this channel"));
@@ -106,6 +121,9 @@ public abstract class CommandBase implements CommandExecutor {
 		return true;
 	}
 
+	/**
+	 * Checks that a channel exists, and sends an error message to the player if it doesn't.
+	 */
 	protected boolean channelExists(CommandSource src, Optional<ChannelChitChat> channel) {
 		if(!channel.isPresent()) {
 			src.sendMessage(Text.of(TextColors.RED, "This channel does not exist"));
