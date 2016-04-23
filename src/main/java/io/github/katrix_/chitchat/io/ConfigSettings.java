@@ -83,6 +83,7 @@ public class ConfigSettings {
 
 	private boolean chatPling = true;
 	private boolean debug = false;
+	private StorageType storage = StorageType.PLAINTEXT;
 
 	public void loadSettings() {
 		CommentedConfigurationNode node;
@@ -128,6 +129,9 @@ public class ConfigSettings {
 
 			node = cfgRoot.getNode("command", "announceTemplate");
 			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
+
+			node = cfgRoot.getNode("misc", "storage");
+			storage = !node.isVirtual() ? node.getValue(TypeToken.of(StorageType.class)) : storage; //Right Typetoken?
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -178,6 +182,7 @@ public class ConfigSettings {
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
+			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEX\nH2").setValue(storage);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -291,5 +296,9 @@ public class ConfigSettings {
 
 	public static boolean getDebug() {
 		return cfg.debug;
+	}
+
+	public static StorageType getStorageType() {
+		return cfg.storage;
 	}
 }

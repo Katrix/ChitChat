@@ -31,9 +31,14 @@ import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
+import io.github.katrix_.chitchat.chat.ChannelChitChat;
+import io.github.katrix_.chitchat.chat.ChannelChitChatSerializer;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.UserChitChat;
+import io.github.katrix_.chitchat.chat.UserChitChatSerializer;
 import io.github.katrix_.chitchat.command.CmdAnnounce;
 import io.github.katrix_.chitchat.command.CmdChannel;
 import io.github.katrix_.chitchat.command.CmdChitChat;
@@ -44,9 +49,11 @@ import io.github.katrix_.chitchat.command.CmdShout;
 import io.github.katrix_.chitchat.command.CommandBase;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.io.ConfigurateStorage;
 import io.github.katrix_.chitchat.io.IPersistentStorage;
 import io.github.katrix_.chitchat.io.SQLStorage;
 import io.github.katrix_.chitchat.lib.LibPlugin;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 @Plugin(id = LibPlugin.ID, name = LibPlugin.NAME, version = LibPlugin.VERSION, authors = LibPlugin.AUTHORS, description = LibPlugin.DESCRIPTION)
 public class ChitChat {
@@ -67,15 +74,11 @@ public class ChitChat {
 
 	@Listener
 	public void init(GameInitializationEvent event) {
+		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
+		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
 		ConfigSettings.getConfig().initFile();
 
-		try {
-			storage = new SQLStorage();
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
-			LogHelper.error("Something went really wrong when initiating the persistent storage for ChitChat");
-		}
+		storage = createStorage();
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);
@@ -110,5 +113,27 @@ public class ChitChat {
 	private void registerCommand(CommandBase command) {
 		Sponge.getCommandManager().register(this, command.getCommand(), command.getAliases());
 		command.registerHelp(null);
+	}
+
+	private IPersistentStorage createStorage() {
+		switch(ConfigSettings.getStorageType()) {
+			case PLAINTEXT:
+				return new ConfigurateStorage();
+			case H2:
+				try {
+					storage = new SQLStorage();
+				}
+				catch(SQLException e) {
+					e.printStackTrace();
+					LogHelper.error("Something went really wrong when initiating the persistent storage for ChitChat. Defaulting back to plaintext");
+					return new ConfigurateStorage();
+				}
+				break;
+			default:
+				LogHelper.error("Something went wrong when getting the storage type to use for ChitChat. Defaulting to plaintext");
+				return new ConfigurateStorage();
+		}
+
+		return new ConfigurateStorage();
 	}
 }

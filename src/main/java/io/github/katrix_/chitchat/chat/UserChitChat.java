@@ -48,6 +48,11 @@ public class UserChitChat {
 		channel.addMember(player);
 	}
 
+	public UserChitChat(UUID uuid, ChannelChitChat channel) {
+		this.uuid = uuid;
+		this.channel = channel;
+	}
+
 	public UUID getUUID() {
 		return uuid;
 	}

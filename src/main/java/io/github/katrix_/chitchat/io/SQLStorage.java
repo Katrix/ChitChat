@@ -142,22 +142,14 @@ public class SQLStorage implements IPersistentStorage {
 	}
 
 	@Override
-	public void updateUserChannel(UserChitChat user) {
-		updateUserChannel(user.getUUID(), user.getChannel());
-	}
-
-	@Override
-	public void updateUserChannel(User user, ChannelChitChat channel) {
-		updateUserChannel(user.getUniqueId(), channel);
-	}
-
-	@Override
-	public void updateUserChannel(UUID uuid, ChannelChitChat channel) {
+	public boolean updateUserChannel(UserChitChat user) {
 		try {
-			updateUserChannelDatabase(uuid, channel.getName());
+			updateUserChannelDatabase(user.getUUID(), user.getChannel().getName());
+			return true;
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 

@@ -84,7 +84,7 @@ public interface IPersistentStorage {
 	/**
 	 * Gets the channel a user is currently in.
 	 * @param user The User to get the channel for.
-	 * @return The channel the user is in.
+	 * @return The channel the user is in. Returns global if no channel is found.
 	 */
 	default ChannelChitChat getChannelForUser(User user) {
 		return getChannelForUser(user.getUniqueId());
@@ -93,27 +93,14 @@ public interface IPersistentStorage {
 	/**
 	 * Gets the channel a user is currently in.
 	 * @param uuid The uuid for the user to get the channel for.
-	 * @return The channel the user is in.
+	 * @return The channel the user is in. Returns global if no channel is found.
 	 */
 	ChannelChitChat getChannelForUser(UUID uuid);
 
 	/**
 	 * Updates what's stored in the storage with new information.
 	 * @param user The User to update for.
+	 * @return if successful.
 	 */
-	void updateUserChannel(UserChitChat user);
-
-	/**
-	 * Updates what's stored in the storage with new information.
-	 * @param user The User to update for.
-	 * @param channel The channel to update the user to.
-	 */
-	void updateUserChannel(User user, ChannelChitChat channel);
-
-	/**
-	 * Updates what's stored in the storage with new information.
-	 * @param uuid The User to update for.
-	 * @param channel The channel to update the user to.
-	 */
-	void updateUserChannel(UUID uuid, ChannelChitChat channel);
+	boolean updateUserChannel(UserChitChat user);
 }
