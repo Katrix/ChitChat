@@ -50,7 +50,7 @@ public class CmdChannelJoin extends CommandBase {
 		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_JOIN)) {
-				ChitChatPlayers.getOrCreatePlayer((Player)src).setChannel(channel);
+				ChitChatPlayers.getOrCreate((Player)src).setChannel(channel);
 				src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
 				return CommandResult.success();
 			}

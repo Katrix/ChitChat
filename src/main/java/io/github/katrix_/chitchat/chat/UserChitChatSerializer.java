@@ -36,11 +36,11 @@ public class UserChitChatSerializer implements TypeSerializer<UserChitChat> {
 		String channelName = value.getNode("channel").getString();
 		ChannelChitChat channel;
 
-		if(ChitChatChannels.doesChannelExist(channelName)) {
-			channel = ChitChatChannels.getChannel(channelName);
+		if(ChitChatChannels.existName(channelName)) {
+			channel = ChitChatChannels.get(channelName);
 		}
 		else {
-			channel = ChitChatChannels.getGlobalChannel();
+			channel = ChitChatChannels.getGlobal();
 		}
 
 		return new UserChitChat(uuid, channel);

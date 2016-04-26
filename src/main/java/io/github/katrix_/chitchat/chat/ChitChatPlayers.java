@@ -37,7 +37,7 @@ public class ChitChatPlayers {
 
 	private static final Map<Player, UserChitChat> PLAYER_MAP = new WeakHashMap<>();
 
-	public static UserChitChat getOrCreatePlayer(Player player) {
+	public static UserChitChat getOrCreate(Player player) {
 		UserChitChat playerChitChat = PLAYER_MAP.get(player);
 		if(playerChitChat == null) {
 			playerChitChat = new UserChitChat(player);
@@ -46,20 +46,20 @@ public class ChitChatPlayers {
 		return playerChitChat;
 	}
 
-	public static UserChitChat getUserFromUuid(UUID uuid) {
+	public static UserChitChat getFromUuid(UUID uuid) {
 		return new UserChitChat(uuid);
 	}
 
-	public static void moveAllPlayersToGlobal(@Nullable Text message) {
+	public static void moveAllToGlobal(@Nullable Text message) {
 		movePlayersToGlobal(message, entry -> true);
 	}
 
-	public static void movePlayersInChannelToGlobal(ChannelChitChat channel, @Nullable Text message) {
+	public static void moveChannelToGlobal(ChannelChitChat channel, @Nullable Text message) {
 		movePlayersToGlobal(message, entry -> entry.getValue().getChannel().equals(channel));
 	}
 
 	public static void movePlayersToGlobal(@Nullable Text message, Predicate<Map.Entry<Player, UserChitChat>> test) {
-		ChannelChitChat global = ChitChatChannels.getGlobalChannel();
+		ChannelChitChat global = ChitChatChannels.getGlobal();
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the global channel");
 		PLAYER_MAP.entrySet().stream().filter(test).forEach(entry -> {
 			entry.getKey().sendMessage(text);
@@ -67,7 +67,7 @@ public class ChitChatPlayers {
 		});
 	}
 
-	public static ImmutableMap<Player, UserChitChat> getPlayerMap() {
+	public static ImmutableMap<Player, UserChitChat> getMap() {
 		return ImmutableMap.copyOf(PLAYER_MAP);
 	}
 }

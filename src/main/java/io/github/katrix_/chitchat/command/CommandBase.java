@@ -92,7 +92,7 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 
-		if(ChitChatChannels.doesChannelExist(channel)) {
+		if(ChitChatChannels.existName(channel)) {
 			src.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
 			return false;
 		}

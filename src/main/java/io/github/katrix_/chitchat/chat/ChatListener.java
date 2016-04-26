@@ -38,6 +38,7 @@ import org.spongepowered.api.text.TextElement;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.type.CombinedMessageChannel;
+import org.spongepowered.api.text.serializer.FormattingCodeTextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
@@ -58,9 +59,10 @@ public class ChatListener {
 		Text suffix = cfg.getDefaultSuffix();
 
 		if(player.hasPermission(LibPerm.CHAT_COLOR)) {
+			FormattingCodeTextSerializer serializer = TextSerializers.FORMATTING_CODE;
 			for(SimpleTextTemplateApplier applier : formatter.getBody()) {
 				if(applier.getParameters().containsKey("body")) {
-					applier.setParameter("body", TextSerializers.FORMATTING_CODE.deserialize(Text.of(applier.getParameter("body")).toPlain()));
+					applier.setParameter("body", serializer.deserialize(serializer.serialize(Text.of(applier.getParameter("body"))))); //In case the message is already formatted
 				}
 			}
 		}
@@ -95,15 +97,18 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreatePlayer(player).getChannel();
+		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreate(player).getChannel();
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(cfg.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
-			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
-			playerMap.keySet().stream()
-					.filter(player1 -> playerMap.get(player1).getChannel().equals(playerChannel) && message.contains(player1.getName()))
-					.forEach(player1 -> player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D));
+			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getMap();
+			for(Map.Entry<Player, UserChitChat> entry : playerMap.entrySet()) {
+				Player player1 = entry.getKey();
+				if(entry.getValue().getChannel().equals(playerChannel) && message.contains(player1.getName())) {
+					player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D);
+				}
+			}
 		}
 	}
 
@@ -129,7 +134,7 @@ public class ChatListener {
 
 		Player player = event.getTargetEntity();
 		ChannelChitChat channel = ChitChat.getStorage().getChannelForUser(player);
-		ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
+		ChitChatPlayers.getOrCreate(player).setChannel(channel);
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 

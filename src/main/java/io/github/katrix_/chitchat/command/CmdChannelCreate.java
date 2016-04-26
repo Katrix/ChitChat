@@ -50,19 +50,21 @@ public class CmdChannelCreate extends CommandBase {
 		String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(name);
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 
-		if(!channelNameNotUsed(name, src) || !permissionChannel(name, src, LibPerm.CHANNEL_CREATE)) return CommandResult.empty();
+		if(channelNameNotUsed(name, src) && permissionChannel(name, src, LibPerm.CHANNEL_CREATE)) {
+			ChannelChitChat channel = new ChannelChitChat(name, description, prefix);
+			ChitChatChannels.add(channel);
+			if(ChitChat.getStorage().saveChannel(channel)) {
+				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
+			}
+			else {
+				src.sendMessage(Text.of(TextColors.RED, "Something went wrong when saving the new channel " + name
+						+ ". You can use it for now, but it will not persist after a restart."));
+				LogHelper.error("Failed to write new channel " + name + " to storage");
+			}
+			return CommandResult.success();
+		}
 
-		ChannelChitChat channel = new ChannelChitChat(name, description, prefix);
-		ChitChatChannels.addChannel(channel);
-		if(ChitChat.getStorage().saveChannel(channel)) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
-		}
-		else {
-			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when saving the new channel " + name
-					+ ". You can use it for now, but it will not persist after a restart."));
-			LogHelper.error("Failed to write new channel " + name + " to the database");
-		}
-		return CommandResult.success();
+		return CommandResult.empty();
 	}
 
 	@Override

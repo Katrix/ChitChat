@@ -50,20 +50,20 @@ public class CmdChannelRemove extends CommandBase {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
-			if(channel.equals(ChitChatChannels.getGlobalChannel())) {
+			if(channel.equals(ChitChatChannels.getGlobal())) {
 				src.sendMessage(Text.of(TextColors.RED, "You can't remove the global channel"));
 				return CommandResult.empty();
 			}
 
 			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) {
-				ChitChatChannels.removeChannel(channel);
+				ChitChatChannels.remove(channel);
 				if(ChitChat.getStorage().deleteChannel(channel)) {
 					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
 				}
 				else {
 					src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
 							+ " from the database. It will be gone for now, but it will be back when the server restarts."));
-					LogHelper.error("Failed to delete the channel " + channel.getName() + " from the database");
+					LogHelper.error("Failed to delete the channel " + channel.getName() + " from storage");
 				}
 				return CommandResult.success();
 			}

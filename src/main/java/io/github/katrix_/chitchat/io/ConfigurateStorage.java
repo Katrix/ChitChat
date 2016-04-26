@@ -49,8 +49,8 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	public boolean reloadChannels() {
 		try {
 			List<ChannelChitChat> channels = cfgRoot.getNode(CHANNELS).getList(TypeToken.of(ChannelChitChat.class));
-			ChitChatChannels.clearChannelMap();
-			channels.forEach(ChitChatChannels::addChannel);
+			ChitChatChannels.clearMap();
+			channels.forEach(ChitChatChannels::add);
 			return true;
 		}
 		catch(ObjectMappingException e) {
@@ -87,15 +87,15 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	public ChannelChitChat getChannelForUser(UUID uuid) {
 		String channelName = cfgRoot.getNode(PLAYERS, uuid.toString(), "channel").getString();
 
-		if(ChitChatChannels.doesChannelExist(channelName)) {
-			return ChitChatChannels.getChannel(channelName);
+		if(ChitChatChannels.existName(channelName)) {
+			return ChitChatChannels.get(channelName);
 		}
 
-		return ChitChatChannels.getGlobalChannel();
+		return ChitChatChannels.getGlobal();
 	}
 
 	@Override
-	public boolean updateUserChannel(UserChitChat user) {
+	public boolean updateUser(UserChitChat user) {
 		cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(user);
 		return true;
 	}

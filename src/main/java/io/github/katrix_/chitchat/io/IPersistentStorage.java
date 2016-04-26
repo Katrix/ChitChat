@@ -98,9 +98,9 @@ public interface IPersistentStorage {
 	ChannelChitChat getChannelForUser(UUID uuid);
 
 	/**
-	 * Updates what's stored in the storage with new information.
+	 * Updates the user entry in the storage.
 	 * @param user The User to update for.
 	 * @return if successful.
 	 */
-	boolean updateUserChannel(UserChitChat user);
+	boolean updateUser(UserChitChat user);
 }

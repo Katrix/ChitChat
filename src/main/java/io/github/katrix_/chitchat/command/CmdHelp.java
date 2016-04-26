@@ -23,6 +23,7 @@ package io.github.katrix_.chitchat.command;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -94,16 +95,19 @@ public class CmdHelp extends CommandBase {
 		}
 		else {
 			String commandName = optCommandName.get();
-			Optional<CommandBase> optCommand = getCommandFromString(commandName);
-			if(!optCommand.isPresent()) {
+			List<CommandBase> commands = getCommandFromString(commandName);
+			if(commands.isEmpty()) {
 				src.sendMessage(Text.of(TextColors.RED, "Command not found"));
 				return CommandResult.empty();
 			}
 
-			CommandSpec commandSpec = optCommand.get().getCommand();
-			Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, "/" + commandName));
-			commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
-			src.sendMessage(commandText.build());
+			//In most cases this should just loop once
+			for(CommandBase cmd : commands) {
+				CommandSpec commandSpec = cmd.getCommand();
+				Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, "/" + commandName));
+				commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
+				src.sendMessage(commandText.build());
+			}
 		}
 		return CommandResult.success();
 	}
@@ -122,31 +126,39 @@ public class CmdHelp extends CommandBase {
 	}
 
 	public static void registerCommandHelp(String parent, String[] aliases, CommandBase command) {
+		List<String> list;
 		if(parent == null) {
-			List<String> list = Arrays.asList(aliases);
-			LogHelper.debug("Registering help command: " + list);
-			INSTANCE.commandMap.put(command, list);
+			list = Arrays.asList(aliases);
 		}
 		else {
 			List<String> existingList = INSTANCE.commandMap.get(command);
-			List<String> list = existingList != null ? new ArrayList<>(INSTANCE.commandMap.get(command)) : new ArrayList<>();
+			list = existingList != null ? existingList : new ArrayList<>();
 
 			for(String string : aliases) {
 				list.add(parent + " " + string);
 			}
-			LogHelper.debug("Registering help command: " + list);
-			INSTANCE.commandMap.put(command, list);
 		}
+
+		LogHelper.debug("Registering help command: " + list);
+		INSTANCE.commandMap.put(command, list);
 	}
 
-	private Optional<CommandBase> getCommandFromString(String commandName) {
-		for(List<String> list : commandMap.inverse().keySet()) {
-			if(list.contains(commandName)) {
-				for(String string : list) {
-					if(string.equals(commandName)) return Optional.of(commandMap.inverse().get(list));
+	@SuppressWarnings("Convert2streamapi")
+	private List<CommandBase> getCommandFromString(String commandName) {
+		Map<List<String>, CommandBase> inverse = commandMap.inverse();
+
+		List<CommandBase> ret = new ArrayList<>();
+		//I miss scala D:
+		for(List<String> l : inverse.keySet()) {
+			if(l.contains(commandName)) {
+				for(String s : l) {
+					if(s.equals(commandName)) {
+						ret.add(inverse.get(l));
+					}
 				}
 			}
 		}
-		return Optional.empty();
+
+		return ret;
 	}
 }

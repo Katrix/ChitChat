@@ -61,13 +61,13 @@ public class CmdChannelMove extends CommandBase {
 				Optional<Player> optPlayer = user.getPlayer();
 				if(optPlayer.isPresent()) {
 					Player player = optPlayer.get();
-					ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
+					ChitChatPlayers.getOrCreate(player).setChannel(channel);
 					src.sendMessage(Text.of(TextColors.GREEN, player.getName() + " was move into channel " + channel.getName()));
 					player.sendMessage(Text.of(TextColors.YELLOW, "You were moved into " + channel.getName() + " by " + src.getName()));
 				}
 				else {
 					if(src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
-						ChitChatPlayers.getUserFromUuid(user.getUniqueId()).setChannel(channel);
+						ChitChatPlayers.getFromUuid(user.getUniqueId()).setChannel(channel);
 						src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
 					}
 					else {

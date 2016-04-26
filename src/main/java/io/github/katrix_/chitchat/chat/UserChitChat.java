@@ -31,26 +31,25 @@ import io.github.katrix_.chitchat.ChitChat;
 public class UserChitChat {
 
 	private final UUID uuid;
-	private ChannelChitChat channel = ChitChatChannels.getGlobalChannel();
+	private ChannelChitChat channel = ChitChatChannels.getGlobal();
 
 	public UserChitChat(UUID uuid) {
 		this.uuid = uuid;
 	}
 
 	public UserChitChat(Player player) {
-		uuid = player.getUniqueId();
-		channel.addMember(player);
-	}
-
-	public UserChitChat(Player player, ChannelChitChat channel) {
-		uuid = player.getUniqueId();
-		this.channel = channel;
+		this(player.getUniqueId());
 		channel.addMember(player);
 	}
 
 	public UserChitChat(UUID uuid, ChannelChitChat channel) {
-		this.uuid = uuid;
+		this(uuid);
 		this.channel = channel;
+	}
+
+	public UserChitChat(Player player, ChannelChitChat channel) {
+		this(player.getUniqueId(), channel);
+		channel.addMember(player);
 	}
 
 	public UUID getUUID() {
@@ -76,6 +75,6 @@ public class UserChitChat {
 		else {
 			this.channel = channel;
 		}
-		ChitChat.getStorage().updateUserChannel(this);
+		ChitChat.getStorage().updateUser(this);
 	}
 }

@@ -46,7 +46,7 @@ public class CmdChannelLoad extends CommandBase {
 			return CommandResult.success();
 		}
 		else {
-			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when loading channels from disk"));
+			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when loading channels from storage"));
 			return CommandResult.empty();
 		}
 	}

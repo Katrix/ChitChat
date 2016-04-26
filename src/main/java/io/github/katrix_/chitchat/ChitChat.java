@@ -88,7 +88,7 @@ public class ChitChat {
 		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
 
-		ChitChatChannels.initChannels();
+		ChitChatChannels.init();
 	}
 
 	public Logger getLog() {
@@ -97,10 +97,6 @@ public class ChitChat {
 
 	public static ChitChat getPlugin() {
 		return plugin;
-	}
-
-	public Path getConfigDir() {
-		return configDir;
 	}
 
 	public static IPersistentStorage getStorage() {

@@ -52,8 +52,8 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 
 		try {
 			channelList = getChannelList();
-			ChitChatChannels.clearChannelMap();
-			channelList.forEach(ChitChatChannels::addChannel);
+			ChitChatChannels.clearMap();
+			channelList.forEach(ChitChatChannels::add);
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
@@ -64,7 +64,7 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 
 	@Override
 	public boolean saveChannel(ChannelChitChat channel) {
-		if(channel.equals(ChitChatChannels.getGlobalChannel())) return false;
+		if(channel.equals(ChitChatChannels.getGlobal())) return false;
 
 		try {
 			saveChannelDatabase(channel);
@@ -120,21 +120,21 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 	public ChannelChitChat getChannelForUser(UUID uuid) {
 		try {
 			Optional<String> channelName = getChannelForUserDatabase(uuid);
-			if(channelName.isPresent() && ChitChatChannels.doesChannelExist(channelName.get())) {
-				return ChitChatChannels.getChannel(channelName.get());
+			if(channelName.isPresent() && ChitChatChannels.existName(channelName.get())) {
+				return ChitChatChannels.get(channelName.get());
 			}
 			else {
-				return ChitChatChannels.getGlobalChannel();
+				return ChitChatChannels.getGlobal();
 			}
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
-			return ChitChatChannels.getGlobalChannel();
+			return ChitChatChannels.getGlobal();
 		}
 	}
 
 	@Override
-	public boolean updateUserChannel(UserChitChat user) {
+	public boolean updateUser(UserChitChat user) {
 		try {
 			updateUserChannelDatabase(user.getUUID(), user.getChannel().getName());
 			return true;

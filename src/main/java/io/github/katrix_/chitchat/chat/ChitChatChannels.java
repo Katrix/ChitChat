@@ -39,43 +39,43 @@ public class ChitChatChannels {
 			ChitChat.getConfig().getGlobalChannelPrefix());
 	private static final Map<String, ChannelChitChat> CHANNELS = new HashMap<>();
 
-	public static void initChannels() {
+	public static void init() {
 		Sponge.getEventManager().registerListeners(ChitChat.getPlugin(), new ChatListener());
-		addChannel(GLOBAL);
+		add(GLOBAL);
 		ChitChat.getStorage().reloadChannels(); //Hacky yeah, but it works
 	}
 
-	public static void addChannel(ChannelChitChat channel) {
+	public static void add(ChannelChitChat channel) {
 		LogHelper.info("Creating channel " + channel.getName());
 		CHANNELS.put(channel.getName(), channel);
 	}
 
-	public static void removeChannel(String name) {
-		if(!doesChannelExist(name)) return;
-
-		removeChannel(getChannel(name));
+	public static void remove(String name) {
+		if(existName(name)){
+			remove(get(name));
+		}
 	}
 
-	public static void removeChannel(ChannelChitChat channel) {
-		if(channel.equals(GLOBAL)) return;
+	public static void remove(ChannelChitChat channel) {
+		if(!channel.equals(GLOBAL)) {
+			LogHelper.info("Removing channel " + channel.getName());
+			ChitChatPlayers.moveChannelToGlobal(channel,
+					Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed."));
+			channel.clearMembers(); //As an extra precaution
 
-		LogHelper.info("Removing channel " + channel.getName());
-		ChitChatPlayers.movePlayersInChannelToGlobal(channel,
-				Text.of(TextColors.RED, "You are being moved to the global channel as the channel you are in is being removed."));
-		channel.clearMembers(); //As an extra precaution
-
-		CHANNELS.remove(channel.getName());
+			CHANNELS.remove(channel.getName());
+		}
 	}
 
-	public static boolean doesChannelExist(String name) {
+	public static boolean existName(String name) {
 		return CHANNELS.containsKey(name);
 	}
 
-	public static ChannelChitChat getChannel(String name) {
+	public static ChannelChitChat get(String name) {
 		return CHANNELS.get(name);
 	}
 
-	public static void remapChannelName(ChannelChitChat channel, String oldName) {
+	public static void remap(ChannelChitChat channel, String oldName) {
 		LogHelper.info("Remapping channel " + oldName + " to " + channel.getName());
 		CHANNELS.remove(oldName);
 		CHANNELS.put(channel.getName(), channel);
@@ -83,15 +83,15 @@ public class ChitChatChannels {
 		ChitChat.getStorage().saveChannel(channel);
 	}
 
-	public static ImmutableMap<String, ChannelChitChat> getChannelMap() {
+	public static ImmutableMap<String, ChannelChitChat> getMap() {
 		return ImmutableMap.copyOf(CHANNELS);
 	}
 
-	public static void clearChannelMap() {
-		CHANNELS.values().stream().filter(channel -> !channel.equals(GLOBAL)).forEach(ChitChatChannels::removeChannel);
+	public static void clearMap() {
+		CHANNELS.values().stream().filter(channel -> !channel.equals(GLOBAL)).forEach(ChitChatChannels::remove);
 	}
 
-	public static ChannelChitChat getGlobalChannel() {
+	public static ChannelChitChat getGlobal() {
 		return GLOBAL;
 	}
 }

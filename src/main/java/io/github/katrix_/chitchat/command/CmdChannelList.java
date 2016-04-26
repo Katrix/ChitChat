@@ -52,7 +52,7 @@ public class CmdChannelList extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 		pages.title(Text.of(TextColors.RED, "Channels"));
-		Map<String, ChannelChitChat> channels = ChitChatChannels.getChannelMap();
+		Map<String, ChannelChitChat> channels = ChitChatChannels.getMap();
 		List<Text> list = channels.keySet().stream().filter(channel -> src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel))
 				.map(channel -> Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
 						.onClick(TextActions.runCommand("/channel join " + channel))

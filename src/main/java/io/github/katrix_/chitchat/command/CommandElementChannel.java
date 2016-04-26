@@ -36,11 +36,11 @@ public class CommandElementChannel extends PatternMatchingCommandElement {
 
 	@Override
 	protected Iterable<String> getChoices(CommandSource source) {
-		return ChitChatChannels.getChannelMap().keySet();
+		return ChitChatChannels.getMap().keySet();
 	}
 
 	@Override
 	protected Object getValue(String choice) throws IllegalArgumentException {
-		return ChitChatChannels.getChannel(choice);
+		return ChitChatChannels.get(choice);
 	}
 }

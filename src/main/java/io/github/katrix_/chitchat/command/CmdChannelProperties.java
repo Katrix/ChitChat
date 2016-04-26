@@ -71,7 +71,7 @@ public class CmdChannelProperties extends CommandBase {
 				list.add(Text.of("Channel members:"));
 
 				StringBuilder players = new StringBuilder();
-				Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
+				Map<Player, UserChitChat> playerMap = ChitChatPlayers.getMap();
 				Iterator<Player> iterator = playerMap.keySet().stream().filter(player -> playerMap.get(player).getChannel().equals(channel))
 						.collect(Collectors.toList()).iterator();
 

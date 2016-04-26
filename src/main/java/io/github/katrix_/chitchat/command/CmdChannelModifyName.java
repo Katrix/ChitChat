@@ -54,7 +54,7 @@ public class CmdChannelModifyName extends CommandBase {
 					&& permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME)) {
 				String nameOld = channel.getName();
 				channel.setName(nameNew);
-				ChitChatChannels.remapChannelName(channel, nameOld);
+				ChitChatChannels.remap(channel, nameOld);
 
 				src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
 				return CommandResult.success();
