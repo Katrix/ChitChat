@@ -106,10 +106,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	@Override
 	public String toString() {
-		return "ChannelChitChat{" +
-				"name='" + name + '\'' +
-				", description=" + description +
-				", prefix=" + prefix +
-				'}';
+		return "ChannelChitChat{" + "name='" + name + '\'' + ", description=" + description + ", prefix=" + prefix + '}';
 	}
 }

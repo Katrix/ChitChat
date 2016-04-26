@@ -60,7 +60,8 @@ public class CmdPM extends CommandBase {
 			conversations.put(src, player);
 			conversations.put(player, src);
 
-			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()),
+					ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
 			player.sendMessage(getCfg().getPmReceiverTemplate(), templateMap);
 			src.sendMessage(getCfg().getPmSenderTemplate(), templateMap);
 

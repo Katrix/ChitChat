@@ -84,7 +84,8 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	/**
-	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it sends an errorto the player.
+	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it
+	 * sends an errorto the player.
 	 */
 	protected boolean channelNameNotUsed(String channel, CommandSource src) {
 		if(BADNAMES.contains(channel)) {
@@ -112,8 +113,8 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	/**
-	 * Checks that a player has the permission to do something with a given channel,
-	 * and sends an error message to the player if they don't have permission for the given channel.
+	 * Checks that a player has the permission to do something with a given channel, and sends an
+	 * error message to the player if they don't have permission for the given channel.
 	 */
 	protected boolean permissionChannel(String channelName, CommandSource subject, String basePerm) {
 		if(!subject.hasPermission(basePerm + "." + channelName)) {

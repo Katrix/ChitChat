@@ -57,7 +57,8 @@ public class CmdReply extends CommandBase {
 
 		if(receiverOpt.isPresent()) {
 			CommandSource receiver = receiverOpt.get();
-			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()),
+					ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
 
 			receiver.sendMessage(cfg.getPmReceiverTemplate(), templateMap);
 			src.sendMessage(cfg.getPmSenderTemplate(), templateMap);

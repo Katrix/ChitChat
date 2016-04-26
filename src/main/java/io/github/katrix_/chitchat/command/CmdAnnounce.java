@@ -55,7 +55,8 @@ public class CmdAnnounce extends CommandBase {
 			src = Sponge.getServer().getConsole();
 		}
 
-		Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+		Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()),
+				ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
 
 		Sponge.getServer().getBroadcastChannel().send(src, getCfg().getAnnounceTemplate().apply(templateMap).build());
 		return CommandResult.success();

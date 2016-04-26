@@ -113,9 +113,7 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	public ChannelChitChat getChannelForUser(UUID uuid) {
 		String channelName = cfgRoot.getNode(PLAYERS, uuid.toString(), "channel").getString();
 
-		if(ChitChatChannels.existName(channelName)) {
-			return ChitChatChannels.get(channelName);
-		}
+		if(ChitChatChannels.existName(channelName)) return ChitChatChannels.get(channelName);
 
 		return ChitChatChannels.getGlobal();
 	}
@@ -123,7 +121,7 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	@Override
 	public boolean updateUser(UserChitChat user) {
 		try {
-			cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(TypeToken.of(UserChitChat.class),user);
+			cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(TypeToken.of(UserChitChat.class), user);
 			saveFile();
 		}
 		catch(ObjectMappingException e) {

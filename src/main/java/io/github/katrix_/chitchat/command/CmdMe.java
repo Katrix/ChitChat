@@ -48,7 +48,7 @@ public class CmdMe extends CommandBase {
 		src.getMessageChannel().send(src,
 				getCfg().getMeTemplate().apply(
 						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
-				.build());
+						.build());
 		return CommandResult.success();
 	}
 

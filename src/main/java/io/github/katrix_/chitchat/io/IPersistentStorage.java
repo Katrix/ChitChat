@@ -34,12 +34,14 @@ public interface IPersistentStorage {
 
 	/**
 	 * Deletes all the channels and adds them again
+	 *
 	 * @return if successful.
 	 */
 	boolean reloadChannels();
 
 	/**
 	 * Saves a channel to disk.
+	 *
 	 * @param channel The channel to save.
 	 * @return if successful.
 	 */
@@ -47,6 +49,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Update a channel with new information
+	 *
 	 * @param channel The Channel to modify.
 	 * @param prefix Set a new prefix. If null it will not change the prefix.
 	 * @param description Set a new description. If null it will not change the description.
@@ -58,6 +61,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Update a channel with new information
+	 *
 	 * @param channel The Channel to modify.
 	 * @param prefix Set a new prefix. If null it will not change the prefix.
 	 * @param description Set a new description. If null it will not change the description.
@@ -67,6 +71,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Deletes a channel from storage.
+	 *
 	 * @param channel The channel to delete.
 	 * @return if successful.
 	 */
@@ -76,6 +81,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Deletes a channel from storage.
+	 *
 	 * @param channel The channel to delete.
 	 * @return if successful.
 	 */
@@ -83,6 +89,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Gets the channel a user is currently in.
+	 *
 	 * @param user The User to get the channel for.
 	 * @return The channel the user is in. Returns global if no channel is found.
 	 */
@@ -92,6 +99,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Gets the channel a user is currently in.
+	 *
 	 * @param uuid The uuid for the user to get the channel for.
 	 * @return The channel the user is in. Returns global if no channel is found.
 	 */
@@ -99,6 +107,7 @@ public interface IPersistentStorage {
 
 	/**
 	 * Updates the user entry in the storage.
+	 *
 	 * @param user The User to update for.
 	 * @return if successful.
 	 */

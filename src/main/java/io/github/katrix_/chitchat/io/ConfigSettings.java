@@ -61,10 +61,10 @@ public class ConfigSettings extends ConfigurateBase {
 			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
 	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "),
 			TextTemplate.arg(TEMPLATE_CHANNEL));
-	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "),
-			TextTemplate.arg("body").color(TextColors.AQUA), Text.of(TextColors.GREEN, " has joined the server"));
-	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "),
-			TextTemplate.arg("body").color(TextColors.AQUA), Text.of(TextColors.RED, " has left the server"));
+	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "), TextTemplate.arg("body").color(TextColors.AQUA),
+			Text.of(TextColors.GREEN, " has joined the server"));
+	private TextTemplate disconnectTemplate = TextTemplate.of(Text.of(TextColors.RED, "The player "), TextTemplate.arg("body").color(TextColors.AQUA),
+			Text.of(TextColors.RED, " has left the server"));
 
 	private boolean chatPling = true;
 	private boolean debug = false;
@@ -136,6 +136,7 @@ public class ConfigSettings extends ConfigurateBase {
 		super.loadData();
 	}
 
+	@Override
 	public void saveData() {
 		try {
 			cfgRoot.getNode("chat", "defaultHeader")
@@ -172,7 +173,8 @@ public class ConfigSettings extends ConfigurateBase {
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
-			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2").setValue(TypeToken.of(StorageType.class), storage);
+			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2")
+					.setValue(TypeToken.of(StorageType.class), storage);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -205,55 +207,55 @@ public class ConfigSettings extends ConfigurateBase {
 		return headerTemplate;
 	}
 
-	public  TextTemplate getSuffixTemplate() {
+	public TextTemplate getSuffixTemplate() {
 		return suffixTemplate;
 	}
 
-	public  TextTemplate getMeTemplate() {
+	public TextTemplate getMeTemplate() {
 		return meTemplate;
 	}
 
-	public  TextTemplate getPmReceiverTemplate() {
+	public TextTemplate getPmReceiverTemplate() {
 		return pmReciever;
 	}
 
-	public  TextTemplate getPmSenderTemplate() {
+	public TextTemplate getPmSenderTemplate() {
 		return pmSender;
 	}
 
-	public  TextTemplate getShoutTemplate() {
+	public TextTemplate getShoutTemplate() {
 		return shoutTemplate;
 	}
 
-	public  TextTemplate getChannelTemplate() {
+	public TextTemplate getChannelTemplate() {
 		return channelTemplate;
 	}
 
-	public  TextTemplate getAnnounceTemplate() {
+	public TextTemplate getAnnounceTemplate() {
 		return announceTemplate;
 	}
 
-	public  TextTemplate getChattingJoinTemplate() {
+	public TextTemplate getChattingJoinTemplate() {
 		return chattingJoinTemplate;
 	}
 
-	public  TextTemplate getJoinTemplate() {
+	public TextTemplate getJoinTemplate() {
 		return joinTemplate;
 	}
 
-	public  TextTemplate getDisconnectTemplate() {
+	public TextTemplate getDisconnectTemplate() {
 		return disconnectTemplate;
 	}
 
-	public  boolean getChatPling() {
+	public boolean getChatPling() {
 		return chatPling;
 	}
 
-	public  boolean getDebug() {
+	public boolean getDebug() {
 		return debug;
 	}
 
-	public  StorageType getStorageType() {
+	public StorageType getStorageType() {
 		return storage;
 	}
 }

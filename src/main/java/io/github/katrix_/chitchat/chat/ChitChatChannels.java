@@ -51,7 +51,7 @@ public class ChitChatChannels {
 	}
 
 	public static void remove(String name) {
-		if(existName(name)){
+		if(existName(name)) {
 			remove(get(name));
 		}
 	}
