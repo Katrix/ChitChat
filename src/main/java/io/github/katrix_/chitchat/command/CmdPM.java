@@ -61,10 +61,10 @@ public class CmdPM extends CommandBase {
 			conversations.put(player, src);
 
 			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
-			player.sendMessage(ConfigSettings.getPmReceiverTemplate(), templateMap);
-			src.sendMessage(ConfigSettings.getPmSenderTemplate(), templateMap);
+			player.sendMessage(getCfg().getPmReceiverTemplate(), templateMap);
+			src.sendMessage(getCfg().getPmSenderTemplate(), templateMap);
 
-			if(ConfigSettings.getChatPling()) {
+			if(getCfg().getChatPling()) {
 				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
 			}
 			return CommandResult.success();

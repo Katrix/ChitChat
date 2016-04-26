@@ -18,40 +18,30 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package io.github.katrix_.chitchat.command;
+package io.github.katrix_.chitchat.io;
 
-import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-import io.github.katrix_.chitchat.lib.LibPerm;
+import javax.sql.DataSource;
 
-public class CmdReloadConfigs extends CommandBase {
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.service.sql.SqlService;
 
-	public static final CmdReloadConfigs INSTANCE = new CmdReloadConfigs(CmdChitChat.INSTANCE);
+public abstract class H2Base {
 
-	private CmdReloadConfigs(CommandBase parent) {
-		super(parent);
+	private final DataSource source;
+
+	public H2Base(Path path, String name) throws SQLException {
+		String absPath = path.toAbsolutePath().toString() + "/" + name;
+		source = Sponge.getServiceManager().provideUnchecked(SqlService.class).getDataSource(absPath);
+		createTables();
 	}
 
-	@Override
-	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		getCfg().reload();
-		src.sendMessage(Text.of(TextColors.GREEN, "Configs reloaded"));
-		return CommandResult.success();
+	protected Connection getConnection() throws SQLException {
+		return source.getConnection();
 	}
 
-	@Override
-	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Reloads the configs")).permission(LibPerm.RELOAD).executor(this).build();
-	}
-
-	@Override
-	public String[] getAliases() {
-		return new String[] {"reload", "reloadConfigs", "refresh"};
-	}
+	protected abstract void createTables() throws SQLException;
 }

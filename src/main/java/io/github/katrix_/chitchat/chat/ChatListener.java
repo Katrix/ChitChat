@@ -51,10 +51,11 @@ public class ChatListener {
 
 	@Listener(order = Order.EARLY)
 	public void onChat(MessageChannelEvent.Chat event, @First Player player) {
+		ConfigSettings cfg = ChitChat.getConfig();
 		MessageFormatter formatter = event.getFormatter();
 		String nameString = player.getName();
-		Text prefixName = ConfigSettings.getDefaultHeader().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(nameString))).build();
-		Text suffix = ConfigSettings.getDefaultSuffix();
+		Text prefixName = cfg.getDefaultHeader().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(nameString))).build();
+		Text suffix = cfg.getDefaultSuffix();
 
 		if(player.hasPermission(LibPerm.CHAT_COLOR)) {
 			for(SimpleTextTemplateApplier applier : formatter.getBody()) {
@@ -76,7 +77,7 @@ public class ChatListener {
 
 		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
 			if(applier.getParameters().containsKey("header")) {
-				applier.setTemplate(ConfigSettings.getHeaderTemplate());
+				applier.setTemplate(cfg.getHeaderTemplate());
 
 				Text oldHeader = Text.of(applier.getParameter("header"));
 				Text.Builder newHeader = Text.builder();
@@ -89,7 +90,7 @@ public class ChatListener {
 		}
 
 		if(!suffix.isEmpty()) {
-			SimpleTextTemplateApplier applier = new SimpleTextTemplateApplier(ConfigSettings.getSuffixTemplate());
+			SimpleTextTemplateApplier applier = new SimpleTextTemplateApplier(cfg.getSuffixTemplate());
 			applier.setParameter(ConfigSettings.TEMPLATE_SUFFIX, suffix);
 			formatter.getFooter().add(applier);
 		}
@@ -97,7 +98,7 @@ public class ChatListener {
 		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreatePlayer(player).getChannel();
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
-		if(ConfigSettings.getChatPling()) {
+		if(cfg.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
 			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getPlayerMap();
 			playerMap.keySet().stream()
@@ -108,6 +109,8 @@ public class ChatListener {
 
 	@Listener
 	public void onJoin(ClientConnectionEvent.Join event) {
+		ConfigSettings cfg = ChitChat.getConfig();
+
 		for(SimpleTextTemplateApplier applier : event.getFormatter().getBody().getAll()) {
 			if(applier.getParameters().containsKey("body")) {
 				TextElement textElement = applier.getParameter("body");
@@ -119,7 +122,7 @@ public class ChatListener {
 						playerName = (TextElement)potentialName;
 					}
 				}
-				applier.setTemplate(ConfigSettings.getJoinTemplate());
+				applier.setTemplate(cfg.getJoinTemplate());
 				applier.setParameter("body", playerName);
 			}
 		}
@@ -127,7 +130,7 @@ public class ChatListener {
 		Player player = event.getTargetEntity();
 		ChannelChitChat channel = ChitChat.getStorage().getChannelForUser(player);
 		ChitChatPlayers.getOrCreatePlayer(player).setChannel(channel);
-		player.sendMessage(ConfigSettings.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
+		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 
 	@Listener
@@ -143,7 +146,7 @@ public class ChatListener {
 						playerName = (TextElement)potentialName;
 					}
 				}
-				applier.setTemplate(ConfigSettings.getDisconnectTemplate());
+				applier.setTemplate(ChitChat.getConfig().getDisconnectTemplate());
 				applier.setParameter("body", playerName);
 			}
 		}

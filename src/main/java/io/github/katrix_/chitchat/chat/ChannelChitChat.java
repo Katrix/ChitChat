@@ -55,7 +55,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	@Override
 	public Optional<Text> transformMessage(@Nullable Object sender, MessageReceiver recipient, Text original, ChatType type) {
 		return Optional.of(original.toBuilder()
-				.insert(0, ConfigSettings.getChannelTemplate().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PREFIX, prefix)).build()).build());
+				.insert(0, ChitChat.getConfig().getChannelTemplate().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PREFIX, prefix)).build()).build());
 	}
 
 	public String getName() {

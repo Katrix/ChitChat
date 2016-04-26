@@ -33,8 +33,10 @@ import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.io.ConfigSettings;
 
 public abstract class CommandBase implements CommandExecutor {
 
@@ -130,5 +132,9 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 		return true;
+	}
+
+	protected ConfigSettings getCfg() {
+		return ChitChat.getConfig();
 	}
 }

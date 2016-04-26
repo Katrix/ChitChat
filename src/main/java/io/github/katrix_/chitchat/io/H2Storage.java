@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.io;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,28 +31,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.text.Text;
 
-import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 
-public class SQLStorage implements IPersistentStorage {
+public class H2Storage extends H2Base implements IPersistentStorage {
 
-	private DataSource source;
-
-	public SQLStorage() throws SQLException {
-		String path = "jdbc:h2:" + ChitChat.getPlugin().getConfigDir().toAbsolutePath().toString() + "/chitChat";
-		SqlService sql = Sponge.getServiceManager().provideUnchecked(SqlService.class);
-		source = sql.getDataSource(path);
-		createTables();
+	public H2Storage(Path path, String name) throws SQLException {
+		super(path, name);
 	}
 
 	@Override
@@ -153,11 +145,8 @@ public class SQLStorage implements IPersistentStorage {
 		}
 	}
 
-	private Connection getConnection() throws SQLException {
-		return source.getConnection();
-	}
-
-	private void createTables() throws SQLException {
+	@Override
+	protected void createTables() throws SQLException {
 		String channels = "CREATE TABLE IF NOT EXISTS channels(id int primary key auto_increment, name varchar, prefix varchar, description varchar)";
 		String users = "CREATE TABLE IF NOT EXISTS users(uuid UUID primary key, channel varchar)";
 		try(Connection con = getConnection();

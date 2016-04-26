@@ -23,7 +23,6 @@ package io.github.katrix_.chitchat.helper;
 import org.slf4j.Logger;
 
 import io.github.katrix_.chitchat.ChitChat;
-import io.github.katrix_.chitchat.io.ConfigSettings;
 
 public class LogHelper {
 
@@ -44,7 +43,7 @@ public class LogHelper {
 	}
 
 	public static void debug(Object object) {
-		if(ConfigSettings.getDebug()) {
+		if(ChitChat.getConfig().getDebug()) {
 			getRawLogger().debug(String.valueOf(object));
 		}
 	}

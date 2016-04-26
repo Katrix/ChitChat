@@ -20,10 +20,7 @@
  */
 package io.github.katrix_.chitchat.io;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,28 +30,18 @@ import org.spongepowered.api.text.Text;
 
 import com.google.common.reflect.TypeToken;
 
-import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
-import io.github.katrix_.chitchat.helper.LogHelper;
-import ninja.leaping.configurate.ConfigurationOptions;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
-public class ConfigurateStorage implements IPersistentStorage {
+public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
 
 	private static final String[] CHANNELS = {"data", "channel"};
 	private static final String[] PLAYERS = {"data", "players"};
 
-	private Path cfgFile = Paths.get(ChitChat.getPlugin().getConfigDir() + "/storage.conf");
-	private ConfigurationLoader<CommentedConfigurationNode> cfgLoader = HoconConfigurationLoader.builder().setPath(cfgFile).build();
-	private CommentedConfigurationNode cfgRoot;
-
-	public ConfigurateStorage() {
-		initFile();
+	public ConfigurateStorage(Path path, String name) {
+		super(path, name);
 	}
 
 	@SuppressWarnings("ConfusingArgumentToVarargsMethod")
@@ -113,39 +100,8 @@ public class ConfigurateStorage implements IPersistentStorage {
 		return true;
 	}
 
-	private void loadFile() {
-		LogHelper.info("Loading plaintext storage");
-
-		try {
-			cfgRoot = cfgLoader.load();
-		}
-		catch(IOException e) {
-			cfgRoot = cfgLoader.createEmptyNode(ConfigurationOptions.defaults());
-		}
-	}
-
-	private void saveFile() {
-		try {
-			cfgLoader.save(cfgRoot);
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void initFile() {
-		if(cfgRoot == null) {
-			loadFile();
-		}
-
-		File parent = cfgFile.getParent().toFile();
-		if(!parent.exists()) {
-			if(!parent.mkdirs()) {
-				LogHelper.error("Something went wring when creating the parent directory for the plaintext storage");
-				return;
-			}
-		}
-
-		saveFile();
+	@Override
+	protected void saveData() {
+		//NO-OP We save and load on demand
 	}
 }

@@ -51,7 +51,7 @@ import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.io.ConfigurateStorage;
 import io.github.katrix_.chitchat.io.IPersistentStorage;
-import io.github.katrix_.chitchat.io.SQLStorage;
+import io.github.katrix_.chitchat.io.H2Storage;
 import io.github.katrix_.chitchat.lib.LibPlugin;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
@@ -60,6 +60,7 @@ public class ChitChat {
 
 	private static ChitChat plugin;
 	private IPersistentStorage storage;
+	private ConfigSettings cfg;
 
 	@Inject
 	private Logger log;
@@ -76,9 +77,8 @@ public class ChitChat {
 	public void init(GameInitializationEvent event) {
 		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
 		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
-		ConfigSettings.getConfig().initFile();
-
-		storage = createStorage();
+		cfg = new ConfigSettings(configDir, LibPlugin.ID);
+		storage = createStorage(configDir, "storage");
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);
@@ -107,6 +107,10 @@ public class ChitChat {
 		return plugin.storage;
 	}
 
+	public static ConfigSettings getConfig() {
+		return plugin.cfg;
+	}
+
 	/**
 	 * Register a command both as a command, and to the help system.
 	 */
@@ -115,25 +119,25 @@ public class ChitChat {
 		command.registerHelp(null);
 	}
 
-	private IPersistentStorage createStorage() {
-		switch(ConfigSettings.getStorageType()) {
+	private IPersistentStorage createStorage(Path path, String name) {
+		switch(cfg.getStorageType()) {
 			case PLAINTEXT:
-				return new ConfigurateStorage();
+				return new ConfigurateStorage(path, name);
 			case H2:
 				try {
-					storage = new SQLStorage();
+					storage = new H2Storage(path, name);
 				}
 				catch(SQLException e) {
 					e.printStackTrace();
-					LogHelper.error("Something went really wrong when initiating the persistent storage for ChitChat. Defaulting back to plaintext");
-					return new ConfigurateStorage();
+					LogHelper.error("Something went wrong when initiating the H2 database for ChitChat. Defaulting to plaintext");
+					return new ConfigurateStorage(path, name);
 				}
 				break;
 			default:
 				LogHelper.error("Something went wrong when getting the storage type to use for ChitChat. Defaulting to plaintext");
-				return new ConfigurateStorage();
+				return new ConfigurateStorage(path, name);
 		}
 
-		return new ConfigurateStorage();
+		return new ConfigurateStorage(path,name);
 	}
 }

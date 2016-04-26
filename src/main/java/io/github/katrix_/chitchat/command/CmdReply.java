@@ -53,15 +53,16 @@ public class CmdReply extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
 		Optional<CommandSource> receiverOpt = CmdPM.INSTANCE.getConversationPartner(src);
+		ConfigSettings cfg = getCfg();
 
 		if(receiverOpt.isPresent()) {
 			CommandSource receiver = receiverOpt.get();
 			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
 
-			receiver.sendMessage(ConfigSettings.getPmReceiverTemplate(), templateMap);
-			src.sendMessage(ConfigSettings.getPmSenderTemplate(), templateMap);
+			receiver.sendMessage(cfg.getPmReceiverTemplate(), templateMap);
+			src.sendMessage(cfg.getPmSenderTemplate(), templateMap);
 
-			if(ConfigSettings.getChatPling() && receiver instanceof Player) {
+			if(cfg.getChatPling() && receiver instanceof Player) {
 				Player player = (Player)receiver;
 				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
 			}

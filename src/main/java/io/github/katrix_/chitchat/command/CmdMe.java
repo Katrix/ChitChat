@@ -46,7 +46,7 @@ public class CmdMe extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
 		src.getMessageChannel().send(src,
-				ConfigSettings.getMeTemplate().apply(
+				getCfg().getMeTemplate().apply(
 						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
 				.build());
 		return CommandResult.success();

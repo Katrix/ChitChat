@@ -53,7 +53,7 @@ public class CmdShout extends CommandBase {
 		if(channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.SHOUT)) {
-				channel.send(src, ConfigSettings.getShoutTemplate().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message))).build());
+				channel.send(src, getCfg().getShoutTemplate().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message))).build());
 				src.sendMessage(Text.of(TextColors.GREEN, "Sent message " + message + " to channel " + channel.getName()));
 				return CommandResult.success();
 			}

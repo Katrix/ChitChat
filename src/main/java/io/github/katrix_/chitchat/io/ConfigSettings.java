@@ -20,10 +20,7 @@
  */
 package io.github.katrix_.chitchat.io;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextTemplate;
@@ -32,16 +29,10 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import com.google.common.reflect.TypeToken;
 
-import io.github.katrix_.chitchat.ChitChat;
-import io.github.katrix_.chitchat.helper.LogHelper;
-import io.github.katrix_.chitchat.lib.LibPlugin;
-import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
-public class ConfigSettings {
+public class ConfigSettings extends ConfigurateBase {
 
 	public static final String TEMPLATE_PLAYER = "playerName";
 	public static final String TEMPLATE_HEADER = "header";
@@ -49,12 +40,6 @@ public class ConfigSettings {
 	public static final String TEMPLATE_PREFIX = "prefix";
 	public static final String TEMPLATE_MESSAGE = "message";
 	public static final String TEMPLATE_CHANNEL = "channel";
-
-	private static ConfigSettings cfg = new ConfigSettings();
-
-	private Path cfgFile = Paths.get(ChitChat.getPlugin().getConfigDir() + "/" + LibPlugin.ID + ".conf");
-	private ConfigurationLoader<CommentedConfigurationNode> cfgLoader = HoconConfigurationLoader.builder().setPath(cfgFile).build();
-	private CommentedConfigurationNode cfgRoot;
 
 	private TextTemplate defaultHeader = TextTemplate.of(TextTemplate.arg(TEMPLATE_PLAYER).color(TextColors.GRAY));
 	private Text defaultSuffix = Text.EMPTY;
@@ -85,7 +70,12 @@ public class ConfigSettings {
 	private boolean debug = false;
 	private StorageType storage = StorageType.PLAINTEXT;
 
-	public void loadSettings() {
+	public ConfigSettings(Path path, String name) {
+		super(path, name);
+	}
+
+	@Override
+	public void loadData() {
 		CommentedConfigurationNode node;
 		try {
 			node = cfgRoot.getNode("chat", "defaultHeader");
@@ -143,10 +133,10 @@ public class ConfigSettings {
 		node = cfgRoot.getNode("misc", "debug");
 		debug = !node.isVirtual() ? node.getBoolean() : debug;
 
-		saveSettings();
+		super.loadData();
 	}
 
-	public void saveSettings() {
+	public void saveData() {
 		try {
 			cfgRoot.getNode("chat", "defaultHeader")
 					.setComment(
@@ -193,112 +183,75 @@ public class ConfigSettings {
 		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console").setValue(debug);
 	}
 
-	public void loadFile() {
-		LogHelper.info("Loading config");
-		try {
-			cfgRoot = cfgLoader.load();
-		}
-		catch(IOException e) {
-			cfgRoot = cfgLoader.createEmptyNode(ConfigurationOptions.defaults());
-		}
-
-		loadSettings();
+	public void reload() {
+		cfgRoot = loadRoot();
 	}
 
-	public void saveFile() {
-		try {
-			cfgLoader.save(cfgRoot);
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
+	public TextTemplate getDefaultHeader() {
+		return defaultHeader;
 	}
 
-	public void initFile() {
-		if(cfgRoot == null) {
-			loadFile();
-		}
-
-		File parent = cfgFile.getParent().toFile();
-		if(!parent.exists()) {
-			if(!parent.mkdirs()) {
-				LogHelper.error("Something went wring when creating the parent directory for the config");
-				return;
-			}
-		}
-
-		saveFile();
+	public Text getDefaultSuffix() {
+		return defaultSuffix;
 	}
 
-	public static ConfigSettings getConfig() {
-		return cfg;
+	public Text getGlobalChannelPrefix() {
+		return globalPrefix;
 	}
 
-	public static TextTemplate getDefaultHeader() {
-		return cfg.defaultHeader;
+	public TextTemplate getHeaderTemplate() {
+		return headerTemplate;
 	}
 
-	public static Text getDefaultSuffix() {
-		return cfg.defaultSuffix;
+	public  TextTemplate getSuffixTemplate() {
+		return suffixTemplate;
 	}
 
-	public static Text getGlobalChannelPrefix() {
-		return cfg.globalPrefix;
+	public  TextTemplate getMeTemplate() {
+		return meTemplate;
 	}
 
-	public static TextTemplate getHeaderTemplate() {
-		return cfg.headerTemplate;
+	public  TextTemplate getPmReceiverTemplate() {
+		return pmReciever;
 	}
 
-	public static TextTemplate getSuffixTemplate() {
-		return cfg.suffixTemplate;
+	public  TextTemplate getPmSenderTemplate() {
+		return pmSender;
 	}
 
-	public static TextTemplate getMeTemplate() {
-		return cfg.meTemplate;
+	public  TextTemplate getShoutTemplate() {
+		return shoutTemplate;
 	}
 
-	public static TextTemplate getPmReceiverTemplate() {
-		return cfg.pmReciever;
+	public  TextTemplate getChannelTemplate() {
+		return channelTemplate;
 	}
 
-	public static TextTemplate getPmSenderTemplate() {
-		return cfg.pmSender;
+	public  TextTemplate getAnnounceTemplate() {
+		return announceTemplate;
 	}
 
-	public static TextTemplate getShoutTemplate() {
-		return cfg.shoutTemplate;
+	public  TextTemplate getChattingJoinTemplate() {
+		return chattingJoinTemplate;
 	}
 
-	public static TextTemplate getChannelTemplate() {
-		return cfg.channelTemplate;
+	public  TextTemplate getJoinTemplate() {
+		return joinTemplate;
 	}
 
-	public static TextTemplate getAnnounceTemplate() {
-		return cfg.announceTemplate;
+	public  TextTemplate getDisconnectTemplate() {
+		return disconnectTemplate;
 	}
 
-	public static TextTemplate getChattingJoinTemplate() {
-		return cfg.chattingJoinTemplate;
+	public  boolean getChatPling() {
+		return chatPling;
 	}
 
-	public static TextTemplate getJoinTemplate() {
-		return cfg.joinTemplate;
+	public  boolean getDebug() {
+		return debug;
 	}
 
-	public static TextTemplate getDisconnectTemplate() {
-		return cfg.disconnectTemplate;
-	}
-
-	public static boolean getChatPling() {
-		return cfg.chatPling;
-	}
-
-	public static boolean getDebug() {
-		return cfg.debug;
-	}
-
-	public static StorageType getStorageType() {
-		return cfg.storage;
+	public  StorageType getStorageType() {
+		return storage;
 	}
 }
