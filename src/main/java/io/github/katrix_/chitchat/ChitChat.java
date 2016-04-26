@@ -77,8 +77,9 @@ public class ChitChat {
 	public void init(GameInitializationEvent event) {
 		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
 		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
-		cfg = new ConfigSettings(configDir, LibPlugin.ID);
+		cfg = new ConfigSettings(configDir, "settings");
 		storage = createStorage(configDir, "storage");
+		cfg.reload(); //WHY in the world isn't saving the data once enough?!?!
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);

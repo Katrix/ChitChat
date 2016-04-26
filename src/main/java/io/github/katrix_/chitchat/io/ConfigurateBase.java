@@ -38,18 +38,18 @@ public abstract class ConfigurateBase {
 	protected CommentedConfigurationNode cfgRoot;
 
 	public ConfigurateBase(Path path, String name) {
-		this.path = Paths.get(path + "/" + name + ".conf");
-		cfgLoader = HoconConfigurationLoader.builder().setPath(path).build();
-		cfgRoot = loadRoot();
+		this.path = Paths.get(path.toString(), "/" + name + ".conf");
 
-		File parent = path.getParent().toFile();
+		File parent = this.path.getParent().toFile();
 		if(!parent.exists()) {
 			if(!parent.mkdirs()) {
-				LogHelper.error("Something went wring when creating the parent directory for the file used by" + getClass().getName());
-				return;
+				LogHelper.error("Something went wrong when creating the directory for the file used by" + getClass().getName());
 			}
 		}
 
+		cfgLoader = HoconConfigurationLoader.builder().setPath(this.path).build();
+		cfgRoot = loadRoot();
+		loadData();
 		saveFile();
 	}
 
@@ -68,8 +68,6 @@ public abstract class ConfigurateBase {
 		catch(IOException e) {
 			root = cfgLoader.createEmptyNode(ConfigurationOptions.defaults());
 		}
-
-		loadData();
 
 		return root;
 	}
