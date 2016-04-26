@@ -34,6 +34,9 @@ public class UserChitChatSerializer implements TypeSerializer<UserChitChat> {
 	public UserChitChat deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
 		UUID uuid = value.getNode("uuid").getValue(TypeToken.of(UUID.class));
 		String channelName = value.getNode("channel").getString();
+
+		if(uuid == null || channelName == null) throw new ObjectMappingException("Required values for channel not found");
+
 		ChannelChitChat channel;
 
 		if(ChitChatChannels.existName(channelName)) {
@@ -48,7 +51,7 @@ public class UserChitChatSerializer implements TypeSerializer<UserChitChat> {
 
 	@Override
 	public void serialize(TypeToken<?> type, UserChitChat obj, ConfigurationNode value) throws ObjectMappingException {
-		value.getNode("uuid").setValue(obj.getUUID());
+		value.getNode("uuid").setValue(TypeToken.of(UUID.class), obj.getUUID());
 		value.getNode("channel").setValue(obj.getChannel().getName());
 	}
 }

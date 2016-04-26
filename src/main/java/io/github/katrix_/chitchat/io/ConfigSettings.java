@@ -71,7 +71,7 @@ public class ConfigSettings extends ConfigurateBase {
 	private StorageType storage = StorageType.PLAINTEXT;
 
 	public ConfigSettings(Path path, String name) {
-		super(path, name);
+		super(path, name, false);
 	}
 
 	@Override

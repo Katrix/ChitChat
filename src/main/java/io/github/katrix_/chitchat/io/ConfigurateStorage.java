@@ -21,6 +21,8 @@
 package io.github.katrix_.chitchat.io;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,25 +35,66 @@ import com.google.common.reflect.TypeToken;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
 
-	private static final String[] CHANNELS = {"data", "channel"};
-	private static final String[] PLAYERS = {"data", "players"};
+	private static final String CHANNELS = "channel";
+	private static final String PLAYERS = "players";
 
 	public ConfigurateStorage(Path path, String name) {
-		super(path, name);
+		super(path, name, true);
 	}
 
-	@SuppressWarnings("ConfusingArgumentToVarargsMethod")
 	@Override
 	public boolean reloadChannels() {
+		List<ChannelChitChat> channels = new ArrayList<>();
+		Collection<? extends CommentedConfigurationNode> children = cfgRoot.getNode(CHANNELS).getChildrenMap().values();
+
+		for(ConfigurationNode node : children) {
+			try {
+				channels.add(deserialize(node));
+			}
+			catch(ObjectMappingException e) {
+				e.printStackTrace();
+			}
+		}
+
+		ChitChatChannels.clearMap();
+		channels.forEach(ChitChatChannels::add);
+		return true;
+	}
+
+	private ChannelChitChat deserialize(ConfigurationNode node) throws ObjectMappingException {
+		return node.getValue(TypeToken.of(ChannelChitChat.class));
+	}
+
+	@Override
+	public boolean saveChannel(ChannelChitChat channel) {
 		try {
-			List<ChannelChitChat> channels = cfgRoot.getNode(CHANNELS).getList(TypeToken.of(ChannelChitChat.class));
-			ChitChatChannels.clearMap();
-			channels.forEach(ChitChatChannels::add);
-			return true;
+			cfgRoot.getNode(CHANNELS, channel.getName()).setValue(TypeToken.of(ChannelChitChat.class), channel);
+			saveFile();
+		}
+		catch(ObjectMappingException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean updateChannel(String channel, @Nullable Text prefix, @Nullable Text description) {
+		try {
+			if(prefix != null) {
+				cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(TypeToken.of(Text.class), prefix);
+			}
+			if(description != null) {
+				cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(TypeToken.of(Text.class), description);
+			}
+			saveFile();
+			return !(prefix == null || description == null);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -60,26 +103,9 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	}
 
 	@Override
-	public boolean saveChannel(ChannelChitChat channel) {
-		cfgRoot.getNode(CHANNELS, channel.getName()).setValue(channel);
-		return true;
-	}
-
-	@Override
-	public boolean updateChannel(String channel, @Nullable Text prefix, @Nullable Text description) {
-		if(prefix != null) {
-			cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(prefix);
-		}
-		if(description != null) {
-			cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(description);
-		}
-		return !(prefix == null || description == null);
-	}
-
-	@SuppressWarnings("ConfusingArgumentToVarargsMethod")
-	@Override
 	public boolean deleteChannel(String channel) {
 		cfgRoot.getNode(CHANNELS).removeChild(channel);
+		saveFile();
 		return true;
 	}
 
@@ -96,7 +122,14 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 
 	@Override
 	public boolean updateUser(UserChitChat user) {
-		cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(user);
+		try {
+			cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(TypeToken.of(UserChitChat.class),user);
+			saveFile();
+		}
+		catch(ObjectMappingException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 

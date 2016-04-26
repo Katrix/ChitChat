@@ -36,13 +36,15 @@ public class ChannelChitChatSerializer implements TypeSerializer<ChannelChitChat
 		Text prefix = value.getNode("prefix").getValue(TypeToken.of(Text.class));
 		Text description = value.getNode("description").getValue(TypeToken.of(Text.class));
 
-		return new ChannelChitChat(name, prefix, description);
+		if(name == null || prefix == null || description == null) throw new ObjectMappingException("Required values for channel not found");
+
+		return new ChannelChitChat(name, description, prefix);
 	}
 
 	@Override
 	public void serialize(TypeToken<?> type, ChannelChitChat obj, ConfigurationNode value) throws ObjectMappingException {
 		value.getNode("name").setValue(obj.getName());
-		value.getNode("prefix").setValue(obj.getPrefix());
-		value.getNode("description").setValue(obj.getDescription());
+		value.getNode("prefix").setValue(TypeToken.of(Text.class), obj.getPrefix());
+		value.getNode("description").setValue(TypeToken.of(Text.class), obj.getDescription());
 	}
 }

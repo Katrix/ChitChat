@@ -103,4 +103,13 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	public boolean setPrefix(String prefix) {
 		return setPrefix(TextSerializers.FORMATTING_CODE.deserialize(prefix));
 	}
+
+	@Override
+	public String toString() {
+		return "ChannelChitChat{" +
+				"name='" + name + '\'' +
+				", description=" + description +
+				", prefix=" + prefix +
+				'}';
+	}
 }

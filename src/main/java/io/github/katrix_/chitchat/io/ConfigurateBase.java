@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.typesafe.config.ConfigRenderOptions;
+
 import io.github.katrix_.chitchat.helper.LogHelper;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -37,8 +39,9 @@ public abstract class ConfigurateBase {
 	protected final ConfigurationLoader<CommentedConfigurationNode> cfgLoader;
 	protected CommentedConfigurationNode cfgRoot;
 
-	public ConfigurateBase(Path path, String name) {
-		this.path = Paths.get(path.toString(), "/" + name + ".conf");
+	public ConfigurateBase(Path path, String name, boolean data) {
+		String ending = data ? ".json" : ".conf";
+		this.path = Paths.get(path.toString(), "/" + name + ending);
 
 		File parent = this.path.getParent().toFile();
 		if(!parent.exists()) {
@@ -47,7 +50,11 @@ public abstract class ConfigurateBase {
 			}
 		}
 
-		cfgLoader = HoconConfigurationLoader.builder().setPath(this.path).build();
+		HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder().setPath(this.path);
+		if(data) {
+			builder.setRenderOptions(ConfigRenderOptions.concise());
+		}
+		cfgLoader = builder.build();
 		cfgRoot = loadRoot();
 		loadData();
 		saveFile();
