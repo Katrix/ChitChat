@@ -50,9 +50,12 @@ import io.github.katrix_.chitchat.command.CommandBase;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.io.ConfigurateStorage;
-import io.github.katrix_.chitchat.io.IPersistentStorage;
 import io.github.katrix_.chitchat.io.H2Storage;
+import io.github.katrix_.chitchat.io.IPersistentStorage;
+import io.github.katrix_.chitchat.io.StorageType;
+import io.github.katrix_.chitchat.io.StorageTypeSerializer;
 import io.github.katrix_.chitchat.lib.LibPlugin;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 @Plugin(id = LibPlugin.ID, name = LibPlugin.NAME, version = LibPlugin.VERSION, authors = LibPlugin.AUTHORS, description = LibPlugin.DESCRIPTION)
@@ -75,11 +78,15 @@ public class ChitChat {
 
 	@Listener
 	public void init(GameInitializationEvent event) {
-		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
-		TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
+		TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers();
+		serializers.registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
+		serializers.registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
+		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
+
+
 		cfg = new ConfigSettings(configDir, "settings");
-		storage = createStorage(configDir, "storage");
 		cfg.reload(); //WHY in the world isn't saving the data once enough?!?!
+		storage = createStorage(configDir, "storage");
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);
@@ -122,19 +129,16 @@ public class ChitChat {
 				return new ConfigurateStorage(path, name);
 			case H2:
 				try {
-					storage = new H2Storage(path, name);
+					return new H2Storage(path, name);
 				}
 				catch(SQLException e) {
 					e.printStackTrace();
 					LogHelper.error("Something went wrong when initiating the H2 database for ChitChat. Defaulting to plaintext");
 					return new ConfigurateStorage(path, name);
 				}
-				break;
 			default:
 				LogHelper.error("Something went wrong when getting the storage type to use for ChitChat. Defaulting to plaintext");
 				return new ConfigurateStorage(path, name);
 		}
-
-		return new ConfigurateStorage(path,name);
 	}
 }

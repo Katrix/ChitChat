@@ -120,8 +120,8 @@ public class ConfigSettings extends ConfigurateBase {
 			node = cfgRoot.getNode("command", "announceTemplate");
 			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
 
-			//node = cfgRoot.getNode("misc", "storage");
-			//storage = !node.isVirtual() ? node.getValue(TypeToken.of(StorageType.class)) : storage; //Right Typetoken?
+			node = cfgRoot.getNode("misc", "storage");
+			storage = !node.isVirtual() ? node.getValue(TypeToken.of(StorageType.class), StorageType.PLAINTEXT) : storage; //Right Typetoken?
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -172,7 +172,7 @@ public class ConfigSettings extends ConfigurateBase {
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
-			//cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2").setValue(storage);
+			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2").setValue(TypeToken.of(StorageType.class), storage);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();

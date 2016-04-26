@@ -34,6 +34,8 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
@@ -84,8 +86,9 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 	@Override
 	public boolean updateChannel(String channelName, @Nullable Text prefix, @Nullable Text description) {
 		try {
-			if(prefix != null) updateChannelPrefix(channelName, prefix.toPlain());
-			if(description != null) updateChannelDescription(channelName, description.toPlain());
+			TextSerializer serializer = TextSerializers.TEXT_XML;
+			if(prefix != null) updateChannelPrefix(channelName, serializer.serialize(prefix));
+			if(description != null) updateChannelDescription(channelName, serializer.serialize(description));
 			return !(prefix == null || description == null);
 		}
 		catch(SQLException e) {
@@ -160,9 +163,10 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 	private void saveChannelDatabase(ChannelChitChat channel) throws SQLException {
 		String sql = "INSERT INTO channels (name, prefix, description) VALUES (?,?,?)";
 		try(PreparedStatement stat = getConnection().prepareStatement(sql)) {
+			TextSerializer serializer = TextSerializers.TEXT_XML;
 			stat.setString(1, channel.getName());
-			stat.setString(2, channel.getPrefix().toPlain());
-			stat.setString(3, channel.getDescription().toPlain());
+			stat.setString(2, serializer.serialize(channel.getPrefix()));
+			stat.setString(3, serializer.serialize(channel.getDescription()));
 			stat.executeUpdate();
 		}
 	}
@@ -171,11 +175,12 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 		List<ChannelChitChat> list = new ArrayList<>();
 		String sql = "SELECT * FROM channels";
 		try(PreparedStatement stat = getConnection().prepareStatement(sql); ResultSet result = stat.executeQuery()) {
+			TextSerializer serializer = TextSerializers.TEXT_XML;
 			while(result.next()) {
 				if(result.getString("name").equalsIgnoreCase("Global")) result.next();
 				String name = result.getString("name");
-				String prefix = result.getString("prefix");
-				String description = result.getString("description");
+				Text prefix = serializer.deserialize(result.getString("prefix"));
+				Text description = serializer.deserialize(result.getString("description"));
 				list.add(new ChannelChitChat(name, description, prefix));
 			}
 		}

@@ -1,5 +1,5 @@
-/**
- * This file is part of ChitChat, licensed under the MIT License (MIT).
+/*
+ * This file is part of PermissionBlock, licensed under the MIT License (MIT).
  *
  * Copyright (c) 2016 Katrix
  *
@@ -20,28 +20,30 @@
  */
 package io.github.katrix_.chitchat.io;
 
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
+import com.google.common.reflect.TypeToken;
 
-import javax.sql.DataSource;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.service.sql.SqlService;
+public class StorageTypeSerializer implements TypeSerializer<StorageType> {
 
-public abstract class H2Base {
+	@Override
+	public StorageType deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+		StorageType ret;
+		try {
+			ret = StorageType.valueOf(value.getString());
+		}
+		catch(IllegalArgumentException e) {
+			e.printStackTrace();
+			ret = StorageType.PLAINTEXT;
+		}
 
-	private final DataSource source;
-
-	public H2Base(Path path, String name) throws SQLException {
-		String absPath = "jdbc:h2:" + path.toAbsolutePath().toString() + "/" + name;
-		source = Sponge.getServiceManager().provideUnchecked(SqlService.class).getDataSource(absPath);
-		createTables();
+		return ret;
 	}
 
-	protected Connection getConnection() throws SQLException {
-		return source.getConnection();
+	@Override
+	public void serialize(TypeToken<?> type, StorageType obj, ConfigurationNode value) throws ObjectMappingException {
+		value.setValue(obj.toString());
 	}
-
-	protected abstract void createTables() throws SQLException;
 }

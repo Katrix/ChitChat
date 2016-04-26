@@ -67,7 +67,7 @@ public abstract class ConfigurateBase {
 	protected abstract void saveData();
 
 	protected CommentedConfigurationNode loadRoot() {
-		LogHelper.info("Loading config");
+		LogHelper.info("Loading configurate file " + getClass().getName());
 		CommentedConfigurationNode root;
 		try {
 			root = cfgLoader.load();
