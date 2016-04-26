@@ -25,7 +25,7 @@ public class LibPlugin {
 
 	public static final String ID = "chithchat";
 	public static final String NAME = "ChitChat";
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.1";
 	public static final String AUTHORS = "Katrix";
 	public static final String DESCRIPTION = "A chat plugin to manage several different chat channels and do chatty stuff.";
 
