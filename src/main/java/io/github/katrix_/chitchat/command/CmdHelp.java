@@ -22,9 +22,10 @@ package io.github.katrix_.chitchat.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -42,9 +43,6 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -52,7 +50,8 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 public class CmdHelp extends CommandBase {
 
 	public static final CmdHelp INSTANCE = new CmdHelp(CmdChitChat.INSTANCE);
-	private BiMap<CommandBase, List<String>> commandMap = HashBiMap.create();
+	private List<CommandBase> registeredCommands = new ArrayList<>();
+	private List<List<CommandBase>> familyList = new ArrayList<>();
 
 	private String baseCommand(CommandBase command) {
 		StringBuilder completeCommand = new StringBuilder(command.getAliases()[0]);
@@ -88,7 +87,7 @@ public class CmdHelp extends CommandBase {
 			Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 			pages.title(Text.of(TextColors.RED, "ChitChat Help"));
 
-			List<Text> text = commandMap.keySet().stream().map(commandBase -> getHelp.apply(commandBase, src)).collect(Collectors.toList());
+			List<Text> text = registeredCommands.stream().map(commandBase -> getHelp.apply(commandBase, src)).collect(Collectors.toList());
 			text.sort(null);
 			pages.contents(text);
 			pages.sendTo(src);
@@ -106,6 +105,7 @@ public class CmdHelp extends CommandBase {
 				CommandSpec commandSpec = cmd.getCommand();
 				Text.Builder commandText = Text.builder().append(Text.of(TextColors.GREEN, TextStyles.UNDERLINE, "/" + commandName));
 				commandText.onHover(TextActions.showText(commandSpec.getHelp(src).orElse(commandSpec.getUsage(src))));
+				commandText.append(Text.of("\n"), commandSpec.getHelp(src).orElse(commandSpec.getUsage(src)));
 				src.sendMessage(commandText.build());
 			}
 		}
@@ -125,40 +125,43 @@ public class CmdHelp extends CommandBase {
 		return new String[] {"help"};
 	}
 
-	public static void registerCommandHelp(String parent, String[] aliases, CommandBase command) {
-		List<String> list;
-		if(parent == null) {
-			list = Arrays.asList(aliases);
-		}
-		else {
-			List<String> existingList = INSTANCE.commandMap.get(command);
-			list = existingList != null ? existingList : new ArrayList<>();
-
-			for(String string : aliases) {
-				list.add(parent + " " + string);
-			}
-		}
-
-		LogHelper.debug("Registering help command: " + list);
-		INSTANCE.commandMap.put(command, list);
+	protected static void registerCommandHelp(CommandBase command, List<CommandBase> family) {
+		LogHelper.debug("Registering help command: " + family);
+		INSTANCE.registeredCommands.add(command);
+		INSTANCE.familyList.add(family);
 	}
 
-	@SuppressWarnings("Convert2streamapi")
 	private List<CommandBase> getCommandFromString(String commandName) {
-		Map<List<String>, CommandBase> inverse = commandMap.inverse();
+		String[] individualCommands = commandName.split(" ");
+		int pos = 0;
+		List<List<CommandBase>> values = familyList;
 
-		List<CommandBase> ret = new ArrayList<>();
-		//I miss scala D:
-		for(List<String> l : inverse.keySet()) {
-			if(l.contains(commandName)) {
-				for(String s : l) {
-					if(s.equals(commandName)) {
-						ret.add(inverse.get(l));
-					}
-				}
-			}
+		while(pos < individualCommands.length) {
+			String testedCommand = individualCommands[pos];
+			int newPos = pos;
+
+			/* Made from scala code
+			val newValues = for {
+				l <- values
+				cmd <- l
+				child <- cmd.getChildren
+				s <- if(start) cmd.getAliases else child.getAliases
+				if s.equals(testedCommand)
+			} yield if(start) cmd else child
+			 */
+			boolean start = pos == 0;
+			Set<CommandBase> newValues = values.stream()
+					.flatMap(l -> l.stream()
+							.flatMap(cmd -> cmd.getChildren().stream()
+									.flatMap(child -> Arrays.stream(start ? cmd.getAliases() : child.getAliases())
+											.filter(s -> s.equals(testedCommand))
+											.map(s -> start ? cmd : child))))
+					.collect(Collectors.toSet());
+			values = new ArrayList<>();
+			values.add(new ArrayList<>(newValues));
+			pos++;
 		}
 
-		return ret;
+		return values.stream().flatMap(Collection::stream).collect(Collectors.toList());
 	}
 }

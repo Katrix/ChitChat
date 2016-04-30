@@ -20,9 +20,9 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandExecutor;
@@ -62,19 +62,19 @@ public abstract class CommandBase implements CommandExecutor {
 		return ImmutableList.of();
 	}
 
-	public void registerHelp(@Nullable CommandBase parent) {
-		for(CommandBase command : getChildren()) {
-			command.registerHelp(this);
-		}
+	public void registerHelp() {
+		CmdHelp.registerCommandHelp(this, getCommandFamily(this));
+		getChildren().forEach(CommandBase::registerHelp);
+	}
 
-		if(parent != null) {
-			for(String string : parent.getAliases()) {
-				CmdHelp.registerCommandHelp(string, getAliases(), this);
-			}
+	private List<CommandBase> getCommandFamily(CommandBase command) {
+		List<CommandBase> list = new ArrayList<>();
+		CommandBase relative = command;
+		while(relative != null) {
+			list.add(relative);
+			relative = relative.parent;
 		}
-		else {
-			CmdHelp.registerCommandHelp(null, getAliases(), this);
-		}
+		return list;
 	}
 
 	protected void registerSubcommands(CommandSpec.Builder builder) {
