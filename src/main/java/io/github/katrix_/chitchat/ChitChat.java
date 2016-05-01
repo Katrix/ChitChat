@@ -120,7 +120,7 @@ public class ChitChat {
 	 */
 	private void registerCommand(CommandBase command) {
 		Sponge.getCommandManager().register(this, command.getCommand(), command.getAliases());
-		command.registerHelp(null);
+		command.registerHelp();
 	}
 
 	private IPersistentStorage createStorage(Path path, String name) {
