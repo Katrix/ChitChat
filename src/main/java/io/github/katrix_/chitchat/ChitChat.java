@@ -20,8 +20,10 @@
  */
 package io.github.katrix_.chitchat;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -52,6 +54,7 @@ import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.io.ConfigurateStorage;
 import io.github.katrix_.chitchat.io.H2Storage;
 import io.github.katrix_.chitchat.io.IPersistentStorage;
+import io.github.katrix_.chitchat.io.NBTStorage;
 import io.github.katrix_.chitchat.io.StorageType;
 import io.github.katrix_.chitchat.io.StorageTypeSerializer;
 import io.github.katrix_.chitchat.lib.LibPlugin;
@@ -133,6 +136,15 @@ public class ChitChat {
 				catch(SQLException e) {
 					e.printStackTrace();
 					LogHelper.error("Something went wrong when initiating the H2 database for ChitChat. Defaulting to plaintext");
+					return new ConfigurateStorage(path, name);
+				}
+			case NBT:
+				try {
+					return new NBTStorage(path, name, cfg.getNbtCompressed(), cfg.getSaveInterval(), TimeUnit.MINUTES);
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+					LogHelper.error("Something went wrong when initiating the NBT file for ChitChat. Defaulting to plaintext");
 					return new ConfigurateStorage(path, name);
 				}
 			default:

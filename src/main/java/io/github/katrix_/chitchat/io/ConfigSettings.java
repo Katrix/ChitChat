@@ -69,6 +69,8 @@ public class ConfigSettings extends ConfigurateBase {
 	private boolean chatPling = true;
 	private boolean debug = false;
 	private StorageType storage = StorageType.PLAINTEXT;
+	private boolean nbtCompressed = true;
+	private long saveInterval = 10;
 
 	public ConfigSettings(Path path, String name) {
 		super(path, name, false);
@@ -135,6 +137,12 @@ public class ConfigSettings extends ConfigurateBase {
 		node = cfgRoot.getNode("misc", "debug");
 		debug = !node.isVirtual() ? node.getBoolean() : debug;
 
+		node = cfgRoot.getNode("misc", "nbtCompressed");
+		nbtCompressed = !node.isVirtual() ? node.getBoolean() : nbtCompressed;
+
+		node = cfgRoot.getNode("misc", "saveInterval");
+		saveInterval = !node.isVirtual() ? node.getLong() : saveInterval;
+
 		super.loadData();
 	}
 
@@ -175,7 +183,7 @@ public class ConfigSettings extends ConfigurateBase {
 					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
 			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
 					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
-			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2")
+			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2\nNBT !!EXPERIMENTAL!!")
 					.setValue(TypeToken.of(StorageType.class), storage);
 		}
 		catch(ObjectMappingException e) {
@@ -185,6 +193,8 @@ public class ConfigSettings extends ConfigurateBase {
 		cfgRoot.getNode("chat", "chatPling").setComment("Type = Boolean\nPlay a sound for the player when his name is mentioned, or he receives a PM")
 				.setValue(chatPling);
 		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console").setValue(debug);
+		cfgRoot.getNode("misc", "nbtCompressed").setComment("Type = Boolean\nIf the NBT should be compressed.\nOnly used if NBT is used as a storage type").setValue(nbtCompressed);
+		cfgRoot.getNode("misc", "saveInterval").setComment("Type = Long\nHow many minutes between saves for NBT.\nOnly used if NBT is used as a storage type").setValue(saveInterval);
 	}
 
 	public void reload() {
@@ -259,5 +269,13 @@ public class ConfigSettings extends ConfigurateBase {
 
 	public StorageType getStorageType() {
 		return storage;
+	}
+
+	public boolean getNbtCompressed() {
+		return nbtCompressed;
+	}
+
+	public long getSaveInterval() {
+		return saveInterval;
 	}
 }

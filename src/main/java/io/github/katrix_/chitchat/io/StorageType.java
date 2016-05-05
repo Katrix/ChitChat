@@ -22,5 +22,6 @@ package io.github.katrix_.chitchat.io;
 
 public enum StorageType {
 	PLAINTEXT,
-	H2
+	H2,
+	NBT
 }
