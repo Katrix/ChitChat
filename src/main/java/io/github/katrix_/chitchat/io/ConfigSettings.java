@@ -72,6 +72,8 @@ public class ConfigSettings extends ConfigurateBase {
 
 	public ConfigSettings(Path path, String name) {
 		super(path, name, false);
+		loadData();
+		saveFile();
 	}
 
 	@Override

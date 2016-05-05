@@ -85,7 +85,6 @@ public class ChitChat {
 
 
 		cfg = new ConfigSettings(configDir, "settings");
-		cfg.reload(); //WHY in the world isn't saving the data once enough?!?!
 		storage = createStorage(configDir, "storage");
 
 		registerCommand(CmdChannel.INSTANCE);

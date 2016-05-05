@@ -56,8 +56,6 @@ public abstract class ConfigurateBase {
 		}
 		cfgLoader = builder.build();
 		cfgRoot = loadRoot();
-		loadData();
-		saveFile();
 	}
 
 	protected void loadData() {
