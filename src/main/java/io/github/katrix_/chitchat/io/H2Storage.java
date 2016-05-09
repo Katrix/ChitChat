@@ -181,7 +181,7 @@ public class H2Storage extends H2Base implements IPersistentStorage {
 				String name = result.getString("name");
 				Text prefix = serializer.deserialize(result.getString("prefix"));
 				Text description = serializer.deserialize(result.getString("description"));
-				list.add(new ChannelChitChat(name, description, prefix));
+				list.add(new ChannelChitChat(parent, name, description, prefix));
 			}
 		}
 		return list;

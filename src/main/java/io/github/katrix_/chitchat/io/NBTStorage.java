@@ -98,7 +98,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 							}
 						}
 
-						ChannelChitChat channel = new ChannelChitChat(channelName, description, prefix);
+						ChannelChitChat channel = new ChannelChitChat(parent, channelName, description, prefix);
 						ChitChatChannels.add(channel);
 					}
 				}

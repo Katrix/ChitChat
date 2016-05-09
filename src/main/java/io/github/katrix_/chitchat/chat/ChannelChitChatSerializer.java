@@ -20,6 +20,8 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
 import com.google.common.reflect.TypeToken;
@@ -38,7 +40,7 @@ public class ChannelChitChatSerializer implements TypeSerializer<ChannelChitChat
 
 		if(name == null || prefix == null || description == null) throw new ObjectMappingException("Required values for channel not found");
 
-		return new ChannelChitChat(name, description, prefix);
+		return new ChannelChitChat(parent, name, description, prefix);
 	}
 
 	@Override
@@ -46,5 +48,6 @@ public class ChannelChitChatSerializer implements TypeSerializer<ChannelChitChat
 		value.getNode("name").setValue(obj.getName());
 		value.getNode("prefix").setValue(TypeToken.of(Text.class), obj.getPrefix());
 		value.getNode("description").setValue(TypeToken.of(Text.class), obj.getDescription());
+		Sponge.getServer().getOnlinePlayers().stream().map(Player::getUniqueId).map(uuid -> Sponge.getServer().getPlayer(uuid))
 	}
 }

@@ -38,7 +38,7 @@ import com.google.inject.Inject;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChatSerializer;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.ChatListener;
 import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.chat.UserChitChatSerializer;
 import io.github.katrix_.chitchat.command.CmdAnnounce;
@@ -67,6 +67,7 @@ public class ChitChat {
 	private static ChitChat plugin;
 	private IPersistentStorage storage;
 	private ConfigSettings cfg;
+	private ChannelChitChat root;
 
 	@Inject
 	private Logger log;
@@ -98,7 +99,9 @@ public class ChitChat {
 		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
 
-		ChitChatChannels.init();
+		root = ChannelChitChat.createRoot();
+		Sponge.getEventManager().registerListeners(this, new ChatListener());
+		storage.reloadChannels();
 	}
 
 	public Logger getLog() {
@@ -115,6 +118,10 @@ public class ChitChat {
 
 	public static ConfigSettings getConfig() {
 		return plugin.cfg;
+	}
+
+	public static ChannelChitChat getChannelRoot() {
+		return plugin.root;
 	}
 
 	/**

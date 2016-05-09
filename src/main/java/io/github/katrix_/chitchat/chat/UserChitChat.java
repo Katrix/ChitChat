@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,11 +31,19 @@ import io.github.katrix_.chitchat.ChitChat;
 
 public class UserChitChat {
 
+	private final WeakReference<Player> player;
 	private final UUID uuid;
-	private ChannelChitChat channel = ChitChatChannels.getGlobal();
+	private ChannelChitChat channel = ChitChat.getChannelRoot();
 
-	public UserChitChat(UUID uuid) {
+	private UserChitChat(UUID uuid) {
 		this.uuid = uuid;
+		Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+		if(optPlayer.isPresent()) {
+			player = new WeakReference<Player>(optPlayer.get());
+		}
+		else {
+			player = null;
+		}
 	}
 
 	public UserChitChat(Player player) {
@@ -57,7 +66,7 @@ public class UserChitChat {
 	}
 
 	public Optional<Player> getPlayer() {
-		return Sponge.getServer().getPlayer(uuid);
+		return Optional.ofNullable(player.get());
 	}
 
 	public ChannelChitChat getChannel() {

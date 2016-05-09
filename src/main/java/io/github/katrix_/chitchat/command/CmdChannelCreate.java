@@ -51,7 +51,7 @@ public class CmdChannelCreate extends CommandBase {
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 
 		if(channelNameNotUsed(name, src) && permissionChannel(name, src, LibPerm.CHANNEL_CREATE)) {
-			ChannelChitChat channel = new ChannelChitChat(name, description, prefix);
+			ChannelChitChat channel = new ChannelChitChat(parent, name, description, prefix);
 			ChitChatChannels.add(channel);
 			if(ChitChat.getStorage().saveChannel(channel)) {
 				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));

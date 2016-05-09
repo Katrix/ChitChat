@@ -20,7 +20,6 @@
  */
 package io.github.katrix_.chitchat.chat;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.spongepowered.api.effect.sound.SoundTypes;
@@ -97,18 +96,18 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreate(player).getChannel();
+		UserChitChat user = CentralControl.INSTANCE.getOrCreateUser(player);
+		ChannelChitChat playerChannel = user.getChannel();
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(cfg.getChatPling()) {
 			String message = event.getFormatter().getBody().format().toPlain();
-			Map<Player, UserChitChat> playerMap = ChitChatPlayers.getMap();
-			for(Map.Entry<Player, UserChitChat> entry : playerMap.entrySet()) {
-				Player player1 = entry.getKey();
-				if(entry.getValue().getChannel().equals(playerChannel) && message.contains(player1.getName())) {
-					player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D);
-				}
-			}
+
+			playerChannel.getMembers().stream()
+					.filter(messageReceiver -> messageReceiver instanceof Player)
+					.map(m -> (Player)m)
+					.filter(p -> message.contains(p.getName()))
+					.forEach(p -> p.playSound(SoundTypes.ORB_PICKUP, p.getLocation().getPosition(), 0.5D));
 		}
 	}
 
@@ -134,7 +133,7 @@ public class ChatListener {
 
 		Player player = event.getTargetEntity();
 		ChannelChitChat channel = ChitChat.getStorage().getChannelForUser(player);
-		ChitChatPlayers.getOrCreate(player).setChannel(channel);
+		CentralControl.INSTANCE.getOrCreateUser(player).setChannel(channel);
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 
