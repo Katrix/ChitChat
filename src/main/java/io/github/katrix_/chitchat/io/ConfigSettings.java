@@ -29,6 +29,7 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import com.google.common.reflect.TypeToken;
 
+import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
@@ -82,50 +83,26 @@ public class ConfigSettings extends ConfigurateBase {
 	public void loadData() {
 		CommentedConfigurationNode node;
 		try {
-			node = cfgRoot.getNode("chat", "defaultHeader");
-			defaultHeader = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : defaultHeader;
+			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
+			TypeToken<Text> textToken = TypeToken.of(Text.class);
 
-			node = cfgRoot.getNode("chat", "defaultSuffix");
-			defaultSuffix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : defaultSuffix;
+			defaultHeader = getOrDefaultObject(cfgRoot.getNode("chat", "defaultHeader"), textTemplateToken, defaultHeader);
+			defaultSuffix = getOrDefaultObject(cfgRoot.getNode("chat", "defaultSuffix"), textToken, defaultSuffix);
+			globalPrefix = getOrDefaultObject(cfgRoot.getNode("chat", "globalPrefix"), textToken, globalPrefix);
+			headerTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "headerTemplate"), textTemplateToken, headerTemplate);
+			suffixTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "suffixTemplate"), textTemplateToken, suffixTemplate);
+			channelTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "channelTemplate"), textTemplateToken, channelTemplate);
+			chattingJoinTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "chattingJoinTemplate"), textTemplateToken, chattingJoinTemplate);
+			joinTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "joinTemplate"), textTemplateToken, joinTemplate);
+			disconnectTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "disconnectTemplate"), textTemplateToken, disconnectTemplate);
 
-			node = cfgRoot.getNode("chat", "globalPrefix");
-			globalPrefix = !node.isVirtual() ? node.getValue(TypeToken.of(Text.class)) : globalPrefix;
+			meTemplate = getOrDefaultObject(cfgRoot.getNode("command", "meTemplate"), textTemplateToken, meTemplate);
+			pmReciever = getOrDefaultObject(cfgRoot.getNode("command", "pmReciever"), textTemplateToken, pmReciever);
+			pmSender = getOrDefaultObject(cfgRoot.getNode("command", "pmSender"), textTemplateToken, pmSender);
+			shoutTemplate = getOrDefaultObject(cfgRoot.getNode("command", "shoutTemplate"), textTemplateToken, shoutTemplate);
+			announceTemplate = getOrDefaultObject(cfgRoot.getNode("command", "announceTemplate"), textTemplateToken, announceTemplate);
 
-			node = cfgRoot.getNode("chat", "headerTemplate");
-			headerTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : headerTemplate;
-
-			node = cfgRoot.getNode("chat", "suffixTemplate");
-			suffixTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : suffixTemplate;
-
-			node = cfgRoot.getNode("chat", "channelTemplate");
-			channelTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : channelTemplate;
-
-			node = cfgRoot.getNode("chat", "chattingJoinTemplate");
-			chattingJoinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : chattingJoinTemplate;
-
-			node = cfgRoot.getNode("chat", "joinTemplate");
-			joinTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : joinTemplate;
-
-			node = cfgRoot.getNode("chat", "disconnectTemplate");
-			disconnectTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : disconnectTemplate;
-
-			node = cfgRoot.getNode("command", "meTemplate");
-			meTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : meTemplate;
-
-			node = cfgRoot.getNode("command", "pmReciever");
-			pmReciever = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : pmReciever;
-
-			node = cfgRoot.getNode("command", "pmSender");
-			pmSender = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : pmSender;
-
-			node = cfgRoot.getNode("command", "shoutTemplate");
-			shoutTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : shoutTemplate;
-
-			node = cfgRoot.getNode("command", "announceTemplate");
-			announceTemplate = !node.isVirtual() ? node.getValue(TypeToken.of(TextTemplate.class)) : announceTemplate;
-
-			node = cfgRoot.getNode("misc", "storage");
-			storage = !node.isVirtual() ? node.getValue(TypeToken.of(StorageType.class), StorageType.PLAINTEXT) : storage; //Right Typetoken?
+			storage = getOrDefaultObject(cfgRoot.getNode("misc", "storage"), TypeToken.of(StorageType.class), storage);
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -149,42 +126,39 @@ public class ConfigSettings extends ConfigurateBase {
 	@Override
 	public void saveData() {
 		try {
-			cfgRoot.getNode("chat", "defaultHeader")
-					.setComment(
-							"Type = TextTemplate\nThe prefix that should be used if no prefix option for permissions is found. If a prefix option is found, it will override this")
-					.setValue(TypeToken.of(TextTemplate.class), defaultHeader);
-			cfgRoot.getNode("chat", "defaultSuffix")
-					.setComment(
-							"Type = Text\nThe suffix that should be used if no suffix option for permissions is found. If a suffix option is found, it will override this")
-					.setValue(TypeToken.of(Text.class), defaultSuffix);
-			cfgRoot.getNode("chat", "globalPrefix").setComment("Type = Text\nThe prefix that will be used for the global channel.")
-					.setValue(TypeToken.of(Text.class), globalPrefix);
-			cfgRoot.getNode("chat", "headerTemplate")
-					.setComment(
-							"Type = TextTemplate\nThe format that will be used for the prefix and the name. Do note that the prefix and the name always sits side by side")
-					.setValue(TypeToken.of(TextTemplate.class), headerTemplate);
-			cfgRoot.getNode("chat", "suffixTemplate").setComment("Type = TextTemplate\nThe format that will be used for the suffix.")
-					.setValue(TypeToken.of(TextTemplate.class), suffixTemplate);
-			cfgRoot.getNode("chat", "channelTemplate").setComment("Type = TextTemplate\nThe format that will be used for the channel.")
-					.setValue(TypeToken.of(TextTemplate.class), channelTemplate);
-			cfgRoot.getNode("chat", "joinTemplate").setComment("Type = TextTemplate\nThe format that will be used when a player joins the server.")
-					.setValue(TypeToken.of(TextTemplate.class), joinTemplate);
-			cfgRoot.getNode("chat", "disconnectTemplate")
-					.setComment("Type = TextTemplate\nThe format that will be used when a player leaves the server.")
-					.setValue(TypeToken.of(TextTemplate.class), disconnectTemplate);
+			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
+			TypeToken<Text> textToken = TypeToken.of(Text.class);
 
-			cfgRoot.getNode("command", "meTemplate").setComment("Type = TextTemplate\nThe format that will be used for the me command.")
-					.setValue(TypeToken.of(TextTemplate.class), meTemplate);
-			cfgRoot.getNode("command", "pmReciever").setComment("Type = TextTemplate\nThe format that will be used for the receiver of a PM.")
-					.setValue(TypeToken.of(TextTemplate.class), pmReciever);
-			cfgRoot.getNode("command", "pmSender").setComment("Type = TextTemplate\nThe format that will be used for the sender of a PM.")
-					.setValue(TypeToken.of(TextTemplate.class), pmSender);
-			cfgRoot.getNode("command", "shoutTemplate").setComment("Type = TextTemplate\nThe format that will be used for the shout command.")
-					.setValue(TypeToken.of(TextTemplate.class), shoutTemplate);
-			cfgRoot.getNode("command", "announceTemplate").setComment("Type = TextTemplate\nThe format that will be used for the announce command.")
-					.setValue(TypeToken.of(TextTemplate.class), announceTemplate);
-			cfgRoot.getNode("misc", "storage").setComment("Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2\nNBT !!EXPERIMENTAL!!")
-					.setValue(TypeToken.of(StorageType.class), storage);
+			saveNodeObject(cfgRoot.getNode("chat", "defaultHeader"), textTemplateToken, defaultHeader,
+					"Type = TextTemplate\nThe prefix that should be used if no prefix option from permissions is found.\nIf a prefix option is found, it will override this");
+			saveNodeObject(cfgRoot.getNode("chat", "defaultSuffix"), textToken, defaultSuffix,
+					"Type = Text\nThe suffix that should be used if no suffix option from permissions is found.\nIf a suffix option is found, it will override this");
+			saveNodeObject(cfgRoot.getNode("chat", "globalPrefix"), textToken, globalPrefix,
+					"Type = Text\nThe prefix that will be used for the global channel");
+			saveNodeObject(cfgRoot.getNode("chat", "headerTemplate"), textTemplateToken, headerTemplate,
+					"Type = TextTemplate\nThe format that will be used for the prefix and the name. Do note that the prefix and the name always sits side by side");
+			saveNodeObject(cfgRoot.getNode("chat", "suffixTemplate"), textTemplateToken, suffixTemplate,
+					"Type = TextTemplate\nThe format that will be used for the suffix");
+			saveNodeObject(cfgRoot.getNode("chat", "channelTemplate"), textTemplateToken, channelTemplate,
+					"Type = TextTemplate\nThe format that will be used for the channel");
+			saveNodeObject(cfgRoot.getNode("chat", "joinTemplate"), textTemplateToken, joinTemplate,
+					"Type = TextTemplate\nThe format that will be used when a player joins the server");
+			saveNodeObject(cfgRoot.getNode("chat", "disconnectTemplate"), textTemplateToken, disconnectTemplate,
+					"Type = TextTemplate\nThe format that will be used when a player leaves the server");
+
+			saveNodeObject(cfgRoot.getNode("command", "meTemplate"), textTemplateToken, meTemplate,
+					"Type = TextTemplate\nThe format that will be used for the me command");
+			saveNodeObject(cfgRoot.getNode("command", "pmReciever"), textTemplateToken, pmReciever,
+					"Type = TextTemplate\nThe format that will be used for the receiver of a PM");
+			saveNodeObject(cfgRoot.getNode("command", "pmSender"), textTemplateToken, pmSender,
+					"Type = TextTemplate\nThe format that will be used for the sender of a PM");
+			saveNodeObject(cfgRoot.getNode("command", "shoutTemplate"), textTemplateToken, shoutTemplate,
+					"Type = TextTemplate\nThe format that will be used for the shout command");
+			saveNodeObject(cfgRoot.getNode("command", "announceTemplate"), textTemplateToken, announceTemplate,
+					"Type = TextTemplate\nThe format that will be used for the announce command");
+
+			saveNodeObject(cfgRoot.getNode("misc", "storage"), TypeToken.of(StorageType.class), storage,
+					"Type = Enum\nWhat type of storage to use. Valid options are:\nPLAINTEXT\nH2\nNBT !!EXPERIMENTAL!!");
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
@@ -203,6 +177,14 @@ public class ConfigSettings extends ConfigurateBase {
 		saveFile();
 	}
 
+	private <T> T getOrDefaultObject(ConfigurationNode node, TypeToken<T> typeToken, T defaultValue) throws ObjectMappingException {
+		return !node.isVirtual() ? node.getValue(typeToken) : defaultValue;
+	}
+
+	private <T> void saveNodeObject(CommentedConfigurationNode node, TypeToken<T> typeToken, T value, String comment) throws ObjectMappingException {
+		node.setComment(comment);
+		node.setValue(typeToken, value);
+	}
 	public TextTemplate getDefaultHeader() {
 		return defaultHeader;
 	}
