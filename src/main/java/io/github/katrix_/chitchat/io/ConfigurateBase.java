@@ -25,8 +25,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.spongepowered.api.Sponge;
+
 import com.typesafe.config.ConfigRenderOptions;
 
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -78,11 +81,16 @@ public abstract class ConfigurateBase {
 	}
 
 	protected void saveFile() {
-		try {
-			cfgLoader.save(cfgRoot);
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
+		Runnable save = () -> {
+			try {
+				cfgLoader.save(cfgRoot);
+				LogHelper.debug("Saved file " + path + " for " + getClass().getName());
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		};
+
+		Sponge.getScheduler().createTaskBuilder().async().execute(save).submit(ChitChat.getPlugin());
 	}
 }
