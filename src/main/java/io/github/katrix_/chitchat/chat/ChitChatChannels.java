@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,7 +89,7 @@ public class ChitChatChannels {
 	}
 
 	public static void clearMap() {
-		CHANNELS.values().stream().filter(channel -> !channel.equals(GLOBAL)).forEach(ChitChatChannels::remove);
+		new ArrayList<>(CHANNELS.values()).forEach(ChitChatChannels::remove); //New List so we don't get any ConcurrentModificationException
 	}
 
 	public static ChannelChitChat getGlobal() {

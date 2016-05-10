@@ -50,6 +50,8 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 
 	@Override
 	public boolean reloadChannels() {
+		cfgRoot = loadRoot();
+
 		List<ChannelChitChat> channels = new ArrayList<>();
 		Collection<? extends CommentedConfigurationNode> children = cfgRoot.getNode(CHANNELS).getChildrenMap().values();
 

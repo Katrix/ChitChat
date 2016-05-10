@@ -62,6 +62,13 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 
 	@Override
 	public boolean reloadChannels() {
+		try {
+			compound = load();
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		}
+
 		NBTCompound channelTag = getChannelTag();
 		Collection<NBTTag> childTags = channelTag.valuesJava().values();
 
