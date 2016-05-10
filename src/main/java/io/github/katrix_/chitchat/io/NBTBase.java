@@ -29,12 +29,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.world.SaveWorldEvent;
-import org.spongepowered.api.scheduler.Task;
 
 import io.github.katrix.spongynbt.NBTStreamTools;
 import io.github.katrix.spongynbt.nbt.NBTCompound;
@@ -49,9 +45,7 @@ public abstract class NBTBase {
 	protected final boolean compressed;
 	protected boolean dirty = false;
 
-	protected final Task saver;
-
-	public NBTBase(Path path, String name, boolean compressed, long saveInterval, TimeUnit timeUnit) throws IOException {
+	public NBTBase(Path path, String name, boolean compressed) throws IOException {
 		this.compressed = compressed;
 		this.path = Paths.get(path.toString(), "/" + name + ".nbt");
 		LogHelper.debug("Created NBT file");
@@ -65,27 +59,21 @@ public abstract class NBTBase {
 		}
 
 		loadOrCreateFile();
-
-		saver = Sponge.getScheduler().createTaskBuilder().async().interval(saveInterval, timeUnit).execute(() -> {
-			try {
-				save();
-			}
-			catch(IOException e) {
-				e.printStackTrace();
-				failedSave();
-			}
-		}).submit(ChitChat.getPlugin());
-		Sponge.getEventManager().registerListeners(ChitChat.getPlugin(), this);
 	}
 
-	protected void save() throws IOException {
-		if(dirty) {
+	protected void save() {
+
+		Runnable save = () -> {
 			try(OutputStream stream = getOutputStream()) {
 				NBTStreamTools.writeTo(stream, compound, "storage", compressed);
 			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
 			LogHelper.debug("Saved NBT File: " + path.toAbsolutePath() + " for: " + getClass().getName());
-			dirty = false;
-		}
+		};
+
+		Sponge.getScheduler().createTaskBuilder().async().execute(save).submit(ChitChat.getPlugin());
 	}
 
 	protected NBTCompound load() throws IOException {
@@ -111,20 +99,5 @@ public abstract class NBTBase {
 			dirty = true;
 			save();
 		}
-	}
-
-	@Listener
-	public void onSaveWorld(SaveWorldEvent event) {
-		try {
-			save();
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-			failedSave();
-		}
-	}
-
-	private void failedSave() {
-		LogHelper.error("ChitChat failed to save NBT file: " + path.toAbsolutePath() + " for: " + getClass().getName());
 	}
 }

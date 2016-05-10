@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
@@ -48,8 +47,8 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	private static final String CHILDREN = "children";
 	private static final String ROOT = "root";
 
-	public NBTStorage(Path path, String name, boolean compressed, long saveInterval, TimeUnit timeUnit) throws IOException {
-		super(path, name, compressed, saveInterval, timeUnit);
+	public NBTStorage(Path path, String name, boolean compressed) throws IOException {
+		super(path, name, compressed);
 	}
 
 	@Override

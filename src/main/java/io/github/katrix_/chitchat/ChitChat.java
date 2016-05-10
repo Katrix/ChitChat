@@ -22,7 +22,6 @@ package io.github.katrix_.chitchat;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -136,7 +135,7 @@ public class ChitChat {
 				return new ConfigurateStorage(path, name);
 			case NBT:
 				try {
-					return new NBTStorage(path, name, cfg.getNbtCompressed(), cfg.getSaveInterval(), TimeUnit.MINUTES);
+					return new NBTStorage(path, name, cfg.getNbtCompressed());
 				}
 				catch(IOException e) {
 					e.printStackTrace();
