@@ -71,7 +71,6 @@ public class ConfigSettings extends ConfigurateBase {
 	private boolean debug = false;
 	private StorageType storage = StorageType.PLAINTEXT;
 	private boolean nbtCompressed = true;
-	private long saveInterval = 10;
 
 	public ConfigSettings(Path path, String name) {
 		super(path, name, false);
@@ -116,9 +115,6 @@ public class ConfigSettings extends ConfigurateBase {
 
 		node = cfgRoot.getNode("misc", "nbtCompressed");
 		nbtCompressed = !node.isVirtual() ? node.getBoolean() : nbtCompressed;
-
-		node = cfgRoot.getNode("misc", "saveInterval");
-		saveInterval = !node.isVirtual() ? node.getLong() : saveInterval;
 
 		super.loadData();
 	}
@@ -168,7 +164,6 @@ public class ConfigSettings extends ConfigurateBase {
 				.setValue(chatPling);
 		cfgRoot.getNode("misc", "debug").setComment("Type = Boolean\nOutput debug stuff in console").setValue(debug);
 		cfgRoot.getNode("misc", "nbtCompressed").setComment("Type = Boolean\nIf the NBT should be compressed.\nOnly used if NBT is used as a storage type").setValue(nbtCompressed);
-		cfgRoot.getNode("misc", "saveInterval").setComment("Type = Long\nHow many minutes between saves for NBT.\nOnly used if NBT is used as a storage type").setValue(saveInterval);
 	}
 
 	public void reload() {
@@ -255,9 +250,5 @@ public class ConfigSettings extends ConfigurateBase {
 
 	public boolean getNbtCompressed() {
 		return nbtCompressed;
-	}
-
-	public long getSaveInterval() {
-		return saveInterval;
 	}
 }

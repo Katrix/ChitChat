@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
@@ -56,8 +55,8 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	private static final String USER_UUID = "userUUID";
 	private static final String USER_CHANNEL = "userChannel";
 
-	public NBTStorage(Path path, String name, boolean compressed, long saveInterval, TimeUnit timeUnit) throws IOException {
-		super(path, name, compressed, saveInterval, timeUnit);
+	public NBTStorage(Path path, String name, boolean compressed) throws IOException {
+		super(path, name, compressed);
 	}
 
 	@Override
