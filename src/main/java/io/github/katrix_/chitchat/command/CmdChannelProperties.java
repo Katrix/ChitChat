@@ -21,9 +21,9 @@
 package io.github.katrix_.chitchat.command;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,13 +37,13 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatPlayers;
-import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -58,9 +58,9 @@ public class CmdChannelProperties extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(channelExists(src, optChannel)) {
+		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
-			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) {
+			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_INFO)) {
 				PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 				pages.title(Text.of(TextColors.RED, channel.getName()));
 				List<Text> list = new ArrayList<>();
@@ -71,8 +71,11 @@ public class CmdChannelProperties extends CommandBase {
 				list.add(Text.of("Channel members:"));
 
 				StringBuilder players = new StringBuilder();
-				Map<Player, UserChitChat> playerMap = ChitChatPlayers.getMap();
-				Iterator<Player> iterator = playerMap.keySet().stream().filter(player -> playerMap.get(player).getChannel().equals(channel))
+				Collection<MessageReceiver> playerMap = CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel().getMembers();
+				Iterator<Player> iterator = playerMap.stream()
+						.filter(m -> m instanceof Player)
+						.map(m -> (Player)m)
+						.filter(player -> CentralControl.INSTANCE.getOrCreateUser(player).getChannel().equals(channel))
 						.collect(Collectors.toList()).iterator();
 
 				while(iterator.hasNext()) {

@@ -20,27 +20,93 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
 
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.PatternMatchingCommandElement;
+import org.spongepowered.api.command.args.ArgumentParseException;
+import org.spongepowered.api.command.args.CommandArgs;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
-public class CommandElementChannel extends PatternMatchingCommandElement {
+import io.github.katrix_.chitchat.chat.CentralControl;
+import io.github.katrix_.chitchat.chat.ChannelChitChat;
+
+import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
+
+/**
+ * PatternMatchingCommandElement with CommandSource available in getValue.
+ */
+public class CommandElementChannel extends CommandElement {
+
+	private static final Text nullKeyArg = t("argument");
 
 	public CommandElementChannel(@Nullable Text key) {
 		super(key);
 	}
 
+	private Iterable<String> getChoices(CommandSource source) {
+		if(source instanceof Player) {
+			return CentralControl.INSTANCE.getOrCreateUser((Player)source).getChannel().getChildren().stream().map(ChannelChitChat::getName).collect(
+					Collectors.toList());
+		}
+		else {
+			return ImmutableList.of();
+		}
+	}
+
+	private Object getValue(String choice, CommandSource source) throws IllegalArgumentException {
+		if(source instanceof Player) {
+			return CentralControl.INSTANCE.getOrCreateUser((Player)source).getChannel().getChild(choice).orElse(null);
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Nullable
 	@Override
-	protected Iterable<String> getChoices(CommandSource source) {
-		return ChitChatChannels.getMap().keySet();
+	protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+		final String unformattedPattern = args.next();
+		Pattern pattern = getFormattedPattern(unformattedPattern);
+		Iterable<String> filteredChoices = Iterables.filter(getChoices(source), element -> pattern.matcher(element).find());
+		for(String el : filteredChoices) { // Match a single value
+			if(el.equalsIgnoreCase(unformattedPattern)) {
+				return getValue(el, source);
+			}
+		}
+		Iterable<Object> ret = Iterables.transform(filteredChoices, s -> getValue(s, source));
+
+		if(!ret.iterator().hasNext()) {
+			throw args.createError(t("No values matching pattern '%s' present for %s!", unformattedPattern, getKey() == null ? nullKeyArg : getKey()));
+		}
+		return ret;
 	}
 
 	@Override
-	protected Object getValue(String choice) throws IllegalArgumentException {
-		return ChitChatChannels.get(choice);
+	public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
+		Iterable<String> choices = getChoices(src);
+		final Optional<String> nextArg = args.nextIfPresent();
+		if(nextArg.isPresent()) {
+			choices = Iterables.filter(choices, input -> getFormattedPattern(nextArg.get()).matcher(input).find());
+		}
+		return ImmutableList.copyOf(choices);
+	}
+
+	private Pattern getFormattedPattern(String input) {
+		if(!input.startsWith("^")) { // Anchor matches to the beginning -- this lets us use find()
+			input = "^" + input;
+		}
+		return Pattern.compile(input, Pattern.CASE_INSENSITIVE);
+
 	}
 }

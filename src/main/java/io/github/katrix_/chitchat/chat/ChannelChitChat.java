@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -147,6 +148,10 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	public void removeChannel(ChannelChitChat channel) {
 		removeChild(channel);
 		channel.moveAllToParent(Text.of(TextColors.RED, "The channel you are in is being removed"));
+	}
+
+	public Collection<ChannelChitChat> getChildren() {
+		return children.values();
 	}
 
 	/*============================== Player stuff ==============================*/

@@ -27,12 +27,13 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -48,15 +49,11 @@ public class CmdChannelRemove extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(channelExists(src, optChannel)) {
+		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
-			if(channel.equals(ChitChatChannels.getGlobal())) {
-				src.sendMessage(Text.of(TextColors.RED, "You can't remove the global channel"));
-				return CommandResult.empty();
-			}
 
-			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_PREFIX)) {
-				ChitChatChannels.remove(channel);
+			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
+				CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel().removeChannel(channel);
 				if(ChitChat.getStorage().deleteChannel(channel)) {
 					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
 				}

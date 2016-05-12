@@ -20,8 +20,8 @@
  */
 package io.github.katrix_.chitchat.command;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
@@ -30,14 +30,15 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.service.pagination.PaginationList.Builder;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelList extends CommandBase {
@@ -50,20 +51,29 @@ public class CmdChannelList extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-		pages.title(Text.of(TextColors.RED, "Channels"));
-		Map<String, ChannelChitChat> channels = ChitChatChannels.getMap();
-		List<Text> list = channels.keySet().stream().filter(channel -> src.hasPermission(LibPerm.CHANNEL_JOIN + "." + channel))
-				.map(channel -> Text.builder().color(TextColors.GREEN).onHover(TextActions.showText(Text.of("Click to join channel")))
-						.onClick(TextActions.runCommand("/channel join " + channel))
-						.append(Text.of(channel, " - ", channels.get(channel).getDescription())).build())
-				.collect(Collectors.toList());
+		if(sourceIsPlayer(src)) {
+			ChannelChitChat parentChannel = CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel();
+			PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
+			pages.title(Text.of(TextColors.RED, "Child channels: " + parentChannel.getName()));
+			Collection<ChannelChitChat> children = parentChannel.getChildren();
+			List<Text> list = children.stream()
+					.filter(c -> src.hasPermission(LibPerm.CHANNEL_JOIN + "." + c.getQueryName()))
+					.map(c -> Text.builder()
+							.color(TextColors.GREEN)
+							.onHover(TextActions.showText(Text.of("Click to join channel")))
+							.onClick(TextActions.runCommand("/channel join " + c.getName()))
+							.append(Text.of(c.getName(), " - ", c.getDescription()))
+							.build())
+					.collect(Collectors.toList());
 
-		list.sort(null);
+			list.sort(null);
 
-		pages.contents(list);
-		pages.sendTo(src);
-		return CommandResult.success();
+			pages.contents(list);
+			pages.sendTo(src);
+			return CommandResult.success();
+		}
+
+		return CommandResult.empty();
 	}
 
 	@Override

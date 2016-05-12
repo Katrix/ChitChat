@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -34,8 +35,8 @@ import org.spongepowered.api.text.format.TextColors;
 import com.google.common.collect.ImmutableList;
 
 import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 
 public abstract class CommandBase implements CommandExecutor {
@@ -87,14 +88,14 @@ public abstract class CommandBase implements CommandExecutor {
 	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it
 	 * sends an errorto the player.
 	 */
-	protected boolean channelNameNotUsed(String channel, CommandSource src) {
+	protected boolean channelNameNotUsed(String channel, Player player) {
 		if(BADNAMES.contains(channel)) {
-			src.sendMessage(Text.of(TextColors.RED, channel + " is not an allow channel name"));
+			player.sendMessage(Text.of(TextColors.RED, channel + " is not an allow channel name"));
 			return false;
 		}
 
-		if(ChitChatChannels.existName(channel)) {
-			src.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
+		if(!CentralControl.INSTANCE.getOrCreateUser(player).getChannel().getChild(channel).isPresent()) {
+			player.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
 			return false;
 		}
 
@@ -116,8 +117,8 @@ public abstract class CommandBase implements CommandExecutor {
 	 * Checks that a player has the permission to do something with a given channel, and sends an
 	 * error message to the player if they don't have permission for the given channel.
 	 */
-	protected boolean permissionChannel(String channelName, CommandSource subject, String basePerm) {
-		if(!subject.hasPermission(basePerm + "." + channelName)) {
+	protected boolean permissionChannel(DataQuery channelQueryName, CommandSource subject, String basePerm) {
+		if(!subject.hasPermission(basePerm + "." + channelQueryName.asString('.'))) {
 			subject.sendMessage(Text.of(TextColors.RED, "You don't have the permissions to do that for this channel"));
 			return false;
 		}

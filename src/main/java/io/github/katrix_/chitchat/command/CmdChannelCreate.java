@@ -26,13 +26,15 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
-import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
-import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -46,22 +48,18 @@ public class CmdChannelCreate extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+		TextSerializer serializer = TextSerializers.FORMATTING_CODE;
 		String name = args.<String>getOne(LibCommandKey.CHANNEL_NAME).orElse(""); //If name is somehow ever not present this could get ugly
-		String prefix = args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(name);
-		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
+		Text prefix = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(name));
+		Text description = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse(""));
 
-		if(channelNameNotUsed(name, src) && permissionChannel(name, src, LibPerm.CHANNEL_CREATE)) {
-			ChannelChitChat channel = new ChannelChitChat(parent, name, description, prefix);
-			ChitChatChannels.add(channel);
-			if(ChitChat.getStorage().saveChannel(channel)) {
+		if(sourceIsPlayer(src) && channelNameNotUsed(name, (Player)src)) {
+			ChannelChitChat userChannel = CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel();
+			if(permissionChannel(userChannel.getQueryName().then(DataQuery.of(name)), src, LibPerm.CHANNEL_CREATE)) {
+				userChannel.createChannel(name, prefix, description);
 				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
+				return CommandResult.success();
 			}
-			else {
-				src.sendMessage(Text.of(TextColors.RED, "Something went wrong when saving the new channel " + name
-						+ ". You can use it for now, but it will not persist after a restart."));
-				LogHelper.error("Failed to write new channel " + name + " to storage");
-			}
-			return CommandResult.success();
 		}
 
 		return CommandResult.empty();
