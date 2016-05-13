@@ -65,7 +65,7 @@ public class CmdReply extends CommandBase {
 
 			if(cfg.getChatPling() && receiver instanceof Player) {
 				Player player = (Player)receiver;
-				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+				player.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
 			}
 
 			return CommandResult.success();

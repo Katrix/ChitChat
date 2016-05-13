@@ -66,7 +66,7 @@ public class CmdPM extends CommandBase {
 			src.sendMessage(getCfg().getPmSenderTemplate(), templateMap);
 
 			if(getCfg().getChatPling()) {
-				player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+				player.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
 			}
 			return CommandResult.success();
 		}

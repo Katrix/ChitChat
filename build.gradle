@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     compile 'org.scala-lang:scala-library:2.11.1'
-    compile 'org.spongepowered:spongeapi:4.0.3'
+    compile 'org.spongepowered:spongeapi:5.0.0-SNAPSHOT'
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile files('libs/SpongyNBT.jar')

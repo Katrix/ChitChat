@@ -107,7 +107,7 @@ public class ChatListener {
 					.filter(messageReceiver -> messageReceiver instanceof Player)
 					.map(m -> (Player)m)
 					.filter(p -> message.contains(p.getName()))
-					.forEach(p -> p.playSound(SoundTypes.ORB_PICKUP, p.getLocation().getPosition(), 0.5D));
+					.forEach(p -> p.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, p.getLocation().getPosition(), 0.5D));
 		}
 	}
 
