@@ -28,11 +28,14 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
+import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -48,13 +51,17 @@ public class CmdChannelModifyName extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).orElse(""); //This could cause problems if ever the name is not present
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
-		if(channelExists(src, optChannel)) {
-			ChannelChitChat channel = optChannel.get();
-			if(channelNameNotUsed(nameNew, src) && permissionChannel(channel.getName(), src, LibPerm.CHANNEL_NAME)
-					&& permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME)) {
-				String nameOld = channel.getName();
-				channel.setName(nameNew);
-				ChitChatChannels.remap(channel, nameOld);
+
+		if(channelExists(src, optChannel) && sourceIsPlayer(src)) {
+			Player player = (Player)src;
+			UserChitChat user = CentralControl.INSTANCE.getOrCreateUser(player);
+			ChannelChitChat parentChannel = user.getChannel();
+			ChannelChitChat targetChannel = optChannel.get();
+
+			if(channelNameNotUsed(nameNew, player) && permissionChannel(targetChannel.getQueryName(), src, LibPerm.CHANNEL_NAME)
+					&& permissionChannel(parentChannel.getQueryName().then(DataQuery.of(nameNew)), src, LibPerm.CHANNEL_NAME)) {
+				String nameOld = targetChannel.getName();
+				targetChannel.setName(nameNew);
 
 				src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
 				return CommandResult.success();

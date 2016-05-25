@@ -22,6 +22,8 @@ package io.github.katrix_.chitchat.chat;
 
 import java.util.UUID;
 
+import org.spongepowered.api.data.DataQuery;
+
 import com.google.common.reflect.TypeToken;
 
 import ninja.leaping.configurate.ConfigurationNode;
@@ -33,18 +35,11 @@ public class UserChitChatSerializer implements TypeSerializer<UserChitChat> {
 	@Override
 	public UserChitChat deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
 		UUID uuid = value.getNode("uuid").getValue(TypeToken.of(UUID.class));
-		String channelName = value.getNode("channel").getString();
+		DataQuery channelName = value.getNode("channel").getValue(TypeToken.of(DataQuery.class));
 
 		if(uuid == null || channelName == null) throw new ObjectMappingException("Required values for channel not found");
 
-		ChannelChitChat channel;
-
-		if(ChitChatChannels.existName(channelName)) {
-			channel = ChitChatChannels.get(channelName);
-		}
-		else {
-			channel = ChitChatChannels.getGlobal();
-		}
+		ChannelChitChat channel = CentralControl.INSTANCE.getChannel(channelName).orElse(ChannelChitChat.getRoot());
 
 		return new UserChitChat(uuid, channel);
 	}
@@ -52,6 +47,6 @@ public class UserChitChatSerializer implements TypeSerializer<UserChitChat> {
 	@Override
 	public void serialize(TypeToken<?> type, UserChitChat obj, ConfigurationNode value) throws ObjectMappingException {
 		value.getNode("uuid").setValue(TypeToken.of(UUID.class), obj.getUUID());
-		value.getNode("channel").setValue(obj.getChannel().getName());
+		value.getNode("channel").setValue(TypeToken.of(DataQuery.class), obj.getChannel().getQueryName());
 	}
 }

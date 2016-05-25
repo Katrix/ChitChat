@@ -35,7 +35,6 @@ import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatPlayers;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -68,7 +67,7 @@ public class CmdChannelMove extends CommandBase {
 				}
 				else {
 					if(src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
-						ChitChatPlayers.getFromUuid(user.getUniqueId()).setChannel(channel);
+						CentralControl.INSTANCE.getUserUuid(user.getUniqueId()).setChannel(channel);
 						src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
 					}
 					else {

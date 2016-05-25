@@ -3,6 +3,7 @@ package io.github.katrix_.chitchat.chat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 import org.spongepowered.api.data.DataQuery;
@@ -34,5 +35,10 @@ public class CentralControl {
 		}
 
 		return user;
+	}
+
+	public UserChitChat getUserUuid(UUID uuid) {
+
+		return null; //TODO
 	}
 }

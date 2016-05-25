@@ -33,7 +33,7 @@ public class UserChitChat {
 
 	private final WeakReference<Player> player;
 	private final UUID uuid;
-	private ChannelChitChat channel = ChitChat.getChannelRoot();
+	private ChannelChitChat channel = ChannelChitChat.getRoot();
 
 	private UserChitChat(UUID uuid) {
 		this.uuid = uuid;

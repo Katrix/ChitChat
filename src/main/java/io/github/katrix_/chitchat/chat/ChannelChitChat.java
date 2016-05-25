@@ -76,6 +76,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	public void setName(String name) {
+		parent.remap(this, name);
 		this.name = name;
 	}
 
@@ -114,7 +115,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	/*============================== Nested channels stuff ==============================*/
 
 	public DataQuery getQueryName() {
-		return getParent().getQueryName().then(DataQuery.of(name)); //TODO
+		return getParent().getQueryName().then(DataQuery.of(name));
 	}
 
 	public void moveChannel(ChannelChitChat channel) {
@@ -152,6 +153,11 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public Collection<ChannelChitChat> getChildren() {
 		return children.values();
+	}
+
+	public void remap(ChannelChitChat channel, String newName) {
+		children.remove(channel.getName());
+		children.put(newName, channel);
 	}
 
 	/*============================== Player stuff ==============================*/
@@ -203,13 +209,21 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		return ChannelRoot.INSTANCE;
 	}
 
-	private static class ChannelRoot extends ChannelChitChat {
+	public static class ChannelRoot extends ChannelChitChat {
 
-		public static final ChannelRoot INSTANCE = new ChannelRoot();
+		public static final ChannelRoot INSTANCE = loadOrCreateRoot();
 
 		private ChannelRoot() {
 			super(null, "Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));
 			CentralControl.INSTANCE.registerChannel(INSTANCE);
+		}
+
+		private static ChannelRoot loadOrCreateRoot() {
+			return ChitChat.getStorage().loadRoot().orElse(new ChannelRoot());
+		}
+
+		public static void init() {
+			LogHelper.debug("Loaded root channel");
 		}
 
 		@Override
@@ -218,7 +232,15 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		}
 
 		@Override
+		public void setName(String name) {} //NO-OP
+
+		@Override
 		public void setParent(ChannelChitChat parent) {} //NO-OP
+
+		@Override
+		public DataQuery getQueryName() {
+			return DataQuery.of("root");
+		}
 
 		@Override
 		protected void addUser(UserChitChat userChitChat) {

@@ -67,7 +67,6 @@ public class ChitChat {
 	private static ChitChat plugin;
 	private IPersistentStorage storage;
 	private ConfigSettings cfg;
-	private ChannelChitChat root;
 
 	@Inject
 	private Logger log;
@@ -99,9 +98,8 @@ public class ChitChat {
 		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
 
-		root = ChannelChitChat.createRoot();
 		Sponge.getEventManager().registerListeners(this, new ChatListener());
-		storage.reloadChannels();
+		ChannelChitChat.ChannelRoot.init();
 	}
 
 	public Logger getLog() {
@@ -118,10 +116,6 @@ public class ChitChat {
 
 	public static ConfigSettings getConfig() {
 		return plugin.cfg;
-	}
-
-	public static ChannelChitChat getChannelRoot() {
-		return plugin.root;
 	}
 
 	/**

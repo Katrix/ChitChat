@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.io;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -33,11 +34,9 @@ import io.github.katrix_.chitchat.chat.UserChitChat;
 public interface IPersistentStorage {
 
 	/**
-	 * Deletes all the channels and adds them again
-	 *
-	 * @return if successful.
+	 * Loads the root channel, if there is one saved
 	 */
-	boolean reloadChannels();
+	Optional<ChannelChitChat.ChannelRoot> loadRoot();
 
 	/**
 	 * Saves a channel to disk.
