@@ -94,7 +94,7 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 
-		if(!CentralControl.INSTANCE.getOrCreateUser(player).getChannel().getChild(channel).isPresent()) {
+		if(!CentralControl.getChannelUser(player).filter(c -> c.getChild(channel).isPresent()).isPresent()) {
 			player.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
 			return false;
 		}

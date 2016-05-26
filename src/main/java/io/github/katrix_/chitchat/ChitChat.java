@@ -39,8 +39,6 @@ import com.google.inject.Inject;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChatSerializer;
 import io.github.katrix_.chitchat.chat.ChatListener;
-import io.github.katrix_.chitchat.chat.UserChitChat;
-import io.github.katrix_.chitchat.chat.UserChitChatSerializer;
 import io.github.katrix_.chitchat.command.CmdAnnounce;
 import io.github.katrix_.chitchat.command.CmdChannel;
 import io.github.katrix_.chitchat.command.CmdChitChat;
@@ -82,7 +80,6 @@ public class ChitChat {
 	@Listener
 	public void init(GameInitializationEvent event) {
 		TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers();
-		serializers.registerType(TypeToken.of(UserChitChat.class), new UserChitChatSerializer());
 		serializers.registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
 		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
 

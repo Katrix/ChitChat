@@ -27,7 +27,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -50,7 +50,7 @@ public class CmdChannelJoin extends CommandBase {
 		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_JOIN)) {
-				CentralControl.INSTANCE.getOrCreateUser((Player)src).setChannel(channel);
+				CentralControl.setChannelUser((User)src, channel);
 				src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
 				return CommandResult.success();
 			}

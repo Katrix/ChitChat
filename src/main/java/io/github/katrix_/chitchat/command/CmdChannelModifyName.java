@@ -35,7 +35,6 @@ import org.spongepowered.api.text.format.TextColors;
 
 import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.UserChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -54,17 +53,20 @@ public class CmdChannelModifyName extends CommandBase {
 
 		if(channelExists(src, optChannel) && sourceIsPlayer(src)) {
 			Player player = (Player)src;
-			UserChitChat user = CentralControl.INSTANCE.getOrCreateUser(player);
-			ChannelChitChat parentChannel = user.getChannel();
-			ChannelChitChat targetChannel = optChannel.get();
+			Optional<ChannelChitChat> optParentChannel = CentralControl.getChannelUser(player);
 
-			if(channelNameNotUsed(nameNew, player) && permissionChannel(targetChannel.getQueryName(), src, LibPerm.CHANNEL_NAME)
-					&& permissionChannel(parentChannel.getQueryName().then(DataQuery.of(nameNew)), src, LibPerm.CHANNEL_NAME)) {
-				String nameOld = targetChannel.getName();
-				targetChannel.setName(nameNew);
+			if(channelExists(src, optParentChannel)) {
+				ChannelChitChat targetChannel = optChannel.get();
+				ChannelChitChat parentChannel = optParentChannel.get();
 
-				src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
-				return CommandResult.success();
+				if(channelNameNotUsed(nameNew, player) && permissionChannel(targetChannel.getQueryName(), src, LibPerm.CHANNEL_NAME)
+						&& permissionChannel(parentChannel.getQueryName().then(DataQuery.of(nameNew)), src, LibPerm.CHANNEL_NAME)) {
+					String nameOld = targetChannel.getName();
+					targetChannel.setName(nameNew);
+
+					src.sendMessage(Text.of(TextColors.GREEN, "Name of " + nameOld + " changed to " + nameNew));
+					return CommandResult.success();
+				}
 			}
 		}
 		return CommandResult.empty();

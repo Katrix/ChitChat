@@ -27,7 +27,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -53,16 +53,20 @@ public class CmdChannelRemove extends CommandBase {
 			ChannelChitChat channel = optChannel.get();
 
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
-				CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel().removeChannel(channel);
-				if(ChitChat.getStorage().deleteChannel(channel)) {
-					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+				Optional<ChannelChitChat> optParentChannel = CentralControl.getChannelUser((User)src);
+				if(channelExists(src, optParentChannel)) {
+					optParentChannel.get().removeChannel(channel);
+
+					if(ChitChat.getStorage().deleteChannel(channel)) {
+						src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
+					}
+					else {
+						src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
+								+ " from the database. It will be gone for now, but it will be back when the server restarts."));
+						LogHelper.error("Failed to delete the channel " + channel.getName() + " from storage");
+					}
+					return CommandResult.success();
 				}
-				else {
-					src.sendMessage(Text.of(TextColors.RED, "Failed to delete the channel " + channel.getName()
-							+ " from the database. It will be gone for now, but it will be back when the server restarts."));
-					LogHelper.error("Failed to delete the channel " + channel.getName() + " from storage");
-				}
-				return CommandResult.success();
 			}
 		}
 		return CommandResult.empty();

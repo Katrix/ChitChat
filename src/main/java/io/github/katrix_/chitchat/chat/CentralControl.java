@@ -3,18 +3,18 @@ package io.github.katrix_.chitchat.chat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.WeakHashMap;
 
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+
+import io.github.katrix_.chitchat.lib.LibDataQuaries;
 
 public class CentralControl {
 
 	public static final CentralControl INSTANCE = new CentralControl();
 
 	private final Map<DataQuery, ChannelChitChat> channelMap = new HashMap<>();
-	private final Map<Player, UserChitChat> userMap = new WeakHashMap<>();
 
 	private CentralControl() {}
 
@@ -26,19 +26,26 @@ public class CentralControl {
 		channelMap.put(channel.getQueryName(), channel);
 	}
 
-	public UserChitChat getOrCreateUser(Player player) {
-		UserChitChat user = userMap.get(player);
+	/*============================== Utility stuff ==============================*/
 
-		if(user == null) {
-			user = new UserChitChat(player);
-			userMap.put(player, user);
-		}
-
-		return user;
+	public static Optional<ChannelChitChat> getChannelUser(User user) {
+		Optional<DataQuery> query = user.toContainer().getObject(LibDataQuaries.PLAYER_CHANNEL, DataQuery.class);
+		return query.flatMap(CentralControl.INSTANCE::getChannel);
 	}
 
-	public UserChitChat getUserUuid(UUID uuid) {
+	@SuppressWarnings("OptionalGetWithoutIsPresent")
+	public static void setChannelUser(User user, ChannelChitChat channel) {
+		boolean online = user.isOnline();
 
-		return null; //TODO
+		if(online) {
+			getChannelUser(user).ifPresent(c -> c.removeMember(user.getPlayer().get()));
+		}
+		user.toContainer().set(LibDataQuaries.PLAYER_CHANNEL, channel.getQueryName());
+
+		if(online) {
+			Player player = user.getPlayer().get();
+			player.setMessageChannel(channel);
+			channel.addMember(player);
+		}
 	}
 }

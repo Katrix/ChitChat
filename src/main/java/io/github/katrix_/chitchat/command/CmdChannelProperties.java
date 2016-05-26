@@ -34,6 +34,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
@@ -71,26 +72,33 @@ public class CmdChannelProperties extends CommandBase {
 				list.add(Text.of("Channel members:"));
 
 				StringBuilder players = new StringBuilder();
-				Collection<MessageReceiver> playerMap = CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel().getMembers();
-				Iterator<Player> iterator = playerMap.stream()
-						.filter(m -> m instanceof Player)
-						.map(m -> (Player)m)
-						.filter(player -> CentralControl.INSTANCE.getOrCreateUser(player).getChannel().equals(channel))
-						.collect(Collectors.toList()).iterator();
+				Optional<ChannelChitChat> parentChannel = CentralControl.getChannelUser((User)src);
 
-				while(iterator.hasNext()) {
-					Player player = iterator.next();
-					players.append(player.getName());
-					if(iterator.hasNext()) {
-						players.append(", ");
+				if(channelExists(src, parentChannel)) {
+					Collection<MessageReceiver> playerMap = parentChannel.get().getMembers();
+					Iterator<Player> iterator = playerMap.stream()
+							.filter(m -> m instanceof Player)
+							.map(m -> (Player)m)
+							.filter(p -> {
+								Optional<ChannelChitChat> optChan = CentralControl.getChannelUser(p);
+								return optChan.isPresent() && optChan.get().equals(channel);
+							})
+							.collect(Collectors.toList()).iterator();
+
+					while(iterator.hasNext()) {
+						Player player = iterator.next();
+						players.append(player.getName());
+						if(iterator.hasNext()) {
+							players.append(", ");
+						}
 					}
+
+					list.add(Text.of(players));
+
+					pages.contents(list);
+					pages.sendTo(src);
+					return CommandResult.success();
 				}
-
-				list.add(Text.of(players));
-
-				pages.contents(list);
-				pages.sendTo(src);
-				return CommandResult.success();
 			}
 		}
 		return CommandResult.empty();

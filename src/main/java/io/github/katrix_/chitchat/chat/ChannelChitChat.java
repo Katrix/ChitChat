@@ -21,16 +21,21 @@
 package io.github.katrix_.chitchat.chat;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.AbstractMutableMessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -42,9 +47,10 @@ import com.google.common.collect.ImmutableMap;
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.lib.LibDataQuaries;
 
 @SuppressWarnings("unused")
-public class ChannelChitChat extends AbstractMutableMessageChannel {
+public class ChannelChitChat extends AbstractMutableMessageChannel implements DataSerializable {
 
 	private String name;
 	private Text description;
@@ -53,7 +59,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	private ChannelChitChat parent;
 	private final Map<String, ChannelChitChat> children = new HashMap<>();
 	@SuppressWarnings("WeakerAccess")
-	protected final Set<UserChitChat> players = new HashSet<>();
+	protected final Set<Player> players = Collections.newSetFromMap(new WeakHashMap<>()); //This works right?
 
 	private ChannelChitChat(ChannelChitChat parent, String name, Text description, Text prefix) {
 		super();
@@ -163,50 +169,64 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	/*============================== Player stuff ==============================*/
 
 	public void moveAllToParent(@Nullable Text message) {
-		movePlayersToGlobal(message, user -> true);
+		movePlayersToGlobal(message, player -> true);
 	}
 
 	public void moveChildToParent(ChannelChitChat channel, @Nullable Text message) {
-		movePlayersToGlobal(message, user -> user.getChannel().equals(channel));
+		movePlayersToGlobal(message, player -> CentralControl.getChannelUser(player).orElse(ChannelChitChat.getRoot()).equals(channel));
 	}
 
-	public void movePlayersToGlobal(@Nullable Text message, Predicate<UserChitChat> test) {
+	public void movePlayersToGlobal(@Nullable Text message, Predicate<Player> test) {
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the parent channel");
-		players.stream().filter(test).forEach(user -> {
-			user.getPlayer().ifPresent(p -> p.sendMessage(text));
-			user.setChannel(this);
+		players.stream().filter(test).forEach(player -> {
+			player.sendMessage(text);
+			CentralControl.setChannelUser(player, this);
 		});
 	}
 
-	protected void addUser(UserChitChat userChitChat) {
-		userChitChat.setChannel(this);
-		userChitChat.getPlayer().ifPresent(player -> players.add(userChitChat));
-		getParent().addUser(userChitChat);
+	protected void addUser(Player player) {
+		players.add(player);
+		getParent().addUser(player);
 	}
 
-	protected void removeUser(UserChitChat player) {
+	protected void removeUser(Player player) {
 		players.remove(player);
 		getParent().removeUser(player);
 	}
 
 	@Override
 	public boolean addMember(MessageReceiver member) {
-		if(member instanceof UserChitChat) {
-			addUser((UserChitChat)member);
+		if(member instanceof Player) {
+			addUser((Player)member);
 		}
 		return super.addMember(member);
 	}
 
 	@Override
 	public boolean removeMember(MessageReceiver member) {
-		if(member instanceof UserChitChat) {
-			removeUser((UserChitChat)member);
+		if(member instanceof Player) {
+			removeUser((Player)member);
 		}
 		return super.removeMember(member);
 	}
 
 	public static ChannelRoot getRoot() {
 		return ChannelRoot.INSTANCE;
+	}
+
+	@Override
+	public int getContentVersion() {
+		return 0;
+	}
+
+	@Override
+	public DataContainer toContainer() {
+		DataContainer container = new MemoryDataContainer();
+		container.set(LibDataQuaries.CHANNEL_NAME, getQueryName());
+		container.set(LibDataQuaries.CHANNEL_PREFIX, prefix);
+		container.set(LibDataQuaries.CHANNEL_CHILDREN, children);
+
+		return container;
 	}
 
 	public static class ChannelRoot extends ChannelChitChat {
@@ -243,12 +263,12 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		}
 
 		@Override
-		protected void addUser(UserChitChat userChitChat) {
-			userChitChat.getPlayer().ifPresent(p -> players.add(userChitChat));
+		protected void addUser(Player player) {
+			players.add(player);
 		}
 
 		@Override
-		protected void removeUser(UserChitChat player) {
+		protected void removeUser(Player player) {
 			players.remove(player);
 		}
 	}

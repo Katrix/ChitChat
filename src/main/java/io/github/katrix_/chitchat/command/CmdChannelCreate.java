@@ -28,6 +28,7 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializer;
@@ -54,7 +55,7 @@ public class CmdChannelCreate extends CommandBase {
 		Text description = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse(""));
 
 		if(sourceIsPlayer(src) && channelNameNotUsed(name, (Player)src)) {
-			ChannelChitChat userChannel = CentralControl.INSTANCE.getOrCreateUser((Player)src).getChannel();
+			ChannelChitChat userChannel = CentralControl.getChannelUser((User)src).orElse(ChannelChitChat.getRoot());
 			if(permissionChannel(userChannel.getQueryName().then(DataQuery.of(name)), src, LibPerm.CHANNEL_CREATE)) {
 				userChannel.createChannel(name, prefix, description);
 				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));

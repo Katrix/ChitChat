@@ -33,6 +33,7 @@ import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
 import com.google.common.collect.ImmutableList;
@@ -56,7 +57,7 @@ public class CommandElementChannel extends CommandElement {
 
 	private Iterable<String> getChoices(CommandSource source) {
 		if(source instanceof Player) {
-			return CentralControl.INSTANCE.getOrCreateUser((Player)source).getChannel().getChildren().stream().map(ChannelChitChat::getName).collect(
+			return CentralControl.getChannelUser((User)source).orElse(ChannelChitChat.getRoot()).getChildren().stream().map(ChannelChitChat::getName).collect(
 					Collectors.toList());
 		}
 		else {
@@ -66,7 +67,7 @@ public class CommandElementChannel extends CommandElement {
 
 	private Object getValue(String choice, CommandSource source) throws IllegalArgumentException {
 		if(source instanceof Player) {
-			return CentralControl.INSTANCE.getOrCreateUser((Player)source).getChannel().getChild(choice).orElse(null);
+			return CentralControl.getChannelUser((User)source).flatMap(c -> c.getChild(choice)).orElse(null);
 		}
 		else {
 			return null;
