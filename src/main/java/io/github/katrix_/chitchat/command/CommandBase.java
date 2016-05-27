@@ -139,7 +139,7 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	protected ChannelChitChat getChannelUser(User user) {
-		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
+		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName())).orElse(ChannelChitChat.getRoot());
 	}
 
 	protected void setChannelUser(User user, ChannelChitChat newChannel) {

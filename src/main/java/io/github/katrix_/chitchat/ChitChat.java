@@ -22,7 +22,6 @@ package io.github.katrix_.chitchat;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -34,9 +33,12 @@ import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
+import io.github.katrix_.chitchat.chat.ChannelChitChatSerializer;
+import io.github.katrix_.chitchat.chat.ChannelRootSerializer;
 import io.github.katrix_.chitchat.chat.ChatListener;
 import io.github.katrix_.chitchat.chat.data.ImmutableUserChitChatData;
 import io.github.katrix_.chitchat.chat.data.UserChitChatData;
@@ -52,10 +54,13 @@ import io.github.katrix_.chitchat.command.CommandBase;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.io.ConfigurateStorage;
-import io.github.katrix_.chitchat.io.H2Storage;
 import io.github.katrix_.chitchat.io.IPersistentStorage;
 import io.github.katrix_.chitchat.io.NBTStorage;
+import io.github.katrix_.chitchat.io.StorageType;
+import io.github.katrix_.chitchat.io.StorageTypeSerializer;
 import io.github.katrix_.chitchat.lib.LibPlugin;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 @Plugin(id = LibPlugin.ID, name = LibPlugin.NAME, version = LibPlugin.VERSION, authors = LibPlugin.AUTHORS, description = LibPlugin.DESCRIPTION)
 public class ChitChat {
@@ -80,6 +85,11 @@ public class ChitChat {
 		DataManager dataManager = Sponge.getDataManager();
 
 		dataManager.register(UserChitChatData.class, ImmutableUserChitChatData.class, new UserChitChatManipulatorBuilder());
+
+		TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers();
+		serializers.registerType(TypeToken.of(ChannelChitChat.ChannelRoot.class), new ChannelRootSerializer());
+		serializers.registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
+		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
 
 		cfg = new ConfigSettings(configDir, "settings");
 		storage = createStorage(configDir, "storage");
@@ -124,15 +134,6 @@ public class ChitChat {
 		switch(cfg.getStorageType()) {
 			case PLAINTEXT:
 				return new ConfigurateStorage(path, name);
-			case H2:
-				try {
-					return new H2Storage(path, name);
-				}
-				catch(SQLException e) {
-					e.printStackTrace();
-					LogHelper.error("Something went wrong when initiating the H2 database for ChitChat. Defaulting to plaintext");
-					return new ConfigurateStorage(path, name);
-				}
 			case NBT:
 				try {
 					return new NBTStorage(path, name, cfg.getNbtCompressed(), cfg.getSaveInterval(), TimeUnit.MINUTES);

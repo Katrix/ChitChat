@@ -21,94 +21,20 @@
 package io.github.katrix_.chitchat.io;
 
 import java.util.Optional;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.UserChitChat;
 
 public interface IPersistentStorage {
 
 	/**
 	 * Loads the root channel, if there is one saved
 	 */
-	Optional<ChannelChitChat.ChannelRoot> loadRoot();
+	Optional<ChannelChitChat.ChannelRoot> loadRootChannel();
 
 	/**
-	 * Saves a channel to disk.
+	 * Saves the root channel to disk.
 	 *
-	 * @param channel The channel to save.
 	 * @return if successful.
 	 */
-	boolean saveChannel(ChannelChitChat channel);
-
-	/**
-	 * Update a channel with new information
-	 *
-	 * @param channel The Channel to modify.
-	 * @param prefix Set a new prefix. If null it will not change the prefix.
-	 * @param description Set a new description. If null it will not change the description.
-	 * @return if successful, or if anything changed.
-	 */
-	default boolean updateChannel(ChannelChitChat channel, @Nullable Text prefix, @Nullable Text description) {
-		return updateChannel(channel.getName(), prefix, description);
-	}
-
-	/**
-	 * Update a channel with new information
-	 *
-	 * @param channel The Channel to modify.
-	 * @param prefix Set a new prefix. If null it will not change the prefix.
-	 * @param description Set a new description. If null it will not change the description.
-	 * @return if successful, or if anything changed.
-	 */
-	boolean updateChannel(String channel, @Nullable Text prefix, @Nullable Text description);
-
-	/**
-	 * Deletes a channel from storage.
-	 *
-	 * @param channel The channel to delete.
-	 * @return if successful.
-	 */
-	default boolean deleteChannel(ChannelChitChat channel) {
-		return deleteChannel(channel.getName());
-	}
-
-	/**
-	 * Deletes a channel from storage.
-	 *
-	 * @param channel The channel to delete.
-	 * @return if successful.
-	 */
-	boolean deleteChannel(String channel);
-
-	/**
-	 * Gets the channel a user is currently in.
-	 *
-	 * @param user The User to get the channel for.
-	 * @return The channel the user is in. Returns global if no channel is found.
-	 */
-	default ChannelChitChat getChannelForUser(User user) {
-		return getChannelForUser(user.getUniqueId());
-	}
-
-	/**
-	 * Gets the channel a user is currently in.
-	 *
-	 * @param uuid The uuid for the user to get the channel for.
-	 * @return The channel the user is in. Returns global if no channel is found.
-	 */
-	ChannelChitChat getChannelForUser(UUID uuid);
-
-	/**
-	 * Updates the user entry in the storage.
-	 *
-	 * @param user The User to update for.
-	 * @return if successful.
-	 */
-	boolean updateUser(UserChitChat user);
+	boolean saveRootChannel();
 }

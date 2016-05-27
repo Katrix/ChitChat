@@ -97,7 +97,7 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat playerChannel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
+		ChannelChitChat playerChannel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName())).orElse(ChannelChitChat.getRoot());
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(cfg.getChatPling()) {
@@ -132,7 +132,7 @@ public class ChatListener {
 		}
 
 		Player player = event.getTargetEntity();
-		ChannelChitChat channel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
+		ChannelChitChat channel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName())).orElse(ChannelChitChat.getRoot());
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 

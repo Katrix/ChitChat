@@ -41,7 +41,7 @@ public class CmdChannelLoad extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		if(ChitChat.getStorage().reloadChannels()) {
+		if(ChitChat.getStorage().loadRootChannel().isPresent()) {
 			src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk successfully."));
 			return CommandResult.success();
 		}

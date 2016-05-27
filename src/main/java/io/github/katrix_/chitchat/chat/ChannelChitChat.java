@@ -89,7 +89,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	 */
 	public boolean setDescription(Text description) {
 		this.description = description;
-		return ChitChat.getStorage().updateChannel(this, null, description);
+		return ChitChat.getStorage().saveRootChannel();
 	}
 
 	public Text getPrefix() {
@@ -101,7 +101,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	 */
 	public boolean setPrefix(Text prefix) {
 		this.prefix = prefix;
-		return ChitChat.getStorage().updateChannel(this, prefix, null);
+		return ChitChat.getStorage().saveRootChannel();
 	}
 
 	public ChannelChitChat getParent() {
@@ -171,7 +171,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	public void moveChildToParent(ChannelChitChat channel, @Nullable Text message) {
 		movePlayersToGlobal(message, player -> CentralControl.INSTANCE.getChannel(player
 				.get(LibKeys.USER_CHANNEL)
-				.orElse(ChannelRoot.ROOT_QUERY)).orElse(getRoot()).equals(channel));
+				.orElse(ChannelRoot.INSTANCE.getQueryName())).orElse(getRoot()).equals(channel));
 	}
 
 	public void movePlayersToGlobal(@Nullable Text message, Predicate<Player> test) {
@@ -190,9 +190,12 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	public List<MessageReceiver> getMembersNested() {
-		return children.stream()
-				.flatMap(c -> c.getMembers().stream())
+		List<MessageReceiver> ret = children.stream()
+				.flatMap(c -> c.getMembersNested().stream())
 				.collect(Collectors.toList());
+		ret.addAll(getMembers());
+
+		return ret;
 	}
 
 	private void addUserData(User user) {
@@ -237,21 +240,42 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public static class ChannelRoot extends ChannelChitChat {
 
-		public static final ChannelRoot INSTANCE = loadOrCreateRoot();
-		public static final DataQuery ROOT_QUERY = INSTANCE.getQueryName();
+		public static ChannelRoot INSTANCE = loadOrCreateRoot();
 
-		@SuppressWarnings("ConstantConditions")
+
 		private ChannelRoot() {
-			super(null, "Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));
+			this("Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));
 			CentralControl.INSTANCE.registerChannel(INSTANCE);
 		}
 
+		@SuppressWarnings("ConstantConditions")
+		private ChannelRoot(String name, Text prefix, Text description) {
+			super(null, name, prefix, description);
+		}
+
 		private static ChannelRoot loadOrCreateRoot() {
-			return ChitChat.getStorage().loadRoot().orElse(new ChannelRoot());
+			return ChitChat.getStorage().loadRootChannel().orElse(new ChannelRoot());
 		}
 
 		public static void init() {
 			LogHelper.debug("Loaded root channel");
+		}
+
+		public static ChannelRoot createNewRoot(String name, Text prefix, Text description) {
+			List<MessageReceiver> members = INSTANCE.getMembersNested();
+			ChannelRoot newRoot = new ChannelRoot(name, prefix, description);
+			INSTANCE = newRoot;
+
+			for(MessageReceiver receiver : members) {
+				if(receiver instanceof User) {
+					newRoot.addUser((User)receiver);
+				}
+				else {
+					newRoot.addMember(receiver);
+				}
+			}
+
+			return newRoot;
 		}
 
 		@Override
@@ -267,7 +291,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 		@Override
 		public DataQuery getQueryName() {
-			return DataQuery.of("root");
+			return DataQuery.of("Root");
 		}
 	}
 

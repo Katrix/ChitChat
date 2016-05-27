@@ -22,28 +22,22 @@ package io.github.katrix_.chitchat.io;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializer;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
 import io.github.katrix.spongynbt.nbt.NBTCompound;
+import io.github.katrix.spongynbt.nbt.NBTList;
 import io.github.katrix.spongynbt.nbt.NBTString;
 import io.github.katrix.spongynbt.nbt.NBTTag;
 import io.github.katrix.spongynbt.sponge.NBTTranslator;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
-import io.github.katrix_.chitchat.chat.UserChitChat;
 
-import static io.github.katrix.spongynbt.nbt.NBTType.TAG_COMPOUND;
-import static io.github.katrix.spongynbt.nbt.NBTType.TAG_STRING;
+import static io.github.katrix.spongynbt.nbt.NBTType.*;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
 
@@ -51,165 +45,101 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	private static final String NAME = "name";
 	private static final String PREFIX = "prefix";
 	private static final String DESCRIPTION = "description";
-
-	private static final String USERS = "users";
-	private static final String USER_UUID = "userUUID";
-	private static final String USER_CHANNEL = "userChannel";
+	private static final String CHILDREN = "children";
+	private static final String ROOT = "root";
 
 	public NBTStorage(Path path, String name, boolean compressed, long saveInterval, TimeUnit timeUnit) throws IOException {
 		super(path, name, compressed, saveInterval, timeUnit);
 	}
 
 	@Override
-	public boolean reloadChannels() {
+	public Optional<ChannelChitChat.ChannelRoot> loadRootChannel() {
 		NBTCompound channelTag = getChannelTag();
-		Collection<NBTTag> childTags = channelTag.valuesJava().values();
+		Optional<NBTTag> optRootTag = channelTag.getJava(ROOT);
 
-		for(NBTTag tag : childTags) {
-			if(tag.getType() == TAG_COMPOUND) {
-				NBTCompound childCompound = (NBTCompound)tag;
-				Optional<NBTTag> optName = childCompound.getJava(NAME);
-				if(optName.isPresent()) {
-					NBTTag name = optName.get();
-					if(name.getType() == TAG_STRING) {
-						String channelName = ((NBTString)name).value();
-						Text prefix = Text.of(channelName);
-						Text description = Text.of();
+		if(optRootTag.isPresent() && optRootTag.get().getType() == TAG_COMPOUND) {
+			NBTCompound rootTag = (NBTCompound)optRootTag.get();
+			Optional<NBTTag> optName = rootTag.getJava(NAME);
+			Optional<NBTTag> optPrefix = rootTag.getJava(PREFIX);
+			Optional<NBTTag> optDescription = rootTag.getJava(DESCRIPTION);
+			Optional<NBTTag> optChildren = rootTag.getJava(CHILDREN);
 
-						Optional<NBTTag> optPrefixTag = childCompound.getJava(PREFIX);
-						if(optPrefixTag.isPresent()) {
-							NBTTag prefixTag = optPrefixTag.get();
-							if(prefixTag.getType() == TAG_COMPOUND) {
-								Optional<Text> optPrefix = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom((NBTCompound)prefixTag));
-								if(optPrefix.isPresent()) {
-									prefix = optPrefix.get();
-								}
-							}
-						}
+			if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
+				if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND && optDescription.get().getType() == TAG_COMPOUND && optChildren.get().getType() == TAG_LIST) {
+					NBTString name = (NBTString)optName.get();
+					NBTCompound prefix = (NBTCompound)optPrefix.get();
+					NBTCompound description = (NBTCompound)optDescription.get();
+					NBTList children = (NBTList)optChildren.get();
 
-						Optional<NBTTag> optDescriptionTag = childCompound.getJava(DESCRIPTION);
-						if(optDescriptionTag.isPresent()) {
-							NBTTag descriptionTag = optDescriptionTag.get();
-							if(descriptionTag.getType() == TAG_COMPOUND) {
-								Optional<Text> optDescription = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom((NBTCompound)descriptionTag));
-								if(optDescription.isPresent()) {
-									description = optDescription.get();
-								}
-							}
-						}
+					Optional<Text> textPrefix = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(prefix));
+					Optional<Text> textDescription = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(description));
 
-						ChannelChitChat channel = new ChannelChitChat(parent, channelName, description, prefix);
-						ChitChatChannels.add(channel);
+					if(children.getListType() == TAG_COMPOUND && textPrefix.isPresent() && textDescription.isPresent()) {
+						ChannelChitChat.ChannelRoot rootChannel = ChannelChitChat.ChannelRoot.createNewRoot(name.value(), textPrefix.get(), textDescription.get());
+						List<NBTCompound> childrenCompound = children.getAllJava().stream().map(t -> (NBTCompound)t).collect(Collectors.toList());
+						childrenCompound.forEach(c -> loadChannel(c, rootChannel));
+						return Optional.of(rootChannel);
 					}
 				}
 			}
 		}
 
-		return true;
+		return Optional.empty();
+	}
+
+	private void loadChannel(NBTCompound channelCompound, ChannelChitChat parent) {
+		Optional<NBTTag> optName = channelCompound.getJava(NAME);
+		Optional<NBTTag> optPrefix = channelCompound.getJava(PREFIX);
+		Optional<NBTTag> optDescription = channelCompound.getJava(DESCRIPTION);
+		Optional<NBTTag> optChildren = channelCompound.getJava(CHILDREN);
+
+		if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
+			if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND &&
+					optDescription.get().getType() == TAG_COMPOUND && optChildren.get().getType() == TAG_LIST) {
+				NBTString name = (NBTString)optName.get();
+				NBTCompound prefix = (NBTCompound)optPrefix.get();
+				NBTCompound description = (NBTCompound)optDescription.get();
+				NBTList children = (NBTList)optChildren.get();
+
+				Optional<Text> textPrefix = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(prefix));
+				Optional<Text> textDescription = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(description));
+
+				if(children.getListType() == TAG_COMPOUND && textPrefix.isPresent() && textDescription.isPresent()) {
+					ChannelChitChat createdChannel = parent.createChannel(name.value(), textPrefix.get(), textDescription.get());
+					List<NBTCompound> childrenCompound = children.getAllJava().stream().map(t -> (NBTCompound)t).collect(Collectors.toList());
+					childrenCompound.forEach(c -> loadChannel(c, createdChannel));
+				}
+			}
+		}
 	}
 
 	@Override
-	public boolean saveChannel(ChannelChitChat channel) {
+	public boolean saveRootChannel() {
+		ChannelChitChat.ChannelRoot channel = ChannelChitChat.getRoot();
 		NBTCompound channelTag = getChannelTag();
+		channelTag.setTag(ROOT, saveChannel(channel));
 
+		dirty = true;
+		return true;
+	}
+
+	private NBTCompound saveChannel(ChannelChitChat channel) {
 		NBTCompound channelCompound = new NBTCompound();
+
 		channelCompound.setString(NAME, channel.getName());
-		channelCompound.setTag(PREFIX, NBTTranslator.translateData(channel.getPrefix().toContainer())); //Because we are fancy
-		channelCompound.setTag(DESCRIPTION, NBTTranslator.translateData(channel.getDescription().toContainer()));
+		channelCompound.setTag(PREFIX, NBTTranslator.translateData(channel.getPrefix().toContainer()));
+		channelCompound.setTag(DESCRIPTION, NBTTranslator.translateData(channel.getPrefix().toContainer()));
 
-		channelTag.setTag(channel.getName(), channelCompound);
+		NBTList list = new NBTList(TAG_COMPOUND);
+		channel.getChildren().forEach(c -> list.add(saveChannel(c)));
+		channelCompound.setTag(CHILDREN, list);
 
-		dirty = true;
-		return true;
-	}
-
-	@Override
-	public boolean updateChannel(String channel, @Nullable Text prefix, @Nullable Text description) {
-		if(prefix != null || description != null) {
-			NBTCompound channelTag = getChannelTag();
-			TextSerializer serializer = TextSerializers.FORMATTING_CODE;
-			Optional<NBTTag> optTag = channelTag.getJava(channel);
-			if(optTag.isPresent()) {
-				NBTTag tag = optTag.get();
-				if(tag.getType() == TAG_COMPOUND) {
-					NBTCompound childCompound = (NBTCompound)tag;
-
-					if(prefix != null) {
-						childCompound.setTag(PREFIX, new NBTString(serializer.serialize(prefix)));
-					}
-
-					if(description != null) {
-						childCompound.setTag(DESCRIPTION, new NBTString(serializer.serialize(description)));
-					}
-
-					dirty = true;
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean deleteChannel(String channel) {
-		getChannelTag().remove(channel);
-		return true;
-	}
-
-	@Override
-	public ChannelChitChat getChannelForUser(UUID uuid) {
-		NBTCompound playerTag = getPlayerTag();
-		Optional<NBTTag> optTag = playerTag.getJava(uuid.toString());
-
-		if(optTag.isPresent()) {
-			NBTTag tag = optTag.get();
-			if(tag.getType() == TAG_COMPOUND) {
-				NBTCompound childCompound = (NBTCompound)tag;
-				Optional<NBTTag> optChannelTag = childCompound.getJava(USER_CHANNEL);
-				if(optChannelTag.isPresent()) {
-					NBTTag channelTag = optChannelTag.get();
-					if(channelTag.getType() == TAG_STRING) {
-						String channelName = ((NBTString)channelTag).value();
-
-						if(ChitChatChannels.existName(channelName)) {
-							return ChitChatChannels.get(channelName);
-						}
-					}
-				}
-			}
-		}
-
-		return ChitChatChannels.getGlobal();
-	}
-
-	@Override
-	public boolean updateUser(UserChitChat user) {
-		NBTCompound playerTag = getPlayerTag();
-
-		NBTCompound userTag = new NBTCompound();
-		userTag.setUUID(USER_UUID, user.getUUID());
-		userTag.setString(USER_CHANNEL, user.getChannel().getName());
-		playerTag.setTag(user.getUUID().toString(), userTag);
-
-		dirty = true;
-		return true;
+		return channelCompound;
 	}
 
 	private NBTCompound getChannelTag() {
 		NBTCompound defaultCompound = new NBTCompound();
 		NBTTag tag = compound.getOrCreate(CHANNELS, defaultCompound);
-
-		if(tag.getType() == TAG_COMPOUND) {
-			return (NBTCompound)tag;
-		}
-
-		return defaultCompound;
-	}
-
-	private NBTCompound getPlayerTag() {
-		NBTCompound defaultCompound = new NBTCompound();
-		NBTTag tag = compound.getOrCreate(USERS, defaultCompound);
 
 		if(tag.getType() == TAG_COMPOUND) {
 			return (NBTCompound)tag;

@@ -21,114 +21,43 @@
 package io.github.katrix_.chitchat.io;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import org.spongepowered.api.text.Text;
+import java.util.Optional;
 
 import com.google.common.reflect.TypeToken;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChitChatChannels;
-import io.github.katrix_.chitchat.chat.UserChitChat;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
 
 	private static final String CHANNELS = "channel";
-	private static final String PLAYERS = "players";
 
 	public ConfigurateStorage(Path path, String name) {
 		super(path, name, true);
 	}
 
 	@Override
-	public boolean reloadChannels() {
-		List<ChannelChitChat> channels = new ArrayList<>();
-		Collection<? extends CommentedConfigurationNode> children = cfgRoot.getNode(CHANNELS).getChildrenMap().values();
-
-		for(ConfigurationNode node : children) {
-			try {
-				channels.add(deserialize(node));
-			}
-			catch(ObjectMappingException e) {
-				e.printStackTrace();
-			}
+	public Optional<ChannelChitChat.ChannelRoot> loadRootChannel() {
+		try {
+			return Optional.of(cfgRoot.getNode(CHANNELS).getValue(TypeToken.of(ChannelChitChat.ChannelRoot.class)));
 		}
-
-		ChitChatChannels.clearMap();
-		channels.forEach(ChitChatChannels::add);
-		return true;
-	}
-
-	private ChannelChitChat deserialize(ConfigurationNode node) throws ObjectMappingException {
-		return node.getValue(TypeToken.of(ChannelChitChat.class));
+		catch(ObjectMappingException e) {
+			e.printStackTrace();
+			return Optional.empty();
+		}
 	}
 
 	@Override
-	public boolean saveChannel(ChannelChitChat channel) {
+	public boolean saveRootChannel() {
 		try {
-			cfgRoot.getNode(CHANNELS, channel.getName()).setValue(TypeToken.of(ChannelChitChat.class), channel);
+			cfgRoot.getNode(CHANNELS).setValue(TypeToken.of(ChannelChitChat.ChannelRoot.class), ChannelChitChat.getRoot());
 			saveFile();
+			return true;
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
-	}
-
-	@Override
-	public boolean updateChannel(String channel, @Nullable Text prefix, @Nullable Text description) {
-		try {
-			if(prefix != null) {
-				cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(TypeToken.of(Text.class), prefix);
-			}
-			if(description != null) {
-				cfgRoot.getNode(CHANNELS, channel, "prefix").setValue(TypeToken.of(Text.class), description);
-			}
-			saveFile();
-			return !(prefix == null || description == null);
-		}
-		catch(ObjectMappingException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	@Override
-	public boolean deleteChannel(String channel) {
-		cfgRoot.getNode(CHANNELS).removeChild(channel);
-		saveFile();
-		return true;
-	}
-
-	@Override
-	public ChannelChitChat getChannelForUser(UUID uuid) {
-		String channelName = cfgRoot.getNode(PLAYERS, uuid.toString(), "channel").getString();
-
-		if(ChitChatChannels.existName(channelName)) return ChitChatChannels.get(channelName);
-
-		return ChitChatChannels.getGlobal();
-	}
-
-	@Override
-	public boolean updateUser(UserChitChat user) {
-		try {
-			cfgRoot.getNode(PLAYERS, user.getUUID().toString()).setValue(TypeToken.of(UserChitChat.class), user);
-			saveFile();
-		}
-		catch(ObjectMappingException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
 	}
 
 	@Override

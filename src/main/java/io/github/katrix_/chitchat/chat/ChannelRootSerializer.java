@@ -21,10 +21,8 @@
 package io.github.katrix_.chitchat.chat;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.text.Text;
 
 import com.google.common.reflect.TypeToken;
@@ -33,39 +31,31 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
-public class ChannelChitChatSerializer implements TypeSerializer<ChannelChitChat> {
+public class ChannelRootSerializer implements TypeSerializer<ChannelChitChat.ChannelRoot> {
 
 	@Override
-	public ChannelChitChat deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
-		String segmentedName = value.getNode("name").getString();
+	public ChannelChitChat.ChannelRoot deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+		String name = value.getNode("name").getString();
 		Text prefix = value.getNode("prefix").getValue(TypeToken.of(Text.class));
 		Text description = value.getNode("description").getValue(TypeToken.of(Text.class));
 		boolean isRoot = value.getNode("isRoot").getBoolean();
 
-		if(segmentedName != null && prefix != null && description != null && isRoot) {
-			DataQuery fullName = DataQuery.of('.', segmentedName);
-			Optional<ChannelChitChat> optParent = CentralControl.INSTANCE.getChannel(fullName.pop());
+		if(name != null && prefix != null && description != null && isRoot) {
+			ChannelChitChat.ChannelRoot root = ChannelChitChat.ChannelRoot.createNewRoot(name, prefix, description);
+			List<ChannelChitChat> children = value.getNode("children").getList(TypeToken.of(ChannelChitChat.class));
 
-			if(optParent.isPresent()) {
-				ChannelChitChat parent = optParent.get();
-				ChannelChitChat ret = parent.createChannel(fullName.last().toString(), prefix, description);
-				List<ChannelChitChat> children = value.getNode("children").getList(TypeToken.of(ChannelChitChat.class));
-
-				return ret;
-			}
-			else {
-				throw new ObjectMappingException("Parent for channel " + segmentedName + " not found");
-			}
+			return root;
 		}
 
 		throw new ObjectMappingException("Required value for root not found");
 	}
 
 	@Override
-	public void serialize(TypeToken<?> type, ChannelChitChat obj, ConfigurationNode value) throws ObjectMappingException {
-		value.getNode("name").setValue(TypeToken.of(DataQuery.class), obj.getQueryName());
+	public void serialize(TypeToken<?> type, ChannelChitChat.ChannelRoot obj, ConfigurationNode value) throws ObjectMappingException {
+		value.getNode("name").setValue(obj.getName());
 		value.getNode("prefix").setValue(TypeToken.of(Text.class), obj.getPrefix());
 		value.getNode("description").setValue(TypeToken.of(Text.class), obj.getDescription());
 		value.getNode("children").setValue(TypeToken.of(Set.class), obj.getChildren());
+		value.getNode("isRoot").setValue(true);
 	}
 }

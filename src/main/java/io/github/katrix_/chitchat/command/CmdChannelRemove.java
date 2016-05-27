@@ -54,7 +54,7 @@ public class CmdChannelRemove extends CommandBase {
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
 				getChannelUser((User)src).removeChannel(channel);
 
-				if(ChitChat.getStorage().deleteChannel(channel)) {
+				if(ChitChat.getStorage().saveRootChannel()) {
 					src.sendMessage(Text.of(TextColors.GREEN, "Removed channel " + channel.getName()));
 				}
 				else {
