@@ -77,6 +77,6 @@ public class CmdChannelCreate extends CommandBase {
 
 	@Override
 	public String[] getAliases() {
-		return new String[] {"create", "add", "createchannel", "createroom"};
+		return new String[] {"create", "addUser", "createchannel", "createroom"};
 	}
 }

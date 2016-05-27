@@ -20,12 +20,12 @@
  */
 package io.github.katrix_.chitchat.chat;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -56,8 +56,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	private ChannelChitChat parent;
 	private final Set<ChannelChitChat> children = new HashSet<>();
-	@SuppressWarnings("WeakerAccess")
-	protected final Set<Player> players = Collections.newSetFromMap(new WeakHashMap<>()); //This works right?
 
 	private ChannelChitChat(ChannelChitChat parent, String name, Text description, Text prefix) {
 		this.parent = parent;
@@ -136,6 +134,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		children.remove(channel);
 	}
 
+	@SuppressWarnings("OptionalGetWithoutIsPresent")
 	public ChannelChitChat createChannel(String name, Text prefix, Text description) {
 		ChannelChitChat channel = new ChannelChitChat(this, name, prefix, description);
 
@@ -177,62 +176,55 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public void movePlayersToGlobal(@Nullable Text message, Predicate<Player> test) {
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the parent channel");
-		players.stream().filter(test).forEach(player -> {
-			player.sendMessage(text);
-			player.offer(LibKeys.USER_CHANNEL, this.getQueryName());
-		});
+		getMembersNested().stream()
+				.filter(m -> m instanceof Player)
+				.map(m -> (Player)m)
+				.filter(test)
+				.forEach(p -> {
+					p.sendMessage(text);
+					p.get(LibKeys.USER_CHANNEL)
+							.ifPresent(q -> CentralControl.INSTANCE.getChannel(q)
+									.ifPresent(c -> c.removeUser(p)));
+					addUser(p);
+				});
 	}
 
-	@SuppressWarnings({"deprecation", "OptionalGetWithoutIsPresent"})
-	public void addUser(User user) {
+	public List<MessageReceiver> getMembersNested() {
+		return children.stream()
+				.flatMap(c -> c.getMembers().stream())
+				.collect(Collectors.toList());
+	}
+
+	private void addUserData(User user) {
 		user.offer(LibKeys.USER_CHANNEL, getQueryName());
-		if(user.isOnline()) {
-			addMember(user.getPlayer().get());
-		}
 	}
 
-	@SuppressWarnings({"deprecation", "OptionalGetWithoutIsPresent"})
-	public void removeUser(User user) {
+	private void removeUserData(User user) {
 		user.remove(LibKeys.USER_CHANNEL);
-		if(user.isOnline()) {
-			removeMember(user.getPlayer().get());
-		}
-	}
-
-	protected void addPlayer(Player player) {
-		players.add(player);
-		getParent().addPlayer(player);
-	}
-
-	protected void removePlayer(Player player) {
-		players.remove(player);
-		getParent().removePlayer(player);
 	}
 
 	/**
-	 * Don't use this for adding members, use {@link #addUser(User)} instead
+	 * Add an user to this channel and adds the data to the user.
+	 * Prefer this over {@link #addMember(MessageReceiver)} when adding an user.
 	 */
-	//TODO: Better way to handle this
-	@Deprecated
-	@Override
-	public boolean addMember(MessageReceiver member) {
-		if(member instanceof Player) {
-			addPlayer((Player)member);
+	public void addUser(User user) {
+		addUserData(user);
+
+		if(user instanceof MessageReceiver) {
+			addMember((MessageReceiver)user);
 		}
-		return super.addMember(member);
 	}
 
 	/**
-	 * Don't use this for removing members, use {@link #removeUser(User)} instead.
+	 * Add an user to this channel and adds the data to the user.
+	 * Prefer this over {@link #removeMember(MessageReceiver)} when adding an user.
 	 */
-	//TODO: Better way to handle this
-	@Deprecated
-	@Override
-	public boolean removeMember(MessageReceiver member) {
-		if(member instanceof Player) {
-			removePlayer((Player)member);
+	public void removeUser(User user) {
+		removeUserData(user);
+
+		if(user instanceof MessageReceiver) {
+			removeMember((MessageReceiver)user);
 		}
-		return super.removeMember(member);
 	}
 
 	public boolean nameUnused(String string) {
@@ -276,16 +268,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		@Override
 		public DataQuery getQueryName() {
 			return DataQuery.of("root");
-		}
-
-		@Override
-		protected void addPlayer(Player player) {
-			players.add(player);
-		}
-
-		@Override
-		protected void removePlayer(Player player) {
-			players.remove(player);
 		}
 	}
 

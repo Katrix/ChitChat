@@ -77,6 +77,6 @@ public class CmdChannelRemove extends CommandBase {
 
 	@Override
 	public String[] getAliases() {
-		return new String[] {"remove", "removechannel", "delete", "deletechannel", "removeroom", "deleteroom"};
+		return new String[] {"removeUser", "removechannel", "delete", "deletechannel", "removeroom", "deleteroom"};
 	}
 }
