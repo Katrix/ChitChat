@@ -156,7 +156,7 @@ public class ChatListener {
 	}
 
 	private ChannelChitChat getPlayerChannel(Player player) {
-		return CentralControl.INSTANCE.getChannel(player
+		return ChannelChitChat.getRoot().getChannel(player
 				.get(LibKeys.USER_CHANNEL)
 				.orElse(ChannelChitChat.getRoot().getQueryName()))
 				.orElse(ChannelChitChat.getRoot());

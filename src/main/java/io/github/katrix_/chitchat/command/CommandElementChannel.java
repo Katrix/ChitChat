@@ -39,7 +39,6 @@ import org.spongepowered.api.text.Text;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibKeys;
 
@@ -112,7 +111,7 @@ public class CommandElementChannel extends CommandElement {
 	}
 
 	private ChannelChitChat getChannel(User user) {
-		return CentralControl.INSTANCE.getChannel(user
+		return ChannelChitChat.getRoot().getChannel(user
 				.get(LibKeys.USER_CHANNEL)
 				.orElse(ChannelChitChat.getRoot().getQueryName()))
 				.orElse(ChannelChitChat.getRoot());

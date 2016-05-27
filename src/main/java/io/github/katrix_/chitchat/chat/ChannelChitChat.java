@@ -140,7 +140,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 		if(!children.contains(channel)) {
 			children.add(channel);
-			CentralControl.INSTANCE.registerChannel(channel);
 			LogHelper.info("Created channel " + name + " for " + getQueryName());
 			return channel;
 		}
@@ -162,6 +161,49 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 		return children;
 	}
 
+	public Optional<ChannelChitChat> getChannel(DataQuery thatQueryName) {
+		List<String> thatNameParts = thatQueryName.getParts();
+		List<String> thisNameParts = getQueryName().getParts();
+
+		//If the depth of this channel is bigger than the depth of the other channel, then the other channel can't be a parent for this
+		if(thisNameParts.size() > thatNameParts.size()) {
+			return Optional.empty();
+		}
+
+		if(thisNameParts.size() == thatNameParts.size()) {
+			if(thisNameParts.equals(thatNameParts)) {
+				return Optional.of(this);
+			}
+		}
+
+		for(int i = 0; i <= thatNameParts.size(); i++) {
+			String thisPart;
+			String thatPart = thatNameParts.get(i);
+
+			try {
+				thisPart = thisNameParts.get(i);
+			}
+			catch(IndexOutOfBoundsException e) {
+				thisPart = null;
+			}
+
+			if(thisPart == null || !thisPart.equals(thatPart)) {
+				if(i == 0) {
+					//Should not ever happen. Just for safety.
+					return Optional.empty();
+				}
+				else {
+					return children.stream()
+							.filter(c -> c.getName().equals(thatPart))
+							.findFirst()
+							.flatMap(c -> c.getChannel(thatQueryName));
+				}
+			}
+		}
+
+		return Optional.empty();
+	}
+
 	/*============================== Player stuff ==============================*/
 
 	public void moveAllToParent(@Nullable Text message) {
@@ -169,7 +211,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	public void moveChildToParent(ChannelChitChat channel, @Nullable Text message) {
-		movePlayersToGlobal(message, player -> CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelRoot.INSTANCE.getQueryName()))
+		movePlayersToGlobal(message, player -> getRoot().getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelRoot.INSTANCE.getQueryName()))
 				.orElse(getRoot()).equals(channel));
 	}
 
@@ -182,7 +224,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 				.forEach(p -> {
 					p.sendMessage(text);
 					p.get(LibKeys.USER_CHANNEL)
-							.ifPresent(q -> CentralControl.INSTANCE.getChannel(q)
+							.ifPresent(q -> getRoot().getChannel(q)
 									.ifPresent(c -> c.removeUser(p)));
 					addUser(p);
 				});
@@ -244,7 +286,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 		private ChannelRoot() {
 			this("Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));
-			CentralControl.INSTANCE.registerChannel(INSTANCE);
 		}
 
 		@SuppressWarnings("ConstantConditions")

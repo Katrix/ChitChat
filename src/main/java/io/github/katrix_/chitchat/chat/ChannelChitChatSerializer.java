@@ -44,7 +44,7 @@ public class ChannelChitChatSerializer implements TypeSerializer<ChannelChitChat
 
 		if(segmentedName != null && prefix != null && description != null && isRoot) {
 			DataQuery fullName = DataQuery.of('.', segmentedName);
-			Optional<ChannelChitChat> optParent = CentralControl.INSTANCE.getChannel(fullName.pop());
+			Optional<ChannelChitChat> optParent = ChannelChitChat.getRoot().getChannel(fullName.pop());
 
 			if(optParent.isPresent()) {
 				ChannelChitChat parent = optParent.get();

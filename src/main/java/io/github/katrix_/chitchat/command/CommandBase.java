@@ -36,7 +36,6 @@ import org.spongepowered.api.text.format.TextColors;
 import com.google.common.collect.ImmutableList;
 
 import io.github.katrix_.chitchat.ChitChat;
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibKeys;
@@ -139,7 +138,7 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	protected ChannelChitChat getChannelUser(User user) {
-		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName()))
+		return ChannelChitChat.getRoot().getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName()))
 				.orElse(ChannelChitChat.getRoot());
 	}
 
