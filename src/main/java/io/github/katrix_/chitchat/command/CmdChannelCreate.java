@@ -67,12 +67,15 @@ public class CmdChannelCreate extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Create a new channel"))
-				.extendedDescription(Text.of("If the prefix is empty, the channel \nname will be used")).permission(LibPerm.CHANNEL_CREATE)
+		return CommandSpec.builder()
+				.description(Text.of("Create a new channel"))
+				.extendedDescription(Text.of("If the prefix is empty, the channel \nname will be used"))
+				.permission(LibPerm.CHANNEL_CREATE)
 				.arguments(GenericArguments.string(LibCommandKey.CHANNEL_NAME),
 						GenericArguments.optional(GenericArguments.string(LibCommandKey.CHANNEL_PREFIX)),
 						GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.CHANNEL_DESCRIPTION)))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override

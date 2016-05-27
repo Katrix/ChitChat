@@ -53,7 +53,11 @@ public class CmdChannelLoad extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Reload the channels from disk")).permission(LibPerm.CHANNEL_LOAD).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Reload the channels from disk"))
+				.permission(LibPerm.CHANNEL_LOAD)
+				.executor(this)
+				.build();
 	}
 
 	@Override

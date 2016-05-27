@@ -112,7 +112,7 @@ public class CommandElementChannel extends CommandElement {
 	}
 
 	private ChannelChitChat getChannel(User user) {
-		return CentralControl.INSTANCE.getChannel((user)
+		return CentralControl.INSTANCE.getChannel(user
 				.get(LibKeys.USER_CHANNEL)
 				.orElse(ChannelChitChat.getRoot().getQueryName()))
 				.orElse(ChannelChitChat.getRoot());

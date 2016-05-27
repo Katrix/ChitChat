@@ -53,8 +53,9 @@ public class CmdShout extends CommandBase {
 		if(channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.SHOUT)) {
-				channel.send(src, getCfg().getShoutTemplate().apply(
-						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
+				channel.send(src,
+						getCfg().getShoutTemplate().apply(
+								ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
 						.build());
 				src.sendMessage(Text.of(TextColors.GREEN, "Sent message " + message + " to channel " + channel.getName()));
 				return CommandResult.success();
@@ -65,10 +66,12 @@ public class CmdShout extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Send a message to a channel")).permission(LibPerm.SHOUT)
-				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME),
-						GenericArguments.remainingJoinedStrings(Text.of(LibCommandKey.MESSAGE)))
-				.executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Send a message to a channel"))
+				.permission(LibPerm.SHOUT)
+				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME), GenericArguments.remainingJoinedStrings(Text.of(LibCommandKey.MESSAGE)))
+				.executor(this)
+				.build();
 	}
 
 	@Override

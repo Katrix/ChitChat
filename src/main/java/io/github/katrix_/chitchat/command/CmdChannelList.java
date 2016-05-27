@@ -77,7 +77,10 @@ public class CmdChannelList extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Lists all the currently existing channels")).permission(LibPerm.CHANNEL_LIST).executor(this)
+		return CommandSpec.builder()
+				.description(Text.of("Lists all the currently existing channels"))
+				.permission(LibPerm.CHANNEL_LIST)
+				.executor(this)
 				.build();
 	}
 

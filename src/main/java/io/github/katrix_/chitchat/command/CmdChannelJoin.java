@@ -59,8 +59,12 @@ public class CmdChannelJoin extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Join an existing channel")).permission(LibPerm.CHANNEL_JOIN)
-				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Join an existing channel"))
+				.permission(LibPerm.CHANNEL_JOIN)
+				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME))
+				.executor(this)
+				.build();
 	}
 
 	@Override

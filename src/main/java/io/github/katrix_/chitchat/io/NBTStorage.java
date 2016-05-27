@@ -20,6 +20,10 @@
  */
 package io.github.katrix_.chitchat.io;
 
+import static io.github.katrix.spongynbt.nbt.NBTType.TAG_COMPOUND;
+import static io.github.katrix.spongynbt.nbt.NBTType.TAG_LIST;
+import static io.github.katrix.spongynbt.nbt.NBTType.TAG_STRING;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -35,8 +39,6 @@ import io.github.katrix.spongynbt.nbt.NBTString;
 import io.github.katrix.spongynbt.nbt.NBTTag;
 import io.github.katrix.spongynbt.sponge.NBTTranslator;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-
-import static io.github.katrix.spongynbt.nbt.NBTType.*;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
 
@@ -64,7 +66,8 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 			Optional<NBTTag> optChildren = rootTag.getJava(CHILDREN);
 
 			if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
-				if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND && optDescription.get().getType() == TAG_COMPOUND && optChildren.get().getType() == TAG_LIST) {
+				if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND && optDescription.get().getType() == TAG_COMPOUND
+						&& optChildren.get().getType() == TAG_LIST) {
 					NBTString name = (NBTString)optName.get();
 					NBTCompound prefix = (NBTCompound)optPrefix.get();
 					NBTCompound description = (NBTCompound)optDescription.get();
@@ -74,7 +77,8 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 					Optional<Text> textDescription = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(description));
 
 					if(children.getListType() == TAG_COMPOUND && textPrefix.isPresent() && textDescription.isPresent()) {
-						ChannelChitChat.ChannelRoot rootChannel = ChannelChitChat.ChannelRoot.createNewRoot(name.value(), textPrefix.get(), textDescription.get());
+						ChannelChitChat.ChannelRoot rootChannel = ChannelChitChat.ChannelRoot.createNewRoot(name.value(), textPrefix.get(),
+								textDescription.get());
 						List<NBTCompound> childrenCompound = children.getAllJava().stream().map(t -> (NBTCompound)t).collect(Collectors.toList());
 						childrenCompound.forEach(c -> loadChannel(c, rootChannel));
 						return Optional.of(rootChannel);
@@ -93,8 +97,8 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		Optional<NBTTag> optChildren = channelCompound.getJava(CHILDREN);
 
 		if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
-			if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND &&
-					optDescription.get().getType() == TAG_COMPOUND && optChildren.get().getType() == TAG_LIST) {
+			if(optName.get().getType() == TAG_STRING && optPrefix.get().getType() == TAG_COMPOUND && optDescription.get().getType() == TAG_COMPOUND
+					&& optChildren.get().getType() == TAG_LIST) {
 				NBTString name = (NBTString)optName.get();
 				NBTCompound prefix = (NBTCompound)optPrefix.get();
 				NBTCompound description = (NBTCompound)optDescription.get();

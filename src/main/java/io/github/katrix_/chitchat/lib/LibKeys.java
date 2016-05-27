@@ -29,7 +29,8 @@ import io.github.katrix_.chitchat.chat.ChannelChitChat;
 
 public class LibKeys {
 
-	public static final Key<Value<ChannelChitChat>> CHANNEL_CHITCHAT = KeyFactory.makeSingleKey(ChannelChitChat.class, Value.class, DataQuery.of(LibPlugin.ID, "channel"));
+	public static final Key<Value<ChannelChitChat>> CHANNEL_CHITCHAT = KeyFactory.makeSingleKey(ChannelChitChat.class, Value.class,
+			DataQuery.of(LibPlugin.ID, "channel"));
 
 	public static final Key<Value<DataQuery>> USER_CHANNEL = KeyFactory.makeSingleKey(DataQuery.class, Value.class, DataQuery.of(LibPlugin.ID, "channel"));
 }

@@ -100,10 +100,12 @@ public class CmdChannelProperties extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		CommandSpec.Builder builder = CommandSpec.builder().permission(LibPerm.CHANNEL_INFO)
+		CommandSpec.Builder builder = CommandSpec.builder()
+				.permission(LibPerm.CHANNEL_INFO)
 				.description(Text.of("Shows you information about a channel."))
 				.extendedDescription(Text.of("If you specify a channel as a parameter \nyou can see the currently set parameters \nfor that channel"))
-				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this);
+				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME))
+				.executor(this);
 		registerSubcommands(builder);
 		return builder.build();
 	}

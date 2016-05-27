@@ -53,13 +53,11 @@ public class CmdChannelModifyPrefix extends CommandBase {
 			Text prefix = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName()));
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
 				if(channel.setPrefix(prefix)) {
-					src.sendMessage(Text.of(TextColors.GREEN, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-							prefix));
+					src.sendMessage(Text.of(TextColors.GREEN, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET, prefix));
 					LogHelper.info("Prefix of " + channel.getName() + " changed to: " + prefix);
 				}
 				else {
-					src.sendMessage(Text.of(TextColors.RED, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET,
-							prefix, TextColors.RED,
+					src.sendMessage(Text.of(TextColors.RED, "Prefix of " + channel.getName() + " changed to: ", TextColors.RESET, prefix, TextColors.RED,
 							"\n However, this change did not save properly to the database"));
 					LogHelper.error("Failed to write new prefix " + prefix + " of channel " + channel.getName() + " to storage");
 				}
@@ -72,11 +70,14 @@ public class CmdChannelModifyPrefix extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Change the prefix of a channel"))
+		return CommandSpec.builder()
+				.description(Text.of("Change the prefix of a channel"))
 				.extendedDescription(Text.of("If left empty, it will set the \nprefix to the same as the channel name"))
-				.permission(LibPerm.CHANNEL_PREFIX).arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME),
+				.permission(LibPerm.CHANNEL_PREFIX)
+				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME),
 						GenericArguments.optional(GenericArguments.string(LibCommandKey.CHANNEL_PREFIX)))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override

@@ -69,9 +69,12 @@ public class CmdChannelModifyName extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Change the name of a channel")).permission(LibPerm.CHANNEL_NAME)
+		return CommandSpec.builder()
+				.description(Text.of("Change the name of a channel"))
+				.permission(LibPerm.CHANNEL_NAME)
 				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME), GenericArguments.string(LibCommandKey.CHANNEL_NAME_NEW))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override

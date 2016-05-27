@@ -57,8 +57,8 @@ public class CmdReply extends CommandBase {
 
 		if(receiverOpt.isPresent()) {
 			CommandSource receiver = receiverOpt.get();
-			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()),
-					ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(receiver.getName()), ConfigSettings.TEMPLATE_MESSAGE,
+					Text.of(message));
 
 			receiver.sendMessage(cfg.getPmReceiverTemplate(), templateMap);
 			src.sendMessage(cfg.getPmSenderTemplate(), templateMap);
@@ -77,8 +77,12 @@ public class CmdReply extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Send a message to the person you most recently had a conversation with"))
-				.permission(LibPerm.REPLY).arguments(GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE)).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Send a message to the person you most recently had a conversation with"))
+				.permission(LibPerm.REPLY)
+				.arguments(GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE))
+				.executor(this)
+				.build();
 	}
 
 	@Override

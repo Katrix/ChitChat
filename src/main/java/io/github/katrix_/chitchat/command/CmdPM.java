@@ -60,8 +60,8 @@ public class CmdPM extends CommandBase {
 			conversations.put(src, player);
 			conversations.put(player, src);
 
-			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()),
-					ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+			Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(player.getName()), ConfigSettings.TEMPLATE_MESSAGE,
+					Text.of(message));
 			player.sendMessage(getCfg().getPmReceiverTemplate(), templateMap);
 			src.sendMessage(getCfg().getPmSenderTemplate(), templateMap);
 
@@ -76,9 +76,12 @@ public class CmdPM extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Send a private message to someone else")).permission(LibPerm.PM)
+		return CommandSpec.builder()
+				.description(Text.of("Send a private message to someone else"))
+				.permission(LibPerm.PM)
 				.arguments(GenericArguments.player(LibCommandKey.PLAYER), GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override

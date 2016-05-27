@@ -45,17 +45,19 @@ public class CmdMe extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).get();
-		src.getMessageChannel().send(src,
-				getCfg().getMeTemplate().apply(
-						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
-						.build());
+		src.getMessageChannel().send(src, getCfg().getMeTemplate()
+				.apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message))).build());
 		return CommandResult.success();
 	}
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Act out something")).permission(LibPerm.ME)
-				.arguments(GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE)).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Act out something"))
+				.permission(LibPerm.ME)
+				.arguments(GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE))
+				.executor(this)
+				.build();
 	}
 
 	@Override

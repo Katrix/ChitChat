@@ -83,9 +83,13 @@ public class CmdChannelMove extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Move a player into a channel"))
-				.extendedDescription(Text.of("You can also use this command on offline players")).permission(LibPerm.CHANNEL_MOVE)
-				.arguments(GenericArguments.user(LibCommandKey.USER), new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Move a player into a channel"))
+				.extendedDescription(Text.of("You can also use this command on offline players"))
+				.permission(LibPerm.CHANNEL_MOVE)
+				.arguments(GenericArguments.user(LibCommandKey.USER), new CommandElementChannel(LibCommandKey.CHANNEL_NAME))
+				.executor(this)
+				.build();
 	}
 
 

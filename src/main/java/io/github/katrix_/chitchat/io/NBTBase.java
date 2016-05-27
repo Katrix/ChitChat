@@ -91,7 +91,7 @@ public abstract class NBTBase {
 	}
 
 	private void loadOrCreateFile() throws IOException {
-		File file = this.path.toFile();
+		File file = path.toFile();
 		if(file.exists()) {
 			compound = load();
 		}

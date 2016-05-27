@@ -169,9 +169,8 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	public void moveChildToParent(ChannelChitChat channel, @Nullable Text message) {
-		movePlayersToGlobal(message, player -> CentralControl.INSTANCE.getChannel(player
-				.get(LibKeys.USER_CHANNEL)
-				.orElse(ChannelRoot.INSTANCE.getQueryName())).orElse(getRoot()).equals(channel));
+		movePlayersToGlobal(message, player -> CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelRoot.INSTANCE.getQueryName()))
+				.orElse(getRoot()).equals(channel));
 	}
 
 	public void movePlayersToGlobal(@Nullable Text message, Predicate<Player> test) {
@@ -207,8 +206,8 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	/**
-	 * Add an user to this channel and adds the data to the user.
-	 * Prefer this over {@link #addMember(MessageReceiver)} when adding an user.
+	 * Add an user to this channel and adds the data to the user. Prefer this over {@link #addMember(MessageReceiver)}
+	 * when adding an user.
 	 */
 	public void addUser(User user) {
 		addUserData(user);
@@ -219,8 +218,8 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	}
 
 	/**
-	 * Add an user to this channel and adds the data to the user.
-	 * Prefer this over {@link #removeMember(MessageReceiver)} when adding an user.
+	 * Add an user to this channel and adds the data to the user. Prefer this over
+	 * {@link #removeMember(MessageReceiver)} when adding an user.
 	 */
 	public void removeUser(User user) {
 		removeUserData(user);
@@ -298,8 +297,12 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	//Because equality is decided by the parent and name, if two channels with the same parent and name exists, they are considered the same channel
 	@Override
 	public boolean equals(Object o) {
-		if(this == o) return true;
-		if(getClass() != o.getClass()) return false;
+		if(this == o) {
+			return true;
+		}
+		if(getClass() != o.getClass()) {
+			return false;
+		}
 
 		ChannelChitChat that = (ChannelChitChat)o;
 

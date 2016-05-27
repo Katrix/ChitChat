@@ -47,7 +47,9 @@ public class CmdChannel extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		Builder builder = CommandSpec.builder().permission(LibPerm.CHANNEL).description(Text.of("Do stuff with channels"));
+		Builder builder = CommandSpec.builder()
+				.permission(LibPerm.CHANNEL)
+				.description(Text.of("Do stuff with channels"));
 		registerSubcommands(builder);
 		return builder.build();
 	}

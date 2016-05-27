@@ -87,8 +87,8 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	/**
-	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it
-	 * sends an errorto the player.
+	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it sends an errorto
+	 * the player.
 	 */
 	protected boolean channelNameNotUsed(String channel, Player player) {
 		if(BADNAMES.contains(channel)) {
@@ -116,8 +116,8 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	/**
-	 * Checks that a player has the permission to do something with a given channel, and sends an
-	 * error message to the player if they don't have permission for the given channel.
+	 * Checks that a player has the permission to do something with a given channel, and sends an error message to the
+	 * player if they don't have permission for the given channel.
 	 */
 	protected boolean permissionChannel(DataQuery channelQueryName, CommandSource subject, String basePerm) {
 		if(!subject.hasPermission(basePerm + "." + channelQueryName.asString('.'))) {
@@ -139,7 +139,8 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	protected ChannelChitChat getChannelUser(User user) {
-		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName())).orElse(ChannelChitChat.getRoot());
+		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName()))
+				.orElse(ChannelChitChat.getRoot());
 	}
 
 	protected void setChannelUser(User user, ChannelChitChat newChannel) {

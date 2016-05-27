@@ -53,14 +53,12 @@ public class CmdChannelModifyDescription extends CommandBase {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_DESCRIPTION)) {
 				if(channel.setDescription(description)) {
-					src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-							description));
+					src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET, description));
 					LogHelper.info("Description of " + channel.getName() + " changed to: " + description);
 				}
 				else {
-					src.sendMessage(Text.of(TextColors.RED, "Description of " + channel.getName() + " changed to: ", TextColors.RESET,
-							description, TextColors.RED,
-							"\n However, this change did not save properly to the database"));
+					src.sendMessage(Text.of(TextColors.RED, "Description of " + channel.getName() + " changed to: ", TextColors.RESET, description,
+							TextColors.RED, "\n However, this change did not save properly to the database"));
 					LogHelper.error("Failed to write new description " + description + " of channel " + channel.getName() + " to storage");
 				}
 				return CommandResult.success();
@@ -71,11 +69,14 @@ public class CmdChannelModifyDescription extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Change the description of a channel"))
-				.extendedDescription(Text.of("If left empty, it will delete the \ncurrently set description")).permission(LibPerm.CHANNEL_DESCRIPTION)
+		return CommandSpec.builder()
+				.description(Text.of("Change the description of a channel"))
+				.extendedDescription(Text.of("If left empty, it will delete the \ncurrently set description"))
+				.permission(LibPerm.CHANNEL_DESCRIPTION)
 				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME),
 						GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.CHANNEL_DESCRIPTION)))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override

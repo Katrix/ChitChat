@@ -47,7 +47,11 @@ public class CmdReloadConfigs extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Reloads the configs")).permission(LibPerm.RELOAD).executor(this).build();
+		return CommandSpec.builder()
+				.description(Text.of("Reloads the configs"))
+				.permission(LibPerm.RELOAD)
+				.executor(this)
+				.build();
 	}
 
 	@Override

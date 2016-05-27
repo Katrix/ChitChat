@@ -114,10 +114,13 @@ public class CmdHelp extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("This command right here."))
+		return CommandSpec.builder()
+				.description(Text.of("This command right here."))
 				.extendedDescription(Text.of("Use /chitchat help <command> <subcommand> \nto get help for a specific command"))
-				.permission(LibPerm.HELP).arguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.COMMAND)))
-				.executor(this).build();
+				.permission(LibPerm.HELP)
+				.arguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.COMMAND)))
+				.executor(this)
+				.build();
 	}
 
 	@Override
@@ -138,8 +141,6 @@ public class CmdHelp extends CommandBase {
 
 		while(pos < individualCommands.length) {
 			String testedCommand = individualCommands[pos];
-			int newPos = pos;
-
 			/* Made from scala code
 			val newValues = for {
 				l <- values

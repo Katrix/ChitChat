@@ -70,9 +70,13 @@ public class CmdChannelRemove extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().description(Text.of("Remove an existing channel"))
+		return CommandSpec.builder()
+				.description(Text.of("Remove an existing channel"))
 				.extendedDescription(Text.of("If any players is in the channel \nat the time, they will be moved to the \nglobal channel"))
-				.permission(LibPerm.CHANNEL_REMOVE).arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME)).executor(this).build();
+				.permission(LibPerm.CHANNEL_REMOVE)
+				.arguments(new CommandElementChannel(LibCommandKey.CHANNEL_NAME))
+				.executor(this)
+				.build();
 	}
 
 	@Override

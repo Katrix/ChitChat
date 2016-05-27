@@ -52,7 +52,10 @@ public class CmdChitChat extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		Builder builder = CommandSpec.builder().description(Text.of("Shows information about ChitChat")).permission(LibPerm.CHITCHAT).executor(this);
+		Builder builder = CommandSpec.builder()
+				.description(Text.of("Shows information about ChitChat"))
+				.permission(LibPerm.CHITCHAT)
+				.executor(this);
 		registerSubcommands(builder);
 		return builder.build();
 	}

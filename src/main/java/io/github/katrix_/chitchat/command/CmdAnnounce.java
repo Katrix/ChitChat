@@ -55,8 +55,8 @@ public class CmdAnnounce extends CommandBase {
 			src = Sponge.getServer().getConsole();
 		}
 
-		Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()),
-				ConfigSettings.TEMPLATE_MESSAGE, Text.of(message));
+		Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE,
+				Text.of(message));
 
 		Sponge.getServer().getBroadcastChannel().send(src, getCfg().getAnnounceTemplate().apply(templateMap).build());
 		return CommandResult.success();
@@ -64,11 +64,15 @@ public class CmdAnnounce extends CommandBase {
 
 	@Override
 	public CommandSpec getCommand() {
-		return CommandSpec.builder().permission(LibPerm.ANNOUNCE).description(Text.of("Send a message to all players"))
+		return CommandSpec.builder()
+				.permission(LibPerm.ANNOUNCE)
+				.description(Text.of("Send a message to all players"))
 				.extendedDescription(Text.of("If the flag -c is specified, it \nwill do the announcement as console"))
-				.arguments(GenericArguments.flags().permissionFlag(LibPerm.ANNOUNCE_CONSOLE, CONSOLE)
+				.arguments(GenericArguments.flags()
+						.permissionFlag(LibPerm.ANNOUNCE_CONSOLE, CONSOLE)
 						.buildWith(GenericArguments.remainingJoinedStrings(LibCommandKey.MESSAGE)))
-				.executor(this).build();
+				.executor(this)
+				.build();
 	}
 
 	@Override
