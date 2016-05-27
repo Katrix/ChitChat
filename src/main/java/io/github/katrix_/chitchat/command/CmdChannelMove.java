@@ -33,7 +33,6 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -61,13 +60,13 @@ public class CmdChannelMove extends CommandBase {
 				Optional<Player> optPlayer = user.getPlayer();
 				if(optPlayer.isPresent()) {
 					Player player = optPlayer.get();
-					CentralControl.setChannelUser(player, channel);
+					setChannelUser(player, channel);
 					src.sendMessage(Text.of(TextColors.GREEN, player.getName() + " was move into channel " + channel.getName()));
 					player.sendMessage(Text.of(TextColors.YELLOW, "You were moved into " + channel.getName() + " by " + src.getName()));
 				}
 				else {
 					if(src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
-						CentralControl.setChannelUser(user, channel);
+						setChannelUser(user, channel);
 						src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
 					}
 					else {

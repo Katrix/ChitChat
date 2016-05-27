@@ -34,7 +34,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -55,7 +54,7 @@ public class CmdChannelCreate extends CommandBase {
 		Text description = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse(""));
 
 		if(sourceIsPlayer(src) && channelNameNotUsed(name, (Player)src)) {
-			ChannelChitChat userChannel = CentralControl.getChannelUser((User)src).orElse(ChannelChitChat.getRoot());
+			ChannelChitChat userChannel = getChannelUser((User)src);
 			if(permissionChannel(userChannel.getQueryName().then(DataQuery.of(name)), src, LibPerm.CHANNEL_CREATE)) {
 				userChannel.createChannel(name, prefix, description);
 				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));

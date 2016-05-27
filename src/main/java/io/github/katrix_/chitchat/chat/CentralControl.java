@@ -5,10 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
-
-import io.github.katrix_.chitchat.lib.LibDataQuaries;
 
 public class CentralControl {
 
@@ -28,24 +24,4 @@ public class CentralControl {
 
 	/*============================== Utility stuff ==============================*/
 
-	public static Optional<ChannelChitChat> getChannelUser(User user) {
-		Optional<DataQuery> query = user.toContainer().getObject(LibDataQuaries.PLAYER_CHANNEL, DataQuery.class);
-		return query.flatMap(CentralControl.INSTANCE::getChannel);
-	}
-
-	@SuppressWarnings("OptionalGetWithoutIsPresent")
-	public static void setChannelUser(User user, ChannelChitChat channel) {
-		boolean online = user.isOnline();
-
-		if(online) {
-			getChannelUser(user).ifPresent(c -> c.removeMember(user.getPlayer().get()));
-		}
-		user.toContainer().set(LibDataQuaries.PLAYER_CHANNEL, channel.getQueryName());
-
-		if(online) {
-			Player player = user.getPlayer().get();
-			player.setMessageChannel(channel);
-			channel.addMember(player);
-		}
-	}
 }

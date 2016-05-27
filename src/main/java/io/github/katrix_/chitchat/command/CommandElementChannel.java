@@ -41,6 +41,7 @@ import com.google.common.collect.Iterables;
 
 import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
+import io.github.katrix_.chitchat.lib.LibKeys;
 
 import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
 
@@ -57,8 +58,7 @@ public class CommandElementChannel extends CommandElement {
 
 	private Iterable<String> getChoices(CommandSource source) {
 		if(source instanceof Player) {
-			return CentralControl.getChannelUser((User)source).orElse(ChannelChitChat.getRoot()).getChildren().stream().map(ChannelChitChat::getName).collect(
-					Collectors.toList());
+			return getChannel((User)source).getChildren().stream().map(ChannelChitChat::getName).collect(Collectors.toList());
 		}
 		else {
 			return ImmutableList.of();
@@ -67,7 +67,7 @@ public class CommandElementChannel extends CommandElement {
 
 	private Object getValue(String choice, CommandSource source) throws IllegalArgumentException {
 		if(source instanceof Player) {
-			return CentralControl.getChannelUser((User)source).flatMap(c -> c.getChild(choice)).orElse(null);
+			return getChannel((User)source).getChild(choice).orElse(null);
 		}
 		else {
 			return null;
@@ -109,5 +109,12 @@ public class CommandElementChannel extends CommandElement {
 		}
 		return Pattern.compile(input, Pattern.CASE_INSENSITIVE);
 
+	}
+
+	private ChannelChitChat getChannel(User user) {
+		return CentralControl.INSTANCE.getChannel((user)
+				.get(LibKeys.USER_CHANNEL)
+				.orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY))
+				.orElse(ChannelChitChat.getRoot());
 	}
 }

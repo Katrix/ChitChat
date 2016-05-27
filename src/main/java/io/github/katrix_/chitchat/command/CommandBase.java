@@ -29,6 +29,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -38,6 +39,7 @@ import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.lib.LibKeys;
 
 public abstract class CommandBase implements CommandExecutor {
 
@@ -94,7 +96,7 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 
-		if(!CentralControl.getChannelUser(player).filter(c -> c.getChild(channel).isPresent()).isPresent()) {
+		if(!getChannelUser(player).nameUnused(channel)) {
 			player.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
 			return false;
 		}
@@ -134,6 +136,15 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 		return true;
+	}
+
+	protected ChannelChitChat getChannelUser(User user) {
+		return CentralControl.INSTANCE.getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
+	}
+
+	protected void setChannelUser(User user, ChannelChitChat newChannel) {
+		getChannelUser(user).removeUser(user);
+		newChannel.addUser(user);
 	}
 
 	protected ConfigSettings getCfg() {

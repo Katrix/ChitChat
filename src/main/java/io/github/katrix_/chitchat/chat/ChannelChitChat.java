@@ -20,10 +20,8 @@
  */
 package io.github.katrix_.chitchat.chat;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -31,42 +29,41 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataSerializable;
-import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.AbstractMutableMessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
-import io.github.katrix_.chitchat.lib.LibDataQuaries;
+import io.github.katrix_.chitchat.lib.LibKeys;
 
 @SuppressWarnings("unused")
-public class ChannelChitChat extends AbstractMutableMessageChannel implements DataSerializable {
+@NonnullByDefault
+public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	private String name;
 	private Text description;
 	private Text prefix;
 
 	private ChannelChitChat parent;
-	private final Map<String, ChannelChitChat> children = new HashMap<>();
+	private final Set<ChannelChitChat> children = new HashSet<>();
 	@SuppressWarnings("WeakerAccess")
 	protected final Set<Player> players = Collections.newSetFromMap(new WeakHashMap<>()); //This works right?
 
 	private ChannelChitChat(ChannelChitChat parent, String name, Text description, Text prefix) {
-		super();
 		this.parent = parent;
-		this.name = name;
 		this.description = description;
 		this.prefix = prefix;
+		this.name = name;
 	}
 
 	/*============================== Channel stuff ==============================*/
@@ -82,7 +79,6 @@ public class ChannelChitChat extends AbstractMutableMessageChannel implements Da
 	}
 
 	public void setName(String name) {
-		parent.remap(this, name);
 		this.name = name;
 	}
 
@@ -133,23 +129,29 @@ public class ChannelChitChat extends AbstractMutableMessageChannel implements Da
 
 		channel.getParent().removeChild(channel);
 		channel.setParent(this);
-		children.put(channel.getName(), channel);
+		children.add(channel);
 	}
 
 	private void removeChild(ChannelChitChat channel) {
-		children.remove(channel.getName());
+		children.remove(channel);
 	}
 
 	public ChannelChitChat createChannel(String name, Text prefix, Text description) {
 		ChannelChitChat channel = new ChannelChitChat(this, name, prefix, description);
-		children.put(name, channel);
-		CentralControl.INSTANCE.registerChannel(channel);
-		LogHelper.info("Created channel " + name + " for " + getQueryName());
-		return channel;
+
+		if(!children.contains(channel)) {
+			children.add(channel);
+			CentralControl.INSTANCE.registerChannel(channel);
+			LogHelper.info("Created channel " + name + " for " + getQueryName());
+			return channel;
+		}
+		else {
+			return children.stream().filter(c -> c.getName().equals(name)).findFirst().get(); //Get is safe as I know a channel with that name exists
+		}
 	}
 
 	public Optional<ChannelChitChat> getChild(String name) {
-		return Optional.ofNullable(children.get(name));
+		return children.stream().filter(c -> c.getName().equals(name)).findFirst();
 	}
 
 	public void removeChannel(ChannelChitChat channel) {
@@ -157,13 +159,8 @@ public class ChannelChitChat extends AbstractMutableMessageChannel implements Da
 		channel.moveAllToParent(Text.of(TextColors.RED, "The channel you are in is being removed"));
 	}
 
-	public Collection<ChannelChitChat> getChildren() {
-		return children.values();
-	}
-
-	public void remap(ChannelChitChat channel, String newName) {
-		children.remove(channel.getName());
-		children.put(newName, channel);
+	public Set<ChannelChitChat> getChildren() {
+		return children;
 	}
 
 	/*============================== Player stuff ==============================*/
@@ -173,66 +170,85 @@ public class ChannelChitChat extends AbstractMutableMessageChannel implements Da
 	}
 
 	public void moveChildToParent(ChannelChitChat channel, @Nullable Text message) {
-		movePlayersToGlobal(message, player -> CentralControl.getChannelUser(player).orElse(ChannelChitChat.getRoot()).equals(channel));
+		movePlayersToGlobal(message, player -> CentralControl.INSTANCE.getChannel(player
+				.get(LibKeys.USER_CHANNEL)
+				.orElse(ChannelRoot.ROOT_QUERY)).orElse(getRoot()).equals(channel));
 	}
 
 	public void movePlayersToGlobal(@Nullable Text message, Predicate<Player> test) {
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the parent channel");
 		players.stream().filter(test).forEach(player -> {
 			player.sendMessage(text);
-			CentralControl.setChannelUser(player, this);
+			player.offer(LibKeys.USER_CHANNEL, this.getQueryName());
 		});
 	}
 
-	protected void addUser(Player player) {
+	@SuppressWarnings({"deprecation", "OptionalGetWithoutIsPresent"})
+	public void addUser(User user) {
+		user.offer(LibKeys.USER_CHANNEL, getQueryName());
+		if(user.isOnline()) {
+			addMember(user.getPlayer().get());
+		}
+	}
+
+	@SuppressWarnings({"deprecation", "OptionalGetWithoutIsPresent"})
+	public void removeUser(User user) {
+		user.remove(LibKeys.USER_CHANNEL);
+		if(user.isOnline()) {
+			removeMember(user.getPlayer().get());
+		}
+	}
+
+	protected void addPlayer(Player player) {
 		players.add(player);
-		getParent().addUser(player);
+		getParent().addPlayer(player);
 	}
 
-	protected void removeUser(Player player) {
+	protected void removePlayer(Player player) {
 		players.remove(player);
-		getParent().removeUser(player);
+		getParent().removePlayer(player);
 	}
 
+	/**
+	 * Don't use this for adding members, use {@link #addUser(User)} instead
+	 */
+	//TODO: Better way to handle this
+	@Deprecated
 	@Override
 	public boolean addMember(MessageReceiver member) {
 		if(member instanceof Player) {
-			addUser((Player)member);
+			addPlayer((Player)member);
 		}
 		return super.addMember(member);
 	}
 
+	/**
+	 * Don't use this for removing members, use {@link #removeUser(User)} instead.
+	 */
+	//TODO: Better way to handle this
+	@Deprecated
 	@Override
 	public boolean removeMember(MessageReceiver member) {
 		if(member instanceof Player) {
-			removeUser((Player)member);
+			removePlayer((Player)member);
 		}
 		return super.removeMember(member);
+	}
+
+	public boolean nameUnused(String string) {
+		return children.stream().anyMatch(c -> c.getName().equals(string));
 	}
 
 	public static ChannelRoot getRoot() {
 		return ChannelRoot.INSTANCE;
 	}
 
-	@Override
-	public int getContentVersion() {
-		return 0;
-	}
-
-	@Override
-	public DataContainer toContainer() {
-		DataContainer container = new MemoryDataContainer();
-		container.set(LibDataQuaries.CHANNEL_NAME, getQueryName());
-		container.set(LibDataQuaries.CHANNEL_PREFIX, prefix);
-		container.set(LibDataQuaries.CHANNEL_CHILDREN, children);
-
-		return container;
-	}
-
 	public static class ChannelRoot extends ChannelChitChat {
 
 		public static final ChannelRoot INSTANCE = loadOrCreateRoot();
+		public static final DataQuery ROOT_QUERY = INSTANCE.getQueryName();
 
+		@SuppressWarnings("ConstantConditions")
 		private ChannelRoot() {
 			super(null, "Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));
 			CentralControl.INSTANCE.registerChannel(INSTANCE);
@@ -263,13 +279,31 @@ public class ChannelChitChat extends AbstractMutableMessageChannel implements Da
 		}
 
 		@Override
-		protected void addUser(Player player) {
+		protected void addPlayer(Player player) {
 			players.add(player);
 		}
 
 		@Override
-		protected void removeUser(Player player) {
+		protected void removePlayer(Player player) {
 			players.remove(player);
 		}
+	}
+
+	//Because equality is decided by the parent and name, if two channels with the same parent and name exists, they are considered the same channel
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(getClass() != o.getClass()) return false;
+
+		ChannelChitChat that = (ChannelChitChat)o;
+
+		return name.equals(that.name) && parent.equals(that.parent);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = name.hashCode();
+		result = 31 * result + parent.hashCode();
+		return result;
 	}
 }

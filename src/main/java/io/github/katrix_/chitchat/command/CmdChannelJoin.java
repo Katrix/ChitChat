@@ -31,7 +31,6 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -50,7 +49,7 @@ public class CmdChannelJoin extends CommandBase {
 		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_JOIN)) {
-				CentralControl.setChannelUser((User)src, channel);
+				setChannelUser((User)src, channel);
 				src.sendMessage(Text.of(TextColors.GREEN, "Joined channel " + channel.getName() + "."));
 				return CommandResult.success();
 			}

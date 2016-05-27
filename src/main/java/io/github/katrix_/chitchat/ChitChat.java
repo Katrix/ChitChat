@@ -28,17 +28,19 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.data.DataManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
-import io.github.katrix_.chitchat.chat.ChannelChitChatSerializer;
 import io.github.katrix_.chitchat.chat.ChatListener;
+import io.github.katrix_.chitchat.chat.data.ImmutableUserChitChatData;
+import io.github.katrix_.chitchat.chat.data.UserChitChatData;
+import io.github.katrix_.chitchat.chat.data.UserChitChatManipulatorBuilder;
 import io.github.katrix_.chitchat.command.CmdAnnounce;
 import io.github.katrix_.chitchat.command.CmdChannel;
 import io.github.katrix_.chitchat.command.CmdChitChat;
@@ -53,11 +55,7 @@ import io.github.katrix_.chitchat.io.ConfigurateStorage;
 import io.github.katrix_.chitchat.io.H2Storage;
 import io.github.katrix_.chitchat.io.IPersistentStorage;
 import io.github.katrix_.chitchat.io.NBTStorage;
-import io.github.katrix_.chitchat.io.StorageType;
-import io.github.katrix_.chitchat.io.StorageTypeSerializer;
 import io.github.katrix_.chitchat.lib.LibPlugin;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 @Plugin(id = LibPlugin.ID, name = LibPlugin.NAME, version = LibPlugin.VERSION, authors = LibPlugin.AUTHORS, description = LibPlugin.DESCRIPTION)
 public class ChitChat {
@@ -79,10 +77,9 @@ public class ChitChat {
 
 	@Listener
 	public void init(GameInitializationEvent event) {
-		TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers();
-		serializers.registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
-		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
+		DataManager dataManager = Sponge.getDataManager();
 
+		dataManager.register(UserChitChatData.class, ImmutableUserChitChatData.class, new UserChitChatManipulatorBuilder());
 
 		cfg = new ConfigSettings(configDir, "settings");
 		storage = createStorage(configDir, "storage");

@@ -43,7 +43,6 @@ import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -72,33 +71,28 @@ public class CmdChannelProperties extends CommandBase {
 				list.add(Text.of("Channel members:"));
 
 				StringBuilder players = new StringBuilder();
-				Optional<ChannelChitChat> parentChannel = CentralControl.getChannelUser((User)src);
+				ChannelChitChat parentChannel = getChannelUser((User)src);
 
-				if(channelExists(src, parentChannel)) {
-					Collection<MessageReceiver> playerMap = parentChannel.get().getMembers();
-					Iterator<Player> iterator = playerMap.stream()
-							.filter(m -> m instanceof Player)
-							.map(m -> (Player)m)
-							.filter(p -> {
-								Optional<ChannelChitChat> optChan = CentralControl.getChannelUser(p);
-								return optChan.isPresent() && optChan.get().equals(channel);
-							})
-							.collect(Collectors.toList()).iterator();
+				Collection<MessageReceiver> playerMap = parentChannel.getMembers();
+				Iterator<Player> iterator = playerMap.stream()
+						.filter(m -> m instanceof Player)
+						.map(m -> (Player)m)
+						.filter(p -> getChannelUser(p).equals(channel))
+						.collect(Collectors.toList()).iterator();
 
-					while(iterator.hasNext()) {
-						Player player = iterator.next();
-						players.append(player.getName());
-						if(iterator.hasNext()) {
-							players.append(", ");
-						}
+				while(iterator.hasNext()) {
+					Player player = iterator.next();
+					players.append(player.getName());
+					if(iterator.hasNext()) {
+						players.append(", ");
 					}
-
-					list.add(Text.of(players));
-
-					pages.contents(list);
-					pages.sendTo(src);
-					return CommandResult.success();
 				}
+
+				list.add(Text.of(players));
+
+				pages.contents(list);
+				pages.sendTo(src);
+				return CommandResult.success();
 			}
 		}
 		return CommandResult.empty();

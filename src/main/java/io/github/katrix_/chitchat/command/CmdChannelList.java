@@ -37,7 +37,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
-import io.github.katrix_.chitchat.chat.CentralControl;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -52,7 +51,7 @@ public class CmdChannelList extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		if(sourceIsPlayer(src)) {
-			ChannelChitChat parentChannel = CentralControl.getChannelUser((User)src).orElse(ChannelChitChat.getRoot());
+			ChannelChitChat parentChannel = getChannelUser((User)src);
 			PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 			pages.title(Text.of(TextColors.RED, "Child channels: " + parentChannel.getName()));
 			Collection<ChannelChitChat> children = parentChannel.getChildren();

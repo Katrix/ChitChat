@@ -22,7 +22,6 @@ package io.github.katrix_.chitchat.chat;
 
 import java.util.Optional;
 
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -46,7 +45,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.io.ConfigSettings;
-import io.github.katrix_.chitchat.lib.LibDataQuaries;
+import io.github.katrix_.chitchat.lib.LibKeys;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class ChatListener {
@@ -98,7 +97,7 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat playerChannel = CentralControl.INSTANCE.getChannel(player.toContainer().getObject(LibDataQuaries.PLAYER_CHANNEL, DataQuery.class).orElse(LibDataQuaries.ROOT_CHANNEL)).orElse(ChannelChitChat.getRoot());
+		ChannelChitChat playerChannel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(cfg.getChatPling()) {
@@ -133,7 +132,7 @@ public class ChatListener {
 		}
 
 		Player player = event.getTargetEntity();
-		ChannelChitChat channel = CentralControl.INSTANCE.getChannel(player.toContainer().getObject(LibDataQuaries.PLAYER_CHANNEL, DataQuery.class).orElse(LibDataQuaries.ROOT_CHANNEL)).orElse(ChannelChitChat.getRoot());
+		ChannelChitChat channel = CentralControl.INSTANCE.getChannel(player.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.ChannelRoot.ROOT_QUERY)).orElse(ChannelChitChat.getRoot());
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 
