@@ -33,9 +33,9 @@ import java.nio.file.Paths;
 import org.spongepowered.api.Sponge;
 
 import io.github.katrix.chitchat.ChitChat;
-import io.github.katrix.spongynbt.NBTStreamTools;
-import io.github.katrix.spongynbt.nbt.NBTCompound;
 import io.github.katrix.chitchat.helper.LogHelper;
+import io.github.katrix.spongebt.NBTStreamTools;
+import io.github.katrix.spongebt.nbt.NBTCompound;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class NBTBase {

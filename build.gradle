@@ -16,28 +16,22 @@ repositories {
         name = 'sponge'
         url = 'http://repo.spongepowered.org/maven'
     }
+    mavenLocal()
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.11.1'
     compile 'org.spongepowered:spongeapi:5.0.0-SNAPSHOT'
-    // The production code uses the SLF4J logging API at compile time
-    compile 'org.slf4j:slf4j-api:1.7.12'
-    compile files('libs/SpongyNBT.jar')
+    compile('io.github.katrix:spongebt:1.0.0') {
+        exclude group: 'org.spongepowered'
+    }
+}
 
-    // Declare the dependency for your favourite test framework you want to use in your tests.
-    // TestNG is also supported by the Gradle Test task. Just change the
-    // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
-    // 'test.useTestNG()' to your build script.
-    testCompile 'junit:junit:4.12'
+configurations {
+    runtime.exclude module: 'spongeapi' //This way we don't get the SpongeAPI in the jar
 }
 
 shadowJar {
-    dependencies {
-        include(dependency('io.katrix.github:spongynbt'))
-    }
-    relocate 'io.github.katrix.spongynbt', 'io.github.katrix_.chitchat.spongynbt'
+    relocate 'io.github.katrix.spongebt', 'io.github.katrix.chitchat.spongebt'
+    relocate 'scala', 'io.github.katrix.chitchat.spongebt.scala'
     archiveName = "ChitChat-shaded.${extension}"
 }
-
-defaultTasks 'build', 'shadowJar'
