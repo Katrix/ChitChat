@@ -20,6 +20,9 @@
  */
 package io.github.katrix_.chitchat.io;
 
+import static io.github.katrix.spongebt.nbt.NBTType.TAG_COMPOUND;
+import static io.github.katrix.spongebt.nbt.NBTType.TAG_STRING;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -33,16 +36,13 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import io.github.katrix.spongynbt.nbt.NBTCompound;
-import io.github.katrix.spongynbt.nbt.NBTString;
-import io.github.katrix.spongynbt.nbt.NBTTag;
-import io.github.katrix.spongynbt.sponge.NBTTranslator;
+import io.github.katrix.spongebt.nbt.NBTCompound;
+import io.github.katrix.spongebt.nbt.NBTString;
+import io.github.katrix.spongebt.nbt.NBTTag;
+import io.github.katrix.spongebt.sponge.NBTTranslator;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
-
-import static io.github.katrix.spongynbt.nbt.NBTType.TAG_COMPOUND;
-import static io.github.katrix.spongynbt.nbt.NBTType.TAG_STRING;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
 
