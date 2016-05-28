@@ -27,7 +27,7 @@ import io.github.katrix.chitchat.chat.ChannelChitChat;
 public interface IPersistentStorage {
 
 	/**
-	 * Loads the root channel, if there is one saved
+	 * Loads the root channel if there is one saved, and sets it as the current root.
 	 */
 	Optional<ChannelChitChat.ChannelRoot> loadRootChannel();
 

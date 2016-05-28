@@ -31,22 +31,22 @@ import org.spongepowered.api.text.format.TextColors;
 import io.github.katrix.chitchat.ChitChat;
 import io.github.katrix.chitchat.lib.LibPerm;
 
-public class CmdChannelLoad extends CommandBase {
+public class CmdChannelReload extends CommandBase {
 
-	public static final CmdChannelLoad INSTANCE = new CmdChannelLoad(CmdChannel.INSTANCE);
+	public static final CmdChannelReload INSTANCE = new CmdChannelReload(CmdChannel.INSTANCE);
 
-	private CmdChannelLoad(CommandBase parent) {
+	private CmdChannelReload(CommandBase parent) {
 		super(parent);
 	}
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		if(ChitChat.getStorage().loadRootChannel().isPresent()) {
-			src.sendMessage(Text.of(TextColors.GREEN, "Loaded channels from disk successfully."));
+			src.sendMessage(Text.of(TextColors.GREEN, "Reloaded channels from disk successfully."));
 			return CommandResult.success();
 		}
 		else {
-			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when loading channels from storage"));
+			src.sendMessage(Text.of(TextColors.RED, "Something went wrong when reloading channels from storage"));
 			return CommandResult.empty();
 		}
 	}
@@ -62,6 +62,6 @@ public class CmdChannelLoad extends CommandBase {
 
 	@Override
 	public String[] getAliases() {
-		return new String[] {"load"};
+		return new String[] {"reload"};
 	}
 }

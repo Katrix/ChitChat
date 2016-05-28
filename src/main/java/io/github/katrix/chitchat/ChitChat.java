@@ -28,6 +28,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.DataManager;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -103,6 +104,11 @@ public class ChitChat {
 
 		Sponge.getEventManager().registerListeners(this, new ChatListener());
 		ChannelChitChat.ChannelRoot.init();
+	}
+
+	@Listener
+	public void reload(GameReloadEvent event) {
+		storage.loadRootChannel();
 	}
 
 	public Logger getLog() {
