@@ -21,13 +21,13 @@
 package io.github.katrix_.chitchat.io;
 
 import static io.github.katrix.spongebt.nbt.NBTType.TAG_COMPOUND;
-import static io.github.katrix.spongebt.nbt.NBTType.TAG_STRING;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +43,7 @@ import io.github.katrix.spongebt.sponge.NBTTranslator;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
+import scala.Option;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
 
@@ -69,49 +70,46 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		}
 
 		NBTCompound channelTag = getChannelTag();
-		Collection<NBTTag> childTags = channelTag.valuesJava().values();
+		Collection<NBTCompound> childTags = channelTag.valuesJava().values().stream()
+				.filter(t -> t.getType() == TAG_COMPOUND)
+				.map(t -> (NBTCompound)t)
+				.collect(Collectors.toSet());
 
-		for(NBTTag tag : childTags) {
-			if(tag.getType() == TAG_COMPOUND) {
-				NBTCompound childCompound = (NBTCompound)tag;
-				Optional<NBTTag> optName = childCompound.getJava(NAME);
-				if(optName.isPresent()) {
-					NBTTag name = optName.get();
-					if(name.getType() == TAG_STRING) {
-						String channelName = ((NBTString)name).value();
-						Text prefix = Text.of(channelName);
-						Text description = Text.of();
+		for(NBTCompound tag : childTags) {
+			Option<String> optName = tag.get(NAME)
+					.flatMap(NBTTag::asInstanceOfNBTString)
+					.map(NBTString::value);
 
-						Optional<NBTTag> optPrefixTag = childCompound.getJava(PREFIX);
-						if(optPrefixTag.isPresent()) {
-							NBTTag prefixTag = optPrefixTag.get();
-							if(prefixTag.getType() == TAG_COMPOUND) {
-								Optional<Text> optPrefix = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom((NBTCompound)prefixTag));
-								if(optPrefix.isPresent()) {
-									prefix = optPrefix.get();
-								}
-							}
-						}
+			if(optName.isDefined()) {
+				String channelName = optName.get();
 
-						Optional<NBTTag> optDescriptionTag = childCompound.getJava(DESCRIPTION);
-						if(optDescriptionTag.isPresent()) {
-							NBTTag descriptionTag = optDescriptionTag.get();
-							if(descriptionTag.getType() == TAG_COMPOUND) {
-								Optional<Text> optDescription = Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom((NBTCompound)descriptionTag));
-								if(optDescription.isPresent()) {
-									description = optDescription.get();
-								}
-							}
-						}
+				Text prefix = tag.get(PREFIX)
+						.flatMap(NBTTag::asInstanceOfNBTCompound)
+						.flatMap(t -> optionalToOption(Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t))))
+						.getOrElse(() -> Text.of(channelName));
 
-						ChannelChitChat channel = new ChannelChitChat(channelName, description, prefix);
-						ChitChatChannels.add(channel);
-					}
-				}
+				Text description = tag.get(DESCRIPTION)
+						.flatMap(NBTTag::asInstanceOfNBTCompound)
+						.flatMap(t -> optionalToOption(Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t))))
+						.getOrElse(Text::of);
+
+				ChannelChitChat channel = new ChannelChitChat(channelName, description, prefix);
+				ChitChatChannels.add(channel);
 			}
 		}
 
 		return true;
+	}
+
+	//Stupid different types of Optional
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+	private static <T> Option<T> optionalToOption(Optional<T> optional) {
+		if(optional.isPresent()) {
+			return Option.apply(optional.get());
+		}
+		else {
+			return Option.empty();
+		}
 	}
 
 	@Override
@@ -134,23 +132,21 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		if(prefix != null || description != null) {
 			NBTCompound channelTag = getChannelTag();
 			TextSerializer serializer = TextSerializers.FORMATTING_CODE;
-			Optional<NBTTag> optTag = channelTag.getJava(channel);
-			if(optTag.isPresent()) {
-				NBTTag tag = optTag.get();
-				if(tag.getType() == TAG_COMPOUND) {
-					NBTCompound childCompound = (NBTCompound)tag;
+			Option<NBTCompound> optTag = channelTag.get(channel).flatMap(NBTTag::asInstanceOfNBTCompound);
 
-					if(prefix != null) {
-						childCompound.setTag(PREFIX, new NBTString(serializer.serialize(prefix)));
-					}
+			if(optTag.isDefined()) {
+				NBTCompound tag = optTag.get();
 
-					if(description != null) {
-						childCompound.setTag(DESCRIPTION, new NBTString(serializer.serialize(description)));
-					}
-
-					save();
-					return true;
+				if(prefix != null) {
+					tag.setTag(PREFIX, new NBTString(serializer.serialize(prefix)));
 				}
+
+				if(description != null) {
+					tag.setTag(DESCRIPTION, new NBTString(serializer.serialize(description)));
+				}
+
+				save();
+				return true;
 			}
 		}
 
@@ -166,23 +162,17 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	@Override
 	public ChannelChitChat getChannelForUser(UUID uuid) {
 		NBTCompound playerTag = getPlayerTag();
-		Optional<NBTTag> optTag = playerTag.getJava(uuid.toString());
+		Option<String> optChannelName = playerTag.get(uuid.toString())
+				.flatMap(NBTTag::asInstanceOfNBTCompound)
+				.flatMap(c -> c.get(USER_CHANNEL)
+						.flatMap(NBTTag::asInstanceOfNBTString))
+				.map(NBTString::value);
 
-		if(optTag.isPresent()) {
-			NBTTag tag = optTag.get();
-			if(tag.getType() == TAG_COMPOUND) {
-				NBTCompound childCompound = (NBTCompound)tag;
-				Optional<NBTTag> optChannelTag = childCompound.getJava(USER_CHANNEL);
-				if(optChannelTag.isPresent()) {
-					NBTTag channelTag = optChannelTag.get();
-					if(channelTag.getType() == TAG_STRING) {
-						String channelName = ((NBTString)channelTag).value();
+		if(optChannelName.isDefined()) {
+			String channelName = optChannelName.get();
 
-						if(ChitChatChannels.existName(channelName)) {
-							return ChitChatChannels.get(channelName);
-						}
-					}
-				}
+			if(ChitChatChannels.existName(channelName)) {
+				return ChitChatChannels.get(channelName);
 			}
 		}
 

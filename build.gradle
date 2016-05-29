@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compile 'org.spongepowered:spongeapi:4.0.3'
-    compile('io.github.katrix:spongebt:1.0.0') {
+    compile('io.github.katrix:spongebt:1.1.0') {
         exclude group: 'org.spongepowered'
     }
 }
