@@ -43,7 +43,6 @@ public abstract class NBTBase {
 	protected final Path path;
 	protected NBTCompound compound = new NBTCompound();
 	protected final boolean compressed;
-	protected boolean dirty = false;
 
 	public NBTBase(Path path, String name, boolean compressed) throws IOException {
 		this.compressed = compressed;
@@ -96,7 +95,6 @@ public abstract class NBTBase {
 			compound = load();
 		}
 		else {
-			dirty = true;
 			save();
 		}
 	}

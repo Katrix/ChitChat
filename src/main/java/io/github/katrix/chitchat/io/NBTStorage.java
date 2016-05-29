@@ -122,7 +122,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		NBTCompound channelTag = getChannelTag();
 		channelTag.setTag(ROOT, saveChannel(channel));
 
-		dirty = true;
+		save();
 		return true;
 	}
 
