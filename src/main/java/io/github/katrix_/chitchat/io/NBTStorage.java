@@ -125,7 +125,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 
 		channelTag.setTag(channel.getName(), channelCompound);
 
-		dirty = true;
+		save();
 		return true;
 	}
 
@@ -148,7 +148,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 						childCompound.setTag(DESCRIPTION, new NBTString(serializer.serialize(description)));
 					}
 
-					dirty = true;
+					save();
 					return true;
 				}
 			}
@@ -198,7 +198,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		userTag.setString(USER_CHANNEL, user.getChannel().getName());
 		playerTag.setTag(user.getUUID().toString(), userTag);
 
-		dirty = true;
+		save();
 		return true;
 	}
 
