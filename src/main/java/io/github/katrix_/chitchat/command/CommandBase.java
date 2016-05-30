@@ -58,8 +58,8 @@ public abstract class CommandBase implements CommandExecutor {
 
 	public abstract String[] getAliases();
 
-	public CommandBase getParent() {
-		return parent;
+	public Optional<CommandBase> getParent() {
+		return Optional.ofNullable(parent);
 	}
 
 	public ImmutableList<CommandBase> getChildren() {
