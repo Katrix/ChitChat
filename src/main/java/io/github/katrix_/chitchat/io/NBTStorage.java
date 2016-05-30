@@ -43,7 +43,7 @@ import io.github.katrix.spongebt.sponge.NBTTranslator;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.chat.UserChitChat;
-import scala.Option;
+import scala.compat.java8.OptionConverters;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
 
@@ -76,22 +76,22 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 				.collect(Collectors.toSet());
 
 		for(NBTCompound tag : childTags) {
-			Option<String> optName = tag.get(NAME)
-					.flatMap(NBTTag::asInstanceOfNBTString)
+			Optional<String> optName = tag.getJava(NAME)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
 					.map(NBTString::value);
 
-			if(optName.isDefined()) {
+			if(optName.isPresent()) {
 				String channelName = optName.get();
 
-				Text prefix = tag.get(PREFIX)
-						.flatMap(NBTTag::asInstanceOfNBTCompound)
-						.flatMap(t -> optionalToOption(Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t))))
-						.getOrElse(() -> Text.of(channelName));
+				Text prefix = tag.getJava(PREFIX)
+						.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
+						.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)))
+						.orElse(Text.of(channelName));
 
-				Text description = tag.get(DESCRIPTION)
-						.flatMap(NBTTag::asInstanceOfNBTCompound)
-						.flatMap(t -> optionalToOption(Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t))))
-						.getOrElse(Text::of);
+				Text description = tag.getJava(DESCRIPTION)
+						.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
+						.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)))
+						.orElse(Text.of());
 
 				ChannelChitChat channel = new ChannelChitChat(channelName, description, prefix);
 				ChitChatChannels.add(channel);
@@ -99,17 +99,6 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		}
 
 		return true;
-	}
-
-	//Stupid different types of Optional
-	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-	private static <T> Option<T> optionalToOption(Optional<T> optional) {
-		if(optional.isPresent()) {
-			return Option.apply(optional.get());
-		}
-		else {
-			return Option.empty();
-		}
 	}
 
 	@Override
@@ -132,9 +121,10 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		if(prefix != null || description != null) {
 			NBTCompound channelTag = getChannelTag();
 			TextSerializer serializer = TextSerializers.FORMATTING_CODE;
-			Option<NBTCompound> optTag = channelTag.get(channel).flatMap(NBTTag::asInstanceOfNBTCompound);
+			Optional<NBTCompound> optTag = channelTag.getJava(channel)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()));
 
-			if(optTag.isDefined()) {
+			if(optTag.isPresent()) {
 				NBTCompound tag = optTag.get();
 
 				if(prefix != null) {
@@ -162,13 +152,12 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	@Override
 	public ChannelChitChat getChannelForUser(UUID uuid) {
 		NBTCompound playerTag = getPlayerTag();
-		Option<String> optChannelName = playerTag.get(uuid.toString())
-				.flatMap(NBTTag::asInstanceOfNBTCompound)
-				.flatMap(c -> c.get(USER_CHANNEL)
-						.flatMap(NBTTag::asInstanceOfNBTString))
+		Optional<String> optChannelName = playerTag.getJava(uuid.toString())
+				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
+				.flatMap(c -> c.getJava(USER_CHANNEL).flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString())))
 				.map(NBTString::value);
 
-		if(optChannelName.isDefined()) {
+		if(optChannelName.isPresent()) {
 			String channelName = optChannelName.get();
 
 			if(ChitChatChannels.existName(channelName)) {
