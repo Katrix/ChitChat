@@ -73,6 +73,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	/**
 	 * Returns false if it somehow failed to save to disk.
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public boolean setDescription(Text description) {
 		this.description = description;
 		return ChitChat.getStorage().updateChannel(this, null, description);
@@ -92,6 +93,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 	/**
 	 * Returns false if it somehow failed to save to disk.
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public boolean setPrefix(Text prefix) {
 		this.prefix = prefix;
 		return ChitChat.getStorage().updateChannel(this, prefix, null);

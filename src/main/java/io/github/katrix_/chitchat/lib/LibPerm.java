@@ -20,6 +20,7 @@
  */
 package io.github.katrix_.chitchat.lib;
 
+@SuppressWarnings("WeakerAccess")
 public class LibPerm {
 
 	public static final String PREFIX = "chitchat";

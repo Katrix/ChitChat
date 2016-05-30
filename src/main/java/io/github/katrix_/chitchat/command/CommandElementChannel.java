@@ -28,9 +28,10 @@ import org.spongepowered.api.text.Text;
 
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 
+@SuppressWarnings("WeakerAccess")
 public class CommandElementChannel extends PatternMatchingCommandElement {
 
-	public CommandElementChannel(@Nullable Text key) {
+	public CommandElementChannel(@SuppressWarnings("SameParameterValue") @Nullable Text key) {
 		super(key);
 	}
 

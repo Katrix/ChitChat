@@ -111,5 +111,6 @@ public interface IPersistentStorage {
 	 * @param user The User to update for.
 	 * @return if successful.
 	 */
+	@SuppressWarnings("UnusedReturnValue")
 	boolean updateUser(UserChitChat user);
 }

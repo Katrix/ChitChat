@@ -42,7 +42,7 @@ public class CmdChannelMove extends CommandBase {
 
 	public static final CmdChannelMove INSTANCE = new CmdChannelMove();
 
-	protected CmdChannelMove() {
+	private CmdChannelMove() {
 		super(CmdChannel.INSTANCE);
 	}
 

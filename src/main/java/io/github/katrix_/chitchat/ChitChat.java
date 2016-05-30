@@ -85,9 +85,8 @@ public class ChitChat {
 		serializers.registerType(TypeToken.of(ChannelChitChat.class), new ChannelChitChatSerializer());
 		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
 
-
-		cfg = new ConfigSettings(configDir, "settings");
-		storage = createStorage(configDir, "storage");
+		cfg = new ConfigSettings(configDir);
+		storage = createStorage(configDir);
 
 		registerCommand(CmdChannel.INSTANCE);
 		registerCommand(CmdShout.INSTANCE);
@@ -124,7 +123,8 @@ public class ChitChat {
 		command.registerHelp();
 	}
 
-	private IPersistentStorage createStorage(Path path, String name) {
+	private IPersistentStorage createStorage(Path path) {
+		String name = "storage";
 		switch(cfg.getStorageType()) {
 			case PLAINTEXT:
 				return new ConfigurateStorage(path, name);

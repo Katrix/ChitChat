@@ -56,6 +56,7 @@ public class UserChitChat {
 		return uuid;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public Optional<Player> getPlayer() {
 		return Sponge.getServer().getPlayer(uuid);
 	}

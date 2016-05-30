@@ -50,14 +50,17 @@ public class ChitChatPlayers {
 		return new UserChitChat(uuid);
 	}
 
+	@SuppressWarnings("unused")
 	public static void moveAllToGlobal(@Nullable Text message) {
 		movePlayersToGlobal(message, entry -> true);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public static void moveChannelToGlobal(ChannelChitChat channel, @Nullable Text message) {
 		movePlayersToGlobal(message, entry -> entry.getValue().getChannel().equals(channel));
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public static void movePlayersToGlobal(@Nullable Text message, Predicate<Map.Entry<Player, UserChitChat>> test) {
 		ChannelChitChat global = ChitChatChannels.getGlobal();
 		Text text = message != null ? message : Text.of(TextColors.RED, "You are being moved to the global channel");

@@ -51,6 +51,7 @@ public class ChitChatChannels {
 		CHANNELS.put(channel.getName(), channel);
 	}
 
+	@SuppressWarnings("unused")
 	public static void remove(String name) {
 		if(existName(name)) {
 			remove(get(name));

@@ -36,6 +36,7 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 public class ConfigSettings extends ConfigurateBase {
 
 	public static final String TEMPLATE_PLAYER = "playerName";
+	@SuppressWarnings("WeakerAccess")
 	public static final String TEMPLATE_HEADER = "header";
 	public static final String TEMPLATE_SUFFIX = "suffix";
 	public static final String TEMPLATE_PREFIX = "prefix";
@@ -72,14 +73,14 @@ public class ConfigSettings extends ConfigurateBase {
 	private StorageType storage = StorageType.PLAINTEXT;
 	private boolean nbtCompressed = true;
 
-	public ConfigSettings(Path path, String name) {
-		super(path, name, false);
+	public ConfigSettings(Path path) {
+		super(path, "settings", false);
 		loadData();
 		saveFile();
 	}
 
 	@Override
-	public void loadData() {
+	protected void loadData() {
 		CommentedConfigurationNode node;
 		try {
 			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);

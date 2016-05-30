@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.sql.SqlService;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class H2Base {
 
 	private final DataSource source;

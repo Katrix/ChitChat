@@ -89,7 +89,7 @@ public abstract class CommandBase implements CommandExecutor {
 
 	/**
 	 * Checks that a channel name is unused and that it is not a bad name. If either check fails, it
-	 * sends an errorto the player.
+	 * sends an error to the player.
 	 */
 	protected boolean channelNameNotUsed(String channel, CommandSource src) {
 		if(BADNAMES.contains(channel)) {

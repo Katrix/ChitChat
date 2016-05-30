@@ -24,9 +24,10 @@ import org.slf4j.Logger;
 
 import io.github.katrix_.chitchat.ChitChat;
 
+@SuppressWarnings("unused")
 public class LogHelper {
 
-	public static Logger getRawLogger() {
+	private static Logger getRawLogger() {
 		return ChitChat.getPlugin().getLog();
 	}
 

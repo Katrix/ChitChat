@@ -36,6 +36,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class ConfigurateBase {
 
 	protected final Path path;
