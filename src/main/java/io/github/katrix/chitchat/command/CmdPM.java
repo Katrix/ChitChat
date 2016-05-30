@@ -44,11 +44,11 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdPM extends CommandBase {
 
-	public static final CmdPM INSTANCE = new CmdPM(null);
+	public static final CmdPM INSTANCE = new CmdPM();
 	private Map<CommandSource, CommandSource> conversations = new WeakHashMap<>();
 
-	private CmdPM(CommandBase parent) {
-		super(parent);
+	private CmdPM() {
+		super(null);
 	}
 
 	@Override

@@ -49,9 +49,13 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdHelp extends CommandBase {
 
-	public static final CmdHelp INSTANCE = new CmdHelp(CmdChitChat.INSTANCE);
+	public static final CmdHelp INSTANCE = new CmdHelp();
 	private List<CommandBase> registeredCommands = new ArrayList<>();
 	private List<List<CommandBase>> familyList = new ArrayList<>();
+
+	private CmdHelp() {
+		super(CmdChitChat.INSTANCE);
+	}
 
 	private String baseCommand(CommandBase command) {
 		StringBuilder completeCommand = new StringBuilder(command.getAliases()[0]);
@@ -75,10 +79,6 @@ public class CmdHelp extends CommandBase {
 		commandText.onClick(TextActions.suggestCommand(stringCommand));
 		return Text.of(commandText, Text.of(" "), commandSpec.getShortDescription(src).orElse(commandSpec.getUsage(src)));
 	};
-
-	private CmdHelp(CommandBase parent) {
-		super(parent);
-	}
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {

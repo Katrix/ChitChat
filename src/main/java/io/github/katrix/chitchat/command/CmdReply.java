@@ -43,10 +43,10 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdReply extends CommandBase {
 
-	public static final CmdReply INSTANCE = new CmdReply(null);
+	public static final CmdReply INSTANCE = new CmdReply();
 
-	private CmdReply(CommandBase parent) {
-		super(parent);
+	private CmdReply() {
+		super(null);
 	}
 
 	@Override

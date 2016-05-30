@@ -40,11 +40,11 @@ import io.github.katrix.chitchat.lib.LibPerm;
 
 public class CmdAnnounce extends CommandBase {
 
-	public static final CmdAnnounce INSTANCE = new CmdAnnounce(null);
+	public static final CmdAnnounce INSTANCE = new CmdAnnounce();
 	private static final String CONSOLE = "c";
 
-	protected CmdAnnounce(CommandBase parent) {
-		super(parent);
+	private CmdAnnounce() {
+		super(null);
 	}
 
 	@Override

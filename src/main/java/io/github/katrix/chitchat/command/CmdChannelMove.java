@@ -39,10 +39,10 @@ import io.github.katrix.chitchat.lib.LibPerm;
 
 public class CmdChannelMove extends CommandBase {
 
-	public static final CmdChannelMove INSTANCE = new CmdChannelMove(CmdChannel.INSTANCE);
+	public static final CmdChannelMove INSTANCE = new CmdChannelMove();
 
-	protected CmdChannelMove(CommandBase parent) {
-		super(parent);
+	protected CmdChannelMove() {
+		super(CmdChannel.INSTANCE);
 	}
 
 	@Override

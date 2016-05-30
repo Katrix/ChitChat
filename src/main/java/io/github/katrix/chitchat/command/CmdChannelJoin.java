@@ -37,10 +37,10 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdChannelJoin extends CommandBase {
 
-	public static final CmdChannelJoin INSTANCE = new CmdChannelJoin(CmdChannel.INSTANCE);
+	public static final CmdChannelJoin INSTANCE = new CmdChannelJoin();
 
-	private CmdChannelJoin(CommandBase parent) {
-		super(parent);
+	private CmdChannelJoin() {
+		super(CmdChannel.INSTANCE);
 	}
 
 	@Override

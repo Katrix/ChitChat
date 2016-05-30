@@ -40,10 +40,10 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdShout extends CommandBase {
 
-	public static final CmdShout INSTANCE = new CmdShout(null);
+	public static final CmdShout INSTANCE = new CmdShout();
 
-	private CmdShout(CommandBase parent) {
-		super(parent);
+	private CmdShout() {
+		super(null);
 	}
 
 	@Override
