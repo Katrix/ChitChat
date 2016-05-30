@@ -59,11 +59,13 @@ public class CmdHelp extends CommandBase {
 
 	private String baseCommand(CommandBase command) {
 		StringBuilder completeCommand = new StringBuilder(command.getAliases()[0]);
-		CommandBase commandParent = command;
 
-		while(commandParent.getParent() != null) {
-			commandParent = commandParent.getParent();
-			completeCommand.insert(0, commandParent.getAliases()[0] + " ");
+		Optional<CommandBase> optParent = Optional.of(command);
+		while(optParent.isPresent()) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent") //No idea why I'm getting a warning for this. I'm clearly testing for it
+			CommandBase parent = optParent.get();
+			completeCommand.insert(0, parent.getAliases()[0] + " ");
+			optParent = parent.getParent();
 		}
 		completeCommand.insert(0, "/");
 

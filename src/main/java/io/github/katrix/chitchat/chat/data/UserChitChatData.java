@@ -35,6 +35,7 @@ import io.github.katrix.chitchat.lib.LibKeys;
 
 public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUserChitChatData> {
 
+	//How to deal with this one?
 	private DataQuery channel;
 
 	public UserChitChatData() {
