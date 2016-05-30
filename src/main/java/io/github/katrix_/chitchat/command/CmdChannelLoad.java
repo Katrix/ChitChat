@@ -33,10 +33,10 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelLoad extends CommandBase {
 
-	public static final CmdChannelLoad INSTANCE = new CmdChannelLoad(CmdChannel.INSTANCE);
+	public static final CmdChannelLoad INSTANCE = new CmdChannelLoad();
 
-	private CmdChannelLoad(CommandBase parent) {
-		super(parent);
+	private CmdChannelLoad() {
+		super(CmdChannel.INSTANCE);
 	}
 
 	@Override

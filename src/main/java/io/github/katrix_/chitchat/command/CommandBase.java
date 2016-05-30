@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -38,15 +40,17 @@ import io.github.katrix_.chitchat.chat.ChannelChitChat;
 import io.github.katrix_.chitchat.chat.ChitChatChannels;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class CommandBase implements CommandExecutor {
 
 	/**
 	 * Some names that don't behave to well.
 	 */
 	private static final ImmutableList<String> BADNAMES = ImmutableList.of("prefix", "description", "name");
+	@Nullable
 	private final CommandBase parent;
 
-	protected CommandBase(CommandBase parent) {
+	protected CommandBase(@Nullable CommandBase parent) {
 		this.parent = parent;
 	}
 

@@ -38,10 +38,10 @@ import io.github.katrix_.chitchat.lib.LibPlugin;
 
 public class CmdChitChat extends CommandBase {
 
-	public static final CmdChitChat INSTANCE = new CmdChitChat(null);
+	public static final CmdChitChat INSTANCE = new CmdChitChat();
 
-	private CmdChitChat(CommandBase parent) {
-		super(parent);
+	private CmdChitChat() {
+		super(null);
 	}
 
 	@Override

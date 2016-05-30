@@ -38,10 +38,10 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelModifyName extends CommandBase {
 
-	public static final CmdChannelModifyName INSTANCE = new CmdChannelModifyName(CmdChannelProperties.INSTANCE);
+	public static final CmdChannelModifyName INSTANCE = new CmdChannelModifyName();
 
-	private CmdChannelModifyName(CommandBase parent) {
-		super(parent);
+	private CmdChannelModifyName() {
+		super(CmdChannelProperties.INSTANCE);
 	}
 
 	@Override

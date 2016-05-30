@@ -42,10 +42,10 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelList extends CommandBase {
 
-	public static final CmdChannelList INSTANCE = new CmdChannelList(CmdChannel.INSTANCE);
+	public static final CmdChannelList INSTANCE = new CmdChannelList();
 
-	private CmdChannelList(CommandBase parent) {
-		super(parent);
+	private CmdChannelList() {
+		super(CmdChannel.INSTANCE);
 	}
 
 	@Override

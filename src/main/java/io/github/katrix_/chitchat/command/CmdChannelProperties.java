@@ -49,10 +49,10 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class CmdChannelProperties extends CommandBase {
 
-	public static final CmdChannelProperties INSTANCE = new CmdChannelProperties(CmdChannel.INSTANCE);
+	public static final CmdChannelProperties INSTANCE = new CmdChannelProperties();
 
-	private CmdChannelProperties(CommandBase parent) {
-		super(parent);
+	private CmdChannelProperties() {
+		super(CmdChannel.INSTANCE);
 	}
 
 	@Override
