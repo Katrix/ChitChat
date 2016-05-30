@@ -59,6 +59,7 @@ public class CmdChannelProperties extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_INFO)) {
 				PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();

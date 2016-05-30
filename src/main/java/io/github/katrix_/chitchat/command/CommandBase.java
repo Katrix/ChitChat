@@ -131,6 +131,7 @@ public abstract class CommandBase implements CommandExecutor {
 	/**
 	 * Checks that a channel exists, and sends an error message to the player if it doesn't.
 	 */
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	protected boolean channelExists(CommandSource src, Optional<ChannelChitChat> channel) {
 		if(!channel.isPresent()) {
 			src.sendMessage(Text.of(TextColors.RED, "This channel does not exist"));

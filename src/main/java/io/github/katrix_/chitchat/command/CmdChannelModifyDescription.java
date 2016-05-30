@@ -50,6 +50,7 @@ public class CmdChannelModifyDescription extends CommandBase {
 		String description = args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse("");
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.CHANNEL_DESCRIPTION)) {
 				if(channel.setDescription(description)) {

@@ -51,6 +51,7 @@ public class CmdShout extends CommandBase {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.SHOUT)) {
 				channel.send(src, getCfg().getShoutTemplate().apply(

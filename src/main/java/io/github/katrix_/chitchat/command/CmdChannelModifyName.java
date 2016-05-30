@@ -49,6 +49,7 @@ public class CmdChannelModifyName extends CommandBase {
 		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).orElse(""); //This could cause problems if ever the name is not present
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			if(channelNameNotUsed(nameNew, src) && permissionChannel(channel.getName(), src, LibPerm.CHANNEL_NAME)
 					&& permissionChannel(nameNew, src, LibPerm.CHANNEL_NAME)) {
