@@ -47,11 +47,12 @@ import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
 /**
  * PatternMatchingCommandElement with CommandSource available in getValue.
  */
+@SuppressWarnings("WeakerAccess")
 public class CommandElementChannel extends CommandElement {
 
 	private static final Text nullKeyArg = t("argument");
 
-	public CommandElementChannel(@Nullable Text key) {
+	public CommandElementChannel(@SuppressWarnings("SameParameterValue") @Nullable Text key) {
 		super(key);
 	}
 

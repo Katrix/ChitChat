@@ -54,14 +54,17 @@ public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUs
 		registerFieldSetter(LibKeys.USER_CHANNEL, this::setChannel);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public Value<DataQuery> channel() {
 		return Sponge.getRegistry().getValueFactory().createValue(LibKeys.USER_CHANNEL, channel, ChannelChitChat.getRoot().getQueryName());
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public DataQuery getChannel() {
 		return channel;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public UserChitChatData setChannel(DataQuery channel) {
 		this.channel = channel;
 		return this;

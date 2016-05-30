@@ -48,7 +48,7 @@ public class CmdChannelModifyName extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).orElse(""); //This could cause problems if ever the name is not present
-		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 
 		if(channelExists(src, optChannel) && sourceIsPlayer(src)) {
 			Player player = (Player)src;

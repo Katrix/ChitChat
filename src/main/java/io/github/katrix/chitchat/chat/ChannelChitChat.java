@@ -281,8 +281,7 @@ public class ChannelChitChat extends AbstractMutableMessageChannel {
 
 	public static class ChannelRoot extends ChannelChitChat {
 
-		public static ChannelRoot INSTANCE = loadOrCreateRoot();
-
+		private static ChannelRoot INSTANCE = loadOrCreateRoot();
 
 		private ChannelRoot() {
 			this("Root", Text.of(TextColors.GRAY, "R"), Text.of("The root channel"));

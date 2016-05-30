@@ -45,10 +45,12 @@ public class ImmutableUserChitChatData extends AbstractImmutableData<ImmutableUs
 		registerFieldGetter(LibKeys.USER_CHANNEL, this::getChannel);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public DataQuery getChannel() {
 		return channel;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public ImmutableValue<DataQuery> channel() {
 		return channelValue;
 	}

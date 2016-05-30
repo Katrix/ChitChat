@@ -50,8 +50,8 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 public class CmdHelp extends CommandBase {
 
 	public static final CmdHelp INSTANCE = new CmdHelp();
-	private List<CommandBase> registeredCommands = new ArrayList<>();
-	private List<List<CommandBase>> familyList = new ArrayList<>();
+	private final List<CommandBase> registeredCommands = new ArrayList<>();
+	private final List<List<CommandBase>> familyList = new ArrayList<>();
 
 	private CmdHelp() {
 		super(CmdChitChat.INSTANCE);
@@ -72,7 +72,7 @@ public class CmdHelp extends CommandBase {
 		return completeCommand.toString();
 	}
 
-	private BiFunction<CommandBase, CommandSource, Text> getHelp = (command, src) -> {
+	private final BiFunction<CommandBase, CommandSource, Text> getHelp = (command, src) -> {
 		String stringCommand = baseCommand(command);
 		CommandSpec commandSpec = command.getCommand();
 
@@ -84,7 +84,7 @@ public class CmdHelp extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Optional<String> optCommandName = args.<String>getOne(LibCommandKey.COMMAND);
+		Optional<String> optCommandName = args.getOne(LibCommandKey.COMMAND);
 		if(!optCommandName.isPresent()) {
 			Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 			pages.title(Text.of(TextColors.RED, "ChitChat Help"));
@@ -130,7 +130,7 @@ public class CmdHelp extends CommandBase {
 		return new String[] {"help"};
 	}
 
-	protected static void registerCommandHelp(CommandBase command, List<CommandBase> family) {
+	static void registerCommandHelp(CommandBase command, List<CommandBase> family) {
 		LogHelper.debug("Registering help command: " + family);
 		INSTANCE.registeredCommands.add(command);
 		INSTANCE.familyList.add(family);

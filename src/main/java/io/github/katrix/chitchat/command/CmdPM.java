@@ -45,7 +45,7 @@ import io.github.katrix.chitchat.lib.LibCommandKey;
 public class CmdPM extends CommandBase {
 
 	public static final CmdPM INSTANCE = new CmdPM();
-	private Map<CommandSource, CommandSource> conversations = new WeakHashMap<>();
+	private final Map<CommandSource, CommandSource> conversations = new WeakHashMap<>();
 
 	private CmdPM() {
 		super(null);
@@ -53,7 +53,7 @@ public class CmdPM extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Optional<Player> optPlayer = args.<Player>getOne(LibCommandKey.PLAYER);
+		Optional<Player> optPlayer = args.getOne(LibCommandKey.PLAYER);
 		if(optPlayer.isPresent()) {
 			Player player = optPlayer.get();
 			String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
