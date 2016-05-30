@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     compile 'org.spongepowered:spongeapi:5.0.0-SNAPSHOT'
+    compile 'org.scala-lang.modules:scala-java8-compat_2.11:0.7.0'
     compile('io.github.katrix:spongebt:1.1.0') {
         exclude group: 'org.spongepowered'
     }
