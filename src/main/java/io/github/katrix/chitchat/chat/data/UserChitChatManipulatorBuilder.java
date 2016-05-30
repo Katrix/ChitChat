@@ -45,6 +45,7 @@ public class UserChitChatManipulatorBuilder implements DataManipulatorBuilder<Us
 	@Override
 	public Optional<UserChitChatData> build(DataView container) throws InvalidDataException {
 		if(container.contains(LibKeys.USER_CHANNEL)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			DataQuery query = container.getObject(LibKeys.USER_CHANNEL.getQuery(), DataQuery.class).get();
 			return Optional.of(new UserChitChatData(query));
 		}

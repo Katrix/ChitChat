@@ -54,6 +54,7 @@ public class CmdChannelMove extends CommandBase {
 				src.sendMessage(Text.of(TextColors.RED, "No user by that name found"));
 				return CommandResult.empty();
 			}
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			User user = optUser.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_MOVE)) {

@@ -77,6 +77,7 @@ public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUs
 	@Override
 	public Optional<UserChitChatData> from(DataContainer container) {
 		if(container.contains(LibKeys.USER_CHANNEL)) {
+			//noinspection OptionalGetWithoutIsPresent
 			channel = container.getObject(LibKeys.USER_CHANNEL.getQuery(), DataQuery.class).get();
 			return Optional.of(this);
 		}

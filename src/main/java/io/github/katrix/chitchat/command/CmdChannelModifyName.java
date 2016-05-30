@@ -52,6 +52,7 @@ public class CmdChannelModifyName extends CommandBase {
 
 		if(channelExists(src, optChannel) && sourceIsPlayer(src)) {
 			Player player = (Player)src;
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat targetChannel = optChannel.get();
 			ChannelChitChat parentChannel = getChannelUser(player);
 

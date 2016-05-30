@@ -49,6 +49,7 @@ public class CmdChannelModifyPrefix extends CommandBase {
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<ChannelChitChat> optChannel = args.<ChannelChitChat>getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
+			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			Text prefix = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName()));
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
