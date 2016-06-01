@@ -44,6 +44,8 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix.chitchat.ChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibPerm;
 import io.github.katrix.chitchat.io.ConfigSettings;
 import io.github.katrix.chitchat.lib.LibKeys;
@@ -97,7 +99,7 @@ public class ChatListener {
 			formatter.getFooter().add(applier);
 		}
 
-		ChannelChitChat playerChannel = getPlayerChannel(player);
+		Channel playerChannel = getPlayerChannel(player);
 		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
 
 		if(cfg.getChatPling()) {
@@ -132,7 +134,7 @@ public class ChatListener {
 		}
 
 		Player player = event.getTargetEntity();
-		ChannelChitChat channel = getPlayerChannel(player);
+		Channel channel = getPlayerChannel(player);
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 
@@ -155,10 +157,9 @@ public class ChatListener {
 		}
 	}
 
-	private ChannelChitChat getPlayerChannel(Player player) {
-		return ChannelChitChat.getRoot().getChannel(player
-				.get(LibKeys.USER_CHANNEL)
-				.orElse(ChannelChitChat.getRoot().getQueryName()))
-				.orElse(ChannelChitChat.getRoot());
+	private Channel getPlayerChannel(Player player) {
+		return player.get(LibKeys.USER_CHANNEL)
+				.flatMap(q -> ChannelRoot.getRoot().getChannel(q))
+				.orElse(ChannelRoot.getRoot());
 	}
 }

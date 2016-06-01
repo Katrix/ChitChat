@@ -33,7 +33,7 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 import io.github.katrix.chitchat.lib.LibPerm;
 
@@ -48,26 +48,26 @@ public class CmdChannelMove extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Optional<User> optUser = args.getOne(LibCommandKey.USER);
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
 			if(!optUser.isPresent()) {
 				src.sendMessage(Text.of(TextColors.RED, "No user by that name found"));
 				return CommandResult.empty();
 			}
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat channel = optChannel.get();
+			Channel channel = optChannel.get();
 			User user = optUser.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_MOVE)) {
 				Optional<Player> optPlayer = user.getPlayer();
 				if(optPlayer.isPresent()) {
 					Player player = optPlayer.get();
-					setChannelUser(player, channel);
+					channel.setUser(player);
 					src.sendMessage(Text.of(TextColors.GREEN, player.getName() + " was move into channel " + channel.getName()));
 					player.sendMessage(Text.of(TextColors.YELLOW, "You were moved into " + channel.getName() + " by " + src.getName()));
 				}
 				else {
 					if(src.hasPermission(LibPerm.CHANNEL_MOVE_OFFLINE)) {
-						setChannelUser(user, channel);
+						channel.setUser(user);
 						src.sendMessage(Text.of(TextColors.GREEN, "Next time " + user.getName() + " joins, they will be in " + channel.getName()));
 					}
 					else {

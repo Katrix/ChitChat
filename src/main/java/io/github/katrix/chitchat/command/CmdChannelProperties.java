@@ -43,7 +43,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.lib.LibPerm;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 
@@ -57,10 +57,10 @@ public class CmdChannelProperties extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 		if(sourceIsPlayer(src) && channelExists(src, optChannel)) {
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat channel = optChannel.get();
+			Channel channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_INFO)) {
 				PaginationList.Builder pages = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
 				pages.title(Text.of(TextColors.RED, channel.getName()));
@@ -72,7 +72,7 @@ public class CmdChannelProperties extends CommandBase {
 				list.add(Text.of("Channel members:"));
 
 				StringBuilder players = new StringBuilder();
-				ChannelChitChat parentChannel = getChannelUser((User)src);
+				Channel parentChannel = getChannelUser((User)src);
 
 				Collection<MessageReceiver> playerMap = parentChannel.getMembers();
 				Iterator<Player> iterator = playerMap.stream()

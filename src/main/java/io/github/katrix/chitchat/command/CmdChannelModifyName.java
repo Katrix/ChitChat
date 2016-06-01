@@ -33,8 +33,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.lib.LibPerm;
-import io.github.katrix.chitchat.chat.ChannelChitChat;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 
 public class CmdChannelModifyName extends CommandBase {
@@ -48,13 +48,13 @@ public class CmdChannelModifyName extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String nameNew = args.<String>getOne(LibCommandKey.CHANNEL_NAME_NEW).orElse(""); //This could cause problems if ever the name is not present
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 
 		if(channelExists(src, optChannel) && sourceIsPlayer(src)) {
 			Player player = (Player)src;
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat targetChannel = optChannel.get();
-			ChannelChitChat parentChannel = getChannelUser(player);
+			Channel targetChannel = optChannel.get();
+			Channel parentChannel = getChannelUser(player);
 
 			if(channelNameNotUsed(nameNew, player) && permissionChannel(targetChannel.getQueryName(), src, LibPerm.CHANNEL_NAME)
 					&& permissionChannel(parentChannel.getQueryName().then(DataQuery.of(nameNew)), src, LibPerm.CHANNEL_NAME)) {

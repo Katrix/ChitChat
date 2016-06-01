@@ -32,10 +32,10 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.helper.LogHelper;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 import io.github.katrix.chitchat.lib.LibPerm;
-import io.github.katrix.chitchat.helper.LogHelper;
 
 public class CmdChannelModifyPrefix extends CommandBase {
 
@@ -47,10 +47,9 @@ public class CmdChannelModifyPrefix extends CommandBase {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
-			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat channel = optChannel.get();
+			@SuppressWarnings("OptionalGetWithoutIsPresent") Channel channel = optChannel.get();
 			Text prefix = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channel.getName()));
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_PREFIX)) {
 				if(channel.setPrefix(prefix)) {

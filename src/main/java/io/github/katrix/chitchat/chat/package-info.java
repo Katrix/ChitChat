@@ -1,5 +1,5 @@
-/*
- * This file is part of PermissionBlock, licensed under the MIT License (MIT).
+/**
+ * This file is part of ChitChat, licensed under the MIT License (MIT).
  *
  * Copyright (c) 2016 Katrix
  *
@@ -18,23 +18,8 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package io.github.katrix.chitchat.io;
 
-import java.util.Optional;
+@NonnullByDefault
+package io.github.katrix.chitchat.chat;
 
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
-
-public interface IPersistentStorage {
-
-	/**
-	 * Loads the root channel if there is one saved, and sets it as the current root.
-	 */
-	Optional<ChannelRoot> loadRootChannel();
-
-	/**
-	 * Saves the root channel to disk.
-	 *
-	 * @return if successful.
-	 */
-	boolean saveRootChannel();
-}
+import org.spongepowered.api.util.annotation.NonnullByDefault;

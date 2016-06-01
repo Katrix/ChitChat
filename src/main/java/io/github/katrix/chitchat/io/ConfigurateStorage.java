@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import com.google.common.reflect.TypeToken;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
@@ -37,7 +37,7 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	}
 
 	@Override
-	public Optional<ChannelChitChat.ChannelRoot> loadRootChannel() {
+	public Optional<ChannelRoot> loadRootChannel() {
 		try {
 			return Optional.of(cfgRoot.getNode(CHANNELS).getValue(TypeToken.of(ChannelChitChat.ChannelRoot.class)));
 		}

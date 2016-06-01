@@ -33,8 +33,8 @@ import org.spongepowered.api.text.format.TextColors;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.lib.LibPerm;
-import io.github.katrix.chitchat.chat.ChannelChitChat;
 import io.github.katrix.chitchat.io.ConfigSettings;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 
@@ -49,10 +49,10 @@ public class CmdShout extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat channel = optChannel.get();
+			Channel channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.SHOUT)) {
 				channel.send(src,
 						getCfg().getShoutTemplate().apply(

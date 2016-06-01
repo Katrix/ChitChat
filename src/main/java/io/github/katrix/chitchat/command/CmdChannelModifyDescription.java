@@ -32,8 +32,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.lib.LibPerm;
-import io.github.katrix.chitchat.chat.ChannelChitChat;
 import io.github.katrix.chitchat.helper.LogHelper;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 
@@ -48,10 +48,10 @@ public class CmdChannelModifyDescription extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		Text description = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse(""));
-		Optional<ChannelChitChat> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
+		Optional<Channel> optChannel = args.getOne(LibCommandKey.CHANNEL_NAME);
 		if(channelExists(src, optChannel)) {
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
-			ChannelChitChat channel = optChannel.get();
+			Channel channel = optChannel.get();
 			if(permissionChannel(channel.getQueryName(), src, LibPerm.CHANNEL_DESCRIPTION)) {
 				if(channel.setDescription(description)) {
 					src.sendMessage(Text.of(TextColors.GREEN, "Description of " + channel.getName() + " changed to: ", TextColors.RESET, description));

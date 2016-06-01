@@ -38,7 +38,8 @@ import org.spongepowered.api.text.format.TextColors;
 import com.google.common.collect.ImmutableList;
 
 import io.github.katrix.chitchat.ChitChat;
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.io.ConfigSettings;
 import io.github.katrix.chitchat.lib.LibKeys;
 
@@ -99,7 +100,7 @@ public abstract class CommandBase implements CommandExecutor {
 			return false;
 		}
 
-		if(!getChannelUser(player).nameUnused(channel)) {
+		if(!getChannelUser(player).isNameUnused(channel)) {
 			player.sendMessage(Text.of(TextColors.RED, channel + " already exist"));
 			return false;
 		}
@@ -134,7 +135,7 @@ public abstract class CommandBase implements CommandExecutor {
 	 * Checks that a channel exists, and sends an error message to the player if it doesn't.
 	 */
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-	protected boolean channelExists(CommandSource src, Optional<ChannelChitChat> channel) {
+	protected boolean channelExists(CommandSource src, Optional<Channel> channel) {
 		if(!channel.isPresent()) {
 			src.sendMessage(Text.of(TextColors.RED, "This channel does not exist"));
 			return false;
@@ -142,14 +143,10 @@ public abstract class CommandBase implements CommandExecutor {
 		return true;
 	}
 
-	protected ChannelChitChat getChannelUser(User user) {
-		return ChannelChitChat.getRoot().getChannel(user.get(LibKeys.USER_CHANNEL).orElse(ChannelChitChat.getRoot().getQueryName()))
-				.orElse(ChannelChitChat.getRoot());
-	}
-
-	protected void setChannelUser(User user, ChannelChitChat newChannel) {
-		getChannelUser(user).removeUser(user);
-		newChannel.addUser(user);
+	protected Channel getChannelUser(User user) {
+		return user.get(LibKeys.USER_CHANNEL)
+				.flatMap(q -> ChannelRoot.getRoot().getChannel(q))
+				.orElse(ChannelRoot.getRoot());
 	}
 
 	protected ConfigSettings getCfg() {

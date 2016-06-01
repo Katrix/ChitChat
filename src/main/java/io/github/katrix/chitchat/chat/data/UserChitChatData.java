@@ -30,13 +30,13 @@ import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.Value;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibKeys;
 
 public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUserChitChatData> {
 
 	//How to deal with this one?
-	private DataQuery channel;
+	private DataQuery channel = ChannelRoot.getRoot().getQueryName();
 
 	public UserChitChatData() {
 		registerGettersAndSetters();
@@ -56,7 +56,7 @@ public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUs
 
 	@SuppressWarnings("WeakerAccess")
 	public Value<DataQuery> channel() {
-		return Sponge.getRegistry().getValueFactory().createValue(LibKeys.USER_CHANNEL, channel, ChannelChitChat.getRoot().getQueryName());
+		return Sponge.getRegistry().getValueFactory().createValue(LibKeys.USER_CHANNEL, channel, ChannelRoot.getRoot().getQueryName());
 	}
 
 	@SuppressWarnings("WeakerAccess")

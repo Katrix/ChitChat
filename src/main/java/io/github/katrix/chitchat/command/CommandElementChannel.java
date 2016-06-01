@@ -39,7 +39,8 @@ import org.spongepowered.api.text.Text;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibKeys;
 
 import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
@@ -58,7 +59,7 @@ public class CommandElementChannel extends CommandElement {
 
 	private Iterable<String> getChoices(CommandSource source) {
 		if(source instanceof Player) {
-			return getChannel((User)source).getChildren().stream().map(ChannelChitChat::getName).collect(Collectors.toList());
+			return getChannel((User)source).getChildren().stream().map(Channel::getName).collect(Collectors.toList());
 		}
 		else {
 			return ImmutableList.of();
@@ -111,10 +112,9 @@ public class CommandElementChannel extends CommandElement {
 
 	}
 
-	private ChannelChitChat getChannel(User user) {
-		return ChannelChitChat.getRoot().getChannel(user
-				.get(LibKeys.USER_CHANNEL)
-				.orElse(ChannelChitChat.getRoot().getQueryName()))
-				.orElse(ChannelChitChat.getRoot());
+	private Channel getChannel(User user) {
+		return user.get(LibKeys.USER_CHANNEL)
+				.flatMap(q -> ChannelRoot.getRoot().getChannel(q))
+				.orElse(ChannelRoot.getRoot());
 	}
 }

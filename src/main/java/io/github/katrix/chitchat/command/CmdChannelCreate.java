@@ -34,7 +34,8 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import io.github.katrix.chitchat.chat.ChannelChitChat;
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.chat.channels.ChannelDefault;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 import io.github.katrix.chitchat.lib.LibPerm;
 
@@ -49,15 +50,15 @@ public class CmdChannelCreate extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		TextSerializer serializer = TextSerializers.FORMATTING_CODE;
-		String name = args.<String>getOne(LibCommandKey.CHANNEL_NAME).orElse(""); //If name is somehow ever not present this could get ugly
-		Text prefix = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(name));
+		String channelName = args.<String>getOne(LibCommandKey.CHANNEL_NAME).orElse(""); //If name is somehow ever not present this could get ugly
+		Text prefix = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_PREFIX).orElse(channelName));
 		Text description = serializer.deserialize(args.<String>getOne(LibCommandKey.CHANNEL_DESCRIPTION).orElse(""));
 
-		if(sourceIsPlayer(src) && channelNameNotUsed(name, (Player)src)) {
-			ChannelChitChat userChannel = getChannelUser((User)src);
-			if(permissionChannel(userChannel.getQueryName().then(DataQuery.of(name)), src, LibPerm.CHANNEL_CREATE)) {
-				userChannel.createChannel(name, prefix, description);
-				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + name));
+		if(sourceIsPlayer(src) && channelNameNotUsed(channelName, (Player)src)) {
+			Channel userChannel = getChannelUser((User)src);
+			if(permissionChannel(userChannel.getQueryName().then(DataQuery.of(channelName)), src, LibPerm.CHANNEL_CREATE)) {
+				userChannel.addChild((name, parent) -> new ChannelDefault(name, prefix, description, parent), channelName);
+				src.sendMessage(Text.of(TextColors.GREEN, "Created channel " + channelName));
 				return CommandResult.success();
 			}
 		}
