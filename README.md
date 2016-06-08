@@ -6,6 +6,13 @@ ChitChat is a powerful chat plugin that allows you to make the chat look just li
 - Create, modify and remove channels on the fly.
 - Makes ugly commands look good.
 - Completely customizable how every command and normal chat looks.
+- Play a sound every time a player receives a PM, or is mentioned in chat
+- Uses TextTemplateAppliers, which means that it will play nice with other chat plugins that also uses them
+
+##Formatting
+Every message in ChitChat is customizable. You can change these messages in the config. You will for the most part encounter two types of config values. `Text` is used for normal text when it's just printed without any changes. `TextTemplate` is a template `Text` where some values will be replaced before it is used. Note that if another plugin replaces the `TextTemplate` specified by ChitChat, you should still be able to insert the arguments into the new `TextTemplate` as ChitChat applies it's argument to all the `TextTemplate`s it can find.
+
+The second type of formatting you would want to do is to format how a player is represented in a chat message. ChitChat uses the permission options `prefix` and `suffix` to add prefix and suffix to the chat message. In these you can use normal minecraft formatting code like `&9[&2Admin&9]`. Do note that the color of the player name is not supplied in the prefix, but instead in a separate permission option called `nameColor`. In here you specify the color and style you want for the player name, again with minecraft formatting code, for example `&5`. The reason they are separate is to allow moving the prefix and the player name around in the config independently of each other.
 
 ##Commands
 - `/announce -c <message>` - Send a message to all players. If the flag -c is specified, it will do the announcement as console.
@@ -13,6 +20,7 @@ ChitChat is a powerful chat plugin that allows you to make the chat look just li
 - `/channel create <name> [<prefix>] [<description>]` - Create a new channel. Prefix and description is optional. Prefix and description can also be formated using &. If no prefix is specified, the name of the channel will be used instead.
 - `/channel join <channel name>` - Join an already existing channel.
 - `/channel list` - Will show you a list of all the channels you can join.
+- `/channel load` - Tries to reload the channels from storage
 - `/channel properties <channel name>` - Shows you the properties(name, prefix description, members) of a channel.
 - `/channel properties description <channel name> [<new description>]` - Specify a new description for a channel. If no description is provided it will be removed.
 - `/channel properties name <channel name> <new name>` - Specify a new name for a channel.
