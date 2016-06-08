@@ -36,8 +36,10 @@ import org.spongepowered.api.plugin.Plugin;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
+import io.github.katrix.chitchat.chat.channels.ChannelDefault;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.chat.ChatListener;
+import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import io.github.katrix.chitchat.chat.data.ImmutableUserChitChatData;
 import io.github.katrix.chitchat.chat.data.UserChitChatData;
 import io.github.katrix.chitchat.chat.data.UserChitChatManipulatorBuilder;
@@ -86,6 +88,9 @@ public class ChitChat {
 
 		TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers();
 		serializers.registerType(TypeToken.of(StorageType.class), new StorageTypeSerializer());
+
+		ChannelTypeRegistry channelRegistry = ChannelTypeRegistry.INSTANCE;
+		channelRegistry.register(ChannelDefault.ChannelDefaultType.INSTANCE);
 
 		cfg = new ConfigSettings(configDir);
 		storage = createStorage(configDir);

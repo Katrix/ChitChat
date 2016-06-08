@@ -24,16 +24,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.AbstractMutableMessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 
 import io.github.katrix.chitchat.ChitChat;
 import io.github.katrix.chitchat.helper.LogHelper;
+import io.github.katrix.chitchat.io.NBTStorage;
+import io.github.katrix.spongebt.nbt.NBTCompound;
+import io.github.katrix.spongebt.nbt.NBTList;
+import io.github.katrix.spongebt.nbt.NBTType;
+import io.github.katrix.spongebt.sponge.NBTTranslator;
+import scala.compat.java8.OptionConverters;
 
 public class ChannelRoot extends AbstractMutableMessageChannel implements Channel {
 
@@ -119,6 +128,11 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 		return false; //NO-OP
 	}
 
+	@Override
+	public ChannelType getChannelType() {
+		return ChannelRootType.INSTANCE;
+	}
+
 	/*============================== Nested channels stuff ==============================*/
 
 	@Override
@@ -154,4 +168,88 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 				.findFirst();
 	}
 
+	public static class ChannelRootType implements ChannelType<ChannelRoot>, ChannelNBTSerializer<ChannelRoot> {
+
+		private static final String NBT_IS_ROOT = "isRoot";
+		private static final String NBT_PREFIX = "prefix";
+		private static final String NBT_DESCRIPTION = "description";
+		private static final String NBT_CHILDREN = "children";
+
+		public static final ChannelRootType INSTANCE = new ChannelRootType();
+
+		private ChannelRootType() {}
+
+		@Override
+		public String getTypeIdentifier() {
+			return "root";
+		}
+
+		@Override
+		public ChannelNBTSerializer<ChannelRoot> getNBTSerializer() {
+			return this;
+		}
+
+		@Override
+		public TypeToken<ChannelRoot> getConfigurateSerializer() {
+			return TypeToken.of(ChannelRoot.class);
+		}
+
+		@Override
+		public Optional<ChannelBuilder<ChannelRoot>> deserializeNBT(NBTCompound compound) {
+			Optional<Text> prefix = compound.getJava(NBT_PREFIX)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
+					.flatMap(c -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(c)));
+
+			Optional<Text> description = compound.getJava(NBT_DESCRIPTION)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
+					.flatMap(c -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(c)));
+
+			Optional<Boolean> isRoot = compound.getJava(NBT_IS_ROOT)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTByte()))
+					.map(b -> b.value() == 1);
+
+			Optional<List<NBTCompound>> children = compound.getJava(NBT_CHILDREN)
+					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTList()))
+					.filter(l -> l.getListType() == NBTType.TAG_COMPOUND)
+					.map(l -> l.getAllJava().stream()
+							.map(t -> (NBTCompound)t)
+							.collect(Collectors.toList()));
+
+			if(prefix.isPresent() && description.isPresent() && isRoot.isPresent() && isRoot.get() && children.isPresent()) {
+				ChannelBuilder<ChannelRoot> ret = ((name, parent) -> {
+					ChannelRoot channelRoot = ChannelRoot.createNewRoot(name, prefix.get(), description.get());
+
+					children.get().stream()
+							.map(c -> ((NBTStorage)ChitChat.getStorage()).loadChannel(c))
+							.filter(Optional::isPresent)
+							.map(Optional::get)
+							.forEach(b -> channelRoot.addChild(b.getFirst(), b.toString()));
+
+					return channelRoot;
+				});
+
+				return Optional.of(ret);
+			}
+			else {
+				return Optional.empty();
+			}
+		}
+
+		@Override
+		public NBTCompound serializeNBT(ChannelRoot channel, NBTCompound compound) {
+			compound.setTag(NBT_PREFIX, NBTTranslator.translateData(channel.getPrefix().toContainer()));
+			compound.setTag(NBT_DESCRIPTION, NBTTranslator.translateData(channel.getDescription().toContainer()));
+			compound.setBoolean(NBT_IS_ROOT, true);
+
+			NBTList children = new NBTList(NBTType.TAG_COMPOUND);
+
+			channel.getChildren().stream()
+					.map(NBTStorage::saveChannel)
+					.forEach(children::add);
+
+			compound.setTag(NBT_CHILDREN, children);
+
+			return compound;
+		}
+	}
 }

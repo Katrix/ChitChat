@@ -20,27 +20,13 @@
  */
 package io.github.katrix.chitchat.chat.channels;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import com.google.common.reflect.TypeToken;
 
-public class ChannelTypeRegistry {
+public interface ChannelType<T extends Channel> {
 
-	private final Set<ChannelType> registry = new HashSet<>();
-	public static final ChannelTypeRegistry INSTANCE = new ChannelTypeRegistry();
+	String getTypeIdentifier();
 
-	private ChannelTypeRegistry() {}
+	ChannelNBTSerializer<T> getNBTSerializer();
 
-	public void register(ChannelType channelType) {
-		if(registry.stream().noneMatch(t -> t.getTypeIdentifier().equals(channelType.getTypeIdentifier()))) {
-			registry.add(channelType);
-		}
-		else {
-			throw new IllegalStateException("A channelType with that idetifier has already been registered");
-		}
-	}
-
-	public Optional<ChannelType> getType(String identifier) {
-		return registry.stream().filter(t -> t.getTypeIdentifier().equals(identifier)).findFirst();
-	}
+	TypeToken<T> getConfigurateSerializer();
 }

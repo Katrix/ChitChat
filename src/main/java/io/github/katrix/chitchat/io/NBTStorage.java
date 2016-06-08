@@ -34,6 +34,7 @@ import org.spongepowered.api.util.Tuple;
 import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
 import io.github.katrix.chitchat.chat.channels.ChannelDefault;
+import io.github.katrix.chitchat.chat.channels.ChannelNBTSerializer;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import io.github.katrix.spongebt.nbt.NBTCompound;
@@ -48,13 +49,9 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	private static final String CHANNELS = "channels";
 
 	private static final String NAME = "name";
-	private static final String PREFIX = "prefix";
-	private static final String DESCRIPTION = "description";
-	private static final String CHILDREN = "children";
 	private static final String IDENTIFIER = "typeIdentifier";
-	private static final String EXTRA_DATA = "typeData";
 
-	private static final String ROOT = "root";
+	private static final String ROOT = ChannelRoot.ChannelRootType.INSTANCE.getTypeIdentifier();
 
 	public NBTStorage(Path path, String name, boolean compressed) throws IOException {
 		super(path, name, compressed);
@@ -63,129 +60,64 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 	@Override
 	public Optional<ChannelRoot> loadRootChannel() {
 		NBTCompound channelTag = getChannelTag();
-		Optional<NBTCompound> optRootTag = channelTag.getJava(ROOT).flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()));
+		Optional<String> name = channelTag.getJava(NAME)
+				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
+				.map(NBTString::value);
 
-		if(optRootTag.isPresent()) {
-			NBTCompound rootTag = optRootTag.get();
-			Optional<String> optName = rootTag.getJava(NAME)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
-					.map(NBTString::value);
-			Optional<Text> optPrefix = rootTag.getJava(PREFIX)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-					.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)));
-			Optional<Text> optDescription = rootTag.getJava(DESCRIPTION)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-					.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)));
-			Optional<NBTList> optChildren = rootTag.getJava(CHILDREN)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTList()));
+		Optional<String> rootIdentifier = channelTag.getJava(IDENTIFIER)
+				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
+				.map(NBTString::value);
 
-			if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
-				String name = optName.get();
-				NBTList children = optChildren.get();
+		if(name.isPresent() && rootIdentifier.isPresent() && rootIdentifier.get().equals(ROOT)) {
+			Optional<ChannelBuilder<ChannelRoot>> rootBuilder =  ChannelRoot.ChannelRootType.INSTANCE.deserializeNBT(channelTag);
 
-				if(children.getListType() == TAG_COMPOUND) {
-					ChannelRoot rootChannel = ChannelRoot.createNewRoot(name, optPrefix.get(), optDescription.get());
-					children.getAllJava().stream()
-							.map(c -> loadChannel((NBTCompound)c))
-							.filter(Optional::isPresent)
-							.map(Optional::get)
-							.forEach(b -> rootChannel.addChild(b.getSecond(), b.getFirst()));
-					return Optional.of(rootChannel);
-				}
+			if(rootBuilder.isPresent()) {
+				return Optional.of(rootBuilder.get().createChannel(name.get(), null));
 			}
 		}
 
 		return Optional.empty();
 	}
 
-	private Optional<Tuple<String, ChannelBuilder>> loadChannel(NBTCompound channelCompound) {
-		Optional<String> optName = channelCompound.getJava(NAME)
+	public Optional<Tuple<ChannelBuilder, String>> loadChannel(NBTCompound compound) {
+		Optional<String> name = compound.getJava(NAME)
 				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
 				.map(NBTString::value);
-		Optional<Text> optPrefix = channelCompound.getJava(PREFIX)
-				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-				.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)));
-		Optional<Text> optDescription = channelCompound.getJava(DESCRIPTION)
-				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-				.flatMap(t -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(t)));
-		Optional<NBTList> optChildren = channelCompound.getJava(CHILDREN)
-				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTList()));
-		Optional<String> optIdentifier = channelCompound.getJava(IDENTIFIER)
+
+		Optional<String> identifier = compound.getJava(IDENTIFIER)
 				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
 				.map(NBTString::value);
-		Optional<NBTCompound> optExtraData = channelCompound.getJava(EXTRA_DATA)
-				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()));
 
-		if(optName.isPresent() && optPrefix.isPresent() && optDescription.isPresent() && optChildren.isPresent()) {
-			NBTList children = optChildren.get();
+		if(name.isPresent() && identifier.isPresent()) {
+			Optional<ChannelBuilder> builder = ChannelTypeRegistry.INSTANCE.getType(identifier.get())
+					.flatMap(t -> t.getNBTSerializer().deserializeNBT(compound));
 
-			if(children.getListType() == TAG_COMPOUND) {
-				ChannelBuilder builder = (name, channelParent) -> {
-					if(optIdentifier.isPresent()) {
-						String identifier = optIdentifier.get();
-						//TODO: Custom channel types
-						Optional<Object> optSerializer = ChannelTypeRegistry.INSTANCE.getSerializer(identifier, StorageType.NBT);
-
-						if(optSerializer.isPresent() && optExtraData.isPresent()) {
-							Object objectSerializer = optSerializer.get();
-
-							if(objectSerializer instanceof NBTSerializer) {
-								NBTCompound extraData = optExtraData.get();
-								NBTSerializer serializer = (NBTSerializer)objectSerializer;
-								Channel typeChannel = serializer.deserialize(name, optPrefix.get(), optDescription.get(), channelParent, children, extraData);
-
-								children.getAllJava().stream()
-										.map(c -> loadChannel((NBTCompound)c))
-										.filter(Optional::isPresent)
-										.map(Optional::get)
-										.forEach(b -> typeChannel.addChild(b.getSecond(), b.getFirst()));
-
-								return typeChannel;
-							}
-						}
-
-					}
-
-					ChannelDefault createdChannel = new ChannelDefault(name, optPrefix.get(), optDescription.get(), channelParent);
-
-					children.getAllJava().stream()
-							.map(c -> loadChannel((NBTCompound)c))
-							.filter(Optional::isPresent)
-							.map(Optional::get)
-							.forEach(b -> createdChannel.addChild(b.getSecond(), b.getFirst()));
-
-					return createdChannel;
-				};
-
-				return Optional.of(new Tuple<>(optName.get(), builder));
+			if(builder.isPresent()) {
+				return Optional.of(new Tuple<>(builder.get(), name.get()));
 			}
 		}
 
 		return Optional.empty();
+	}
+
+	public static NBTCompound saveChannel(Channel channel) {
+		NBTCompound compound = new NBTCompound();
+		compound.setString(IDENTIFIER, channel.getChannelType().getTypeIdentifier());
+		compound.setString(NAME, channel.getName());
+		channel.getChannelType().getNBTSerializer().serializeNBT(channel, compound);
+
+		return compound;
 	}
 
 	@Override
 	public boolean saveRootChannel() {
-		ChannelRoot channel = ChannelRoot.getRoot();
 		NBTCompound channelTag = getChannelTag();
-		channelTag.setTag(ROOT, saveChannel(channel));
-
+		ChannelRoot root = ChannelRoot.getRoot();
+		channelTag.setString(IDENTIFIER, ROOT);
+		channelTag.setString(NAME, root.getName());
+		ChannelRoot.ChannelRootType.INSTANCE.serializeNBT(root, channelTag);
 		save();
 		return true;
-	}
-
-	private NBTCompound saveChannel(Channel channel) {
-		NBTCompound channelCompound = new NBTCompound();
-
-		channelCompound.setString(NAME, channel.getName());
-		channelCompound.setTag(PREFIX, NBTTranslator.translateData(channel.getPrefix().toContainer()));
-		channelCompound.setTag(DESCRIPTION, NBTTranslator.translateData(channel.getPrefix().toContainer()));
-
-		NBTList list = new NBTList(TAG_COMPOUND);
-		channel.getChildren().forEach(c -> list.add(saveChannel(c)));
-		channelCompound.setTag(CHILDREN, list);
-
-		return channelCompound;
 	}
 
 	private NBTCompound getChannelTag() {

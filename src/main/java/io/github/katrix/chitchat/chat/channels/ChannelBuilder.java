@@ -27,8 +27,8 @@ package io.github.katrix.chitchat.chat.channels;
  * that {@link Channel#addChild(ChannelBuilder, String)} was called from.
  */
 @FunctionalInterface
-public interface ChannelBuilder {
+public interface ChannelBuilder<T extends Channel> {
 
-	Channel createChannel(String name, Channel parent);
+	T createChannel(String name, Channel parent);
 
 }

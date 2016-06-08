@@ -22,7 +22,11 @@ package io.github.katrix.chitchat.io;
 
 import java.util.Optional;
 
+import org.spongepowered.api.util.Tuple;
+
+import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.spongebt.nbt.NBTCompound;
 
 public interface IPersistentStorage {
 

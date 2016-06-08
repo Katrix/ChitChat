@@ -23,9 +23,17 @@ package io.github.katrix.chitchat.io;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import org.spongepowered.api.util.Tuple;
+
 import com.google.common.reflect.TypeToken;
 
+import io.github.katrix.chitchat.chat.channels.Channel;
+import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.spongebt.nbt.NBTCompound;
+import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
@@ -37,31 +45,32 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 	}
 
 	@Override
+	protected void saveData() {
+		//NO-OP We save and load on demand
+	}
+
+	@Override
 	public Optional<ChannelRoot> loadRootChannel() {
 		try {
-			return Optional.of(cfgRoot.getNode(CHANNELS).getValue(TypeToken.of(ChannelChitChat.ChannelRoot.class)));
+			return Optional.ofNullable(cfgRoot.getNode(CHANNELS).getValue(ChannelRoot.ChannelRootType.INSTANCE.getConfigurateSerializer()));
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
-			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 
 	@Override
 	public boolean saveRootChannel() {
 		try {
-			cfgRoot.getNode(CHANNELS).setValue(TypeToken.of(ChannelChitChat.ChannelRoot.class), ChannelChitChat.getRoot());
-			saveFile();
-			return true;
+			cfgRoot.getNode(CHANNELS).setValue(ChannelRoot.ChannelRootType.INSTANCE.getConfigurateSerializer(), ChannelRoot.getRoot());
 		}
 		catch(ObjectMappingException e) {
 			e.printStackTrace();
 			return false;
 		}
-	}
+		saveFile();
 
-	@Override
-	protected void saveData() {
-		//NO-OP We save and load on demand
+		return true;
 	}
 }

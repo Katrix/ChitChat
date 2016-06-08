@@ -84,6 +84,8 @@ public interface Channel extends MutableMessageChannel {
 		return ChitChat.getStorage().saveRootChannel();
 	}
 
+	ChannelType getChannelType();
+
 	/*============================== Nested channels stuff ==============================*/
 
 	/**
