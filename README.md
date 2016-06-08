@@ -7,8 +7,6 @@ ChitChat is a powerful chat plugin that allows you to make the chat look just li
 - Makes ugly commands look good.
 - Completely customizable how every command and normal chat looks.
 
-**NOTE:** Currently channels do not persist when closing the server. This will be implemented soon.
-
 ##Commands
 - `/announce -c <message>` - Send a message to all players. If the flag -c is specified, it will do the announcement as console.
 - `/channel` - Do stuff with channels.
@@ -20,6 +18,7 @@ ChitChat is a powerful chat plugin that allows you to make the chat look just li
 - `/channel properties name <channel name> <new name>` - Specify a new name for a channel.
 - `/channel properties prefix <channel name> [<new prefix>]` - Specify a new prefix for a channel. If no description is provided it will use the channel name instead.
 - `/channel remove <channel name>` - Removes an already existing channel. If there is currently players in the channel, they will be moved to the global channel.
+- `/channel move <player> <channel>` - Moves a player to another channel. Works on both online and offline players.
 - `/chitchat` - Shows you information about ChitChat.
 - `/chitchat help [<command>]` - If used with no parameters shows the help for all the commands registered by ChitChat. You can also show the help for individual commands by specifying the parameters to be that command. This also works with subcommands. For example do `/chitchat help channel create` to see the help for the create channel command.
 - `/chitchat reload` - Reloads the configs for ChitChat.
@@ -56,3 +55,10 @@ ChitChat is a powerful chat plugin that allows you to make the chat look just li
 - `chitchat.channel.mod.create.<channel name>` - Allows players to use create channels with the given channel name.
 - `chitchat.channel.mod.remove` - Allows players to use `/channel remove`.
 - `chitchat.channel.mod.remove.<channel name>` - Allows players to remove channels with the given channel name.
+- `chitchat.channel.mod.move.<channel name>` - Allows players to move another player to the specified channel.
+- `chitchat.channel.mod.move.offline` - Allows players to move an offline player.
+
+##Storage
+By default ChitChat will store channel and user information in a plaintext json file. This can be changed in the settings. The current options are plaintext, h2 database and NBT.
+
+Why would you want to save to NBT? Well for one, you can specify if you want compression or not. It also allows you to still easily edit the file as it is a valid nbt file that you can open in any program that opens those. Do note that NBT support is still experimental.
