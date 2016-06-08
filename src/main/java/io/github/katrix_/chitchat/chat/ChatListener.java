@@ -20,8 +20,11 @@
  */
 package io.github.katrix_.chitchat.chat;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -38,6 +41,8 @@ import org.spongepowered.api.text.TextElement;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.type.CombinedMessageChannel;
+import org.spongepowered.api.text.format.TextFormat;
+import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.serializer.FormattingCodeTextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
@@ -45,21 +50,53 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
 public class ChatListener {
 
-	@Listener(order = Order.EARLY)
+	@Listener(order = Order.LATE)
 	public void onChat(MessageChannelEvent.Chat event, @First Player player) {
 		ConfigSettings cfg = ChitChat.getConfig();
 		MessageFormatter formatter = event.getFormatter();
-		String nameString = player.getName();
-		Text prefixName = cfg.getDefaultHeader().apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(nameString))).build();
+		FormattingCodeTextSerializer serializer = TextSerializers.FORMATTING_CODE;
+		Text prefix = cfg.getDefaultPrefix();
 		Text suffix = cfg.getDefaultSuffix();
+		TextElement name = getNameChat(formatter.getHeader().getAll(), "header").orElse(Text.of(player.getName()));
+
+		Subject subject = player.getContainingCollection().get(player.getIdentifier());
+		if(subject instanceof OptionSubject) {
+			OptionSubject optionSubject = (OptionSubject)subject;
+			Optional<String> option;
+
+			option = optionSubject.getOption("prefix");
+			prefix = option.isPresent() ? serializer.deserialize(option.get()) : prefix;
+
+			option = optionSubject.getOption("suffix");
+			suffix = option.isPresent() ? serializer.deserialize(option.get()) : suffix;
+
+			option = optionSubject.getOption("nameColor");
+			Optional<TextFormat> textFormat = option.flatMap(s -> {
+				List<Text> children = serializer.deserialize(s).getChildren();
+				if(!children.isEmpty()) {
+					return Optional.of(children.get(0).getFormat());
+				}
+				else return Optional.empty();
+			});
+			name = textFormat.isPresent() ? Text.of(textFormat.get(), name) : name;
+		}
+
+		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
+			if(applier.getParameters().containsKey("header")) {
+				applier.setTemplate(cfg.getHeaderTemplate());
+				applier.setParameter("header", name);
+			}
+
+			applier.setParameter(ConfigSettings.TEMPLATE_PREFIX, prefix);
+		}
 
 		if(player.hasPermission(LibPerm.CHAT_COLOR)) {
-			FormattingCodeTextSerializer serializer = TextSerializers.FORMATTING_CODE;
 			for(SimpleTextTemplateApplier applier : formatter.getBody()) {
 				if(applier.getParameters().containsKey("body")) {
 					applier.setParameter("body", serializer.deserialize(serializer.serialize(Text.of(applier.getParameter("body"))))); //In case the message is already formatted
@@ -67,34 +104,11 @@ public class ChatListener {
 			}
 		}
 
-		Subject subject = player.getContainingCollection().get(player.getIdentifier());
-		if(subject instanceof OptionSubject) {
-			OptionSubject optionSubject = (OptionSubject)subject;
-			Optional<String> option;
-			option = optionSubject.getOption("prefix");
-			prefixName = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get() + nameString) : prefixName;
-			option = optionSubject.getOption("suffix");
-			suffix = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get()) : suffix;
-		}
+		SimpleTextTemplateApplier suffixApplier = new SimpleTextTemplateApplier(cfg.getSuffixTemplate());
+		formatter.getFooter().add(suffixApplier);
 
-		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
-			if(applier.getParameters().containsKey("header")) {
-				applier.setTemplate(cfg.getHeaderTemplate());
-
-				Text oldHeader = Text.of(applier.getParameter("header"));
-				Text.Builder newHeader = Text.builder();
-				newHeader.append(prefixName);
-				newHeader.onHover(oldHeader.getHoverAction().orElse(null));
-				newHeader.onClick(oldHeader.getClickAction().orElse(null));
-				newHeader.onShiftClick(oldHeader.getShiftClickAction().orElse(null));
-				applier.setParameter("header", newHeader);
-			}
-		}
-
-		if(!suffix.isEmpty()) {
-			SimpleTextTemplateApplier applier = new SimpleTextTemplateApplier(cfg.getSuffixTemplate());
+		for(SimpleTextTemplateApplier applier : formatter.getFooter().getAll()) {
 			applier.setParameter(ConfigSettings.TEMPLATE_SUFFIX, suffix);
-			formatter.getFooter().add(applier);
 		}
 
 		ChannelChitChat playerChannel = ChitChatPlayers.getOrCreate(player).getChannel();
@@ -112,23 +126,18 @@ public class ChatListener {
 		}
 	}
 
+	@SuppressWarnings("Convert2streamapi")
 	@Listener
 	public void onJoin(ClientConnectionEvent.Join event) {
 		ConfigSettings cfg = ChitChat.getConfig();
 
-		for(SimpleTextTemplateApplier applier : event.getFormatter().getBody().getAll()) {
+		List<SimpleTextTemplateApplier> appliers = event.getFormatter().getBody().getAll();
+		TextElement name = getNameConnect(appliers, "body").orElse(Text.of(event.getTargetEntity().getName()));
+
+		for(SimpleTextTemplateApplier applier : appliers) {
 			if(applier.getParameters().containsKey("body")) {
-				TextElement textElement = applier.getParameter("body");
-				TextElement playerName = Text.of(event.getTargetEntity().getName());
-				if(textElement instanceof TranslatableText) {
-					TranslatableText translatable = (TranslatableText)textElement;
-					Object potentialName = translatable.getArguments().get(0);
-					if(potentialName instanceof TextElement) {
-						playerName = (TextElement)potentialName;
-					}
-				}
-				applier.setTemplate(cfg.getJoinTemplate());
-				applier.setParameter("body", playerName);
+				applier.setTemplate(ChitChat.getConfig().getJoinTemplate());
+				applier.setParameter("body", name);
 			}
 		}
 
@@ -138,22 +147,45 @@ public class ChatListener {
 		player.sendMessage(cfg.getChattingJoinTemplate(), ImmutableMap.of(ConfigSettings.TEMPLATE_CHANNEL, Text.of(channel.getName())));
 	}
 
+	@SuppressWarnings("Convert2streamapi")
 	@Listener
 	public void onQuit(ClientConnectionEvent.Disconnect event) {
-		for(SimpleTextTemplateApplier applier : event.getFormatter().getBody().getAll()) {
+		List<SimpleTextTemplateApplier> appliers = event.getFormatter().getBody().getAll();
+		TextElement name = getNameConnect(appliers, "body").orElse(Text.of(event.getTargetEntity().getName()));
+
+		for(SimpleTextTemplateApplier applier : appliers) {
 			if(applier.getParameters().containsKey("body")) {
-				TextElement textElement = applier.getParameter("body");
-				TextElement playerName = Text.of(event.getTargetEntity().getName());
-				if(textElement instanceof TranslatableText) {
-					TranslatableText translatable = (TranslatableText)textElement;
-					Object potentialName = translatable.getArguments().get(0);
-					if(potentialName instanceof TextElement) {
-						playerName = (TextElement)potentialName;
-					}
-				}
 				applier.setTemplate(ChitChat.getConfig().getDisconnectTemplate());
-				applier.setParameter("body", playerName);
+				applier.setParameter("body", name);
 			}
 		}
+	}
+
+	private Optional<TextElement> getNameChat(List<SimpleTextTemplateApplier> applierList, String parameterName) {
+		for(SimpleTextTemplateApplier applier : applierList) {
+			if(applier.getParameters().containsKey(parameterName)) {
+				TextElement textElement = applier.getParameter(parameterName);
+				return Optional.of(textElement);
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	private Optional<Text> getNameConnect(List<SimpleTextTemplateApplier> applierList, String parameterName) {
+		for(SimpleTextTemplateApplier applier : applierList) {
+			if(applier.getParameters().containsKey(parameterName)) {
+				TextElement textElement = applier.getParameter(parameterName);
+				if(textElement instanceof TranslatableText) {
+					TranslatableText translatable = (TranslatableText)textElement;
+					return translatable.getArguments().stream()
+							.filter(o -> o instanceof Text)
+							.map(o -> (Text)o)
+							.findFirst();
+				}
+			}
+		}
+
+		return Optional.empty();
 	}
 }

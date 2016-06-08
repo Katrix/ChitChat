@@ -21,6 +21,7 @@
 package io.github.katrix_.chitchat.io;
 
 import java.nio.file.Path;
+import java.util.function.Predicate;
 
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextTemplate;
@@ -29,24 +30,25 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import com.google.common.reflect.TypeToken;
 
+import io.github.katrix_.chitchat.lib.LibPlugin;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigSettings extends ConfigurateBase {
 
-	public static final String TEMPLATE_PLAYER = "playerName";
+	public static final String TEMPLATE_PLAYER = LibPlugin.ID + ":playerName";
 	@SuppressWarnings("WeakerAccess")
-	public static final String TEMPLATE_HEADER = "header";
-	public static final String TEMPLATE_SUFFIX = "suffix";
-	public static final String TEMPLATE_PREFIX = "prefix";
-	public static final String TEMPLATE_MESSAGE = "message";
-	public static final String TEMPLATE_CHANNEL = "channel";
+	public static final String TEMPLATE_HEADER = "header"; //No Plugin id as this refears to the already existing template that we replace
+	public static final String TEMPLATE_SUFFIX = LibPlugin.ID + ":suffix";
+	public static final String TEMPLATE_PREFIX = LibPlugin.ID + ":prefix";
+	public static final String TEMPLATE_MESSAGE = LibPlugin.ID + ":message";
+	public static final String TEMPLATE_CHANNEL = LibPlugin.ID + ":channel";
 
-	private TextTemplate defaultHeader = TextTemplate.of(TextTemplate.arg(TEMPLATE_PLAYER).color(TextColors.GRAY));
+	private Text defaultPrefix = Text.EMPTY;
 	private Text defaultSuffix = Text.EMPTY;
 	private Text globalPrefix = Text.of(TextColors.GOLD, "G");
-	private TextTemplate headerTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
+	private TextTemplate headerTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_PREFIX).optional(), TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
 	private TextTemplate suffixTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_SUFFIX));
 
 	private TextTemplate meTemplate = TextTemplate.of(Text.of(TextColors.GOLD, "* "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(" "),
@@ -79,14 +81,53 @@ public class ConfigSettings extends ConfigurateBase {
 		saveFile();
 	}
 
+	private void updateOldData() {
+		try {
+			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
+
+			//playerName and message
+			updateOldObject(cfgRoot.getNode("command", "meTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("playerName"), meTemplate);
+			updateOldObject(cfgRoot.getNode("command", "pmReciever"), textTemplateToken,
+					t -> t.getArguments().containsKey("playerName"), pmReciever);
+			updateOldObject(cfgRoot.getNode("command", "pmSender"), textTemplateToken,
+					t -> t.getArguments().containsKey("playerName"), pmSender);
+			updateOldObject(cfgRoot.getNode("command", "shoutTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("playerName"), shoutTemplate);
+			updateOldObject(cfgRoot.getNode("command", "announceTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("playerName"), announceTemplate);
+
+			//suffix
+			updateOldObject(cfgRoot.getNode("chat", "suffixTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("suffix"), suffixTemplate);
+
+			//prefix
+			updateOldObject(cfgRoot.getNode("chat", "headerTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("prefix"), headerTemplate);
+			updateOldObject(cfgRoot.getNode("chat", "channelTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("prefix"), channelTemplate);
+
+			//channel
+			updateOldObject(cfgRoot.getNode("chat", "chattingJoinTemplate"), textTemplateToken,
+					t -> t.getArguments().containsKey("channel"), chattingJoinTemplate);
+
+			//Remove old defaultHeader, there is now defaultPrefix instead
+			cfgRoot.getNode("chat", "defaultHeader").setValue(null);
+		}
+		catch(ObjectMappingException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	protected void loadData() {
+		updateOldData();
 		CommentedConfigurationNode node;
 		try {
 			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
 			TypeToken<Text> textToken = TypeToken.of(Text.class);
 
-			defaultHeader = getOrDefaultObject(cfgRoot.getNode("chat", "defaultHeader"), textTemplateToken, defaultHeader);
+			defaultPrefix = getOrDefaultObject(cfgRoot.getNode("chat", "defaultPrefix"), textToken, defaultPrefix);
 			defaultSuffix = getOrDefaultObject(cfgRoot.getNode("chat", "defaultSuffix"), textToken, defaultSuffix);
 			globalPrefix = getOrDefaultObject(cfgRoot.getNode("chat", "globalPrefix"), textToken, globalPrefix);
 			headerTemplate = getOrDefaultObject(cfgRoot.getNode("chat", "headerTemplate"), textTemplateToken, headerTemplate);
@@ -126,14 +167,14 @@ public class ConfigSettings extends ConfigurateBase {
 			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
 			TypeToken<Text> textToken = TypeToken.of(Text.class);
 
-			saveNodeObject(cfgRoot.getNode("chat", "defaultHeader"), textTemplateToken, defaultHeader,
-					"Type = TextTemplate\nThe prefix that should be used if no prefix option from permissions is found.\nIf a prefix option is found, it will override this");
+			saveNodeObject(cfgRoot.getNode("chat", "defaultPrefix"), textToken, defaultPrefix,
+					"Type = Text\nThe prefix that should be used if no prefix option from permissions is found.\nIf a prefix option is found, it will override this");
 			saveNodeObject(cfgRoot.getNode("chat", "defaultSuffix"), textToken, defaultSuffix,
 					"Type = Text\nThe suffix that should be used if no suffix option from permissions is found.\nIf a suffix option is found, it will override this");
 			saveNodeObject(cfgRoot.getNode("chat", "globalPrefix"), textToken, globalPrefix,
 					"Type = Text\nThe prefix that will be used for the global channel");
 			saveNodeObject(cfgRoot.getNode("chat", "headerTemplate"), textTemplateToken, headerTemplate,
-					"Type = TextTemplate\nThe format that will be used for the prefix and the name. Do note that the prefix and the name always sits side by side");
+					"Type = TextTemplate\nThe format that will be used for the prefix and the name");
 			saveNodeObject(cfgRoot.getNode("chat", "suffixTemplate"), textTemplateToken, suffixTemplate,
 					"Type = TextTemplate\nThe format that will be used for the suffix");
 			saveNodeObject(cfgRoot.getNode("chat", "channelTemplate"), textTemplateToken, channelTemplate,
@@ -181,8 +222,17 @@ public class ConfigSettings extends ConfigurateBase {
 		node.setComment(comment);
 		node.setValue(typeToken, value);
 	}
-	public TextTemplate getDefaultHeader() {
-		return defaultHeader;
+
+	private <T> void updateOldObject(ConfigurationNode node, TypeToken<T> typeToken, Predicate<T> predicate, T newValue) throws ObjectMappingException {
+		T value = node.getValue(typeToken);
+
+		if(value == null || predicate.test(value)) {
+			node.setValue(typeToken, newValue);
+		}
+	}
+
+	public Text getDefaultPrefix() {
+		return defaultPrefix;
 	}
 
 	public Text getDefaultSuffix() {
