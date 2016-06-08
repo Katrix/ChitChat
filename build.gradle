@@ -21,14 +21,10 @@ repositories {
 
 dependencies {
     compile 'org.scala-lang.modules:scala-java8-compat_2.11:0.7.0'
-    compile 'org.spongepowered:spongeapi:4.0.3'
+    compileOnly 'org.spongepowered:spongeapi:4.0.3'
     compile('io.github.katrix:spongebt:1.1.0') {
         exclude group: 'org.spongepowered'
     }
-}
-
-configurations {
-    runtime.exclude module: 'spongeapi' //This way we don't get the SpongeAPI in the jar
 }
 
 shadowJar {
