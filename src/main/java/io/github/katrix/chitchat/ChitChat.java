@@ -108,7 +108,8 @@ public class ChitChat {
 
 	@Listener
 	public void reload(GameReloadEvent event) {
-		storage.loadRootChannel();
+		getConfig().reload();
+		storage.reloadChannels();
 	}
 
 	public Logger getLog() {
