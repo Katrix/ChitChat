@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -97,6 +98,12 @@ public class ChitChat {
 		registerCommand(CmdAnnounce.INSTANCE);
 
 		ChitChatChannels.init();
+	}
+
+	@Listener
+	public void reload(GameReloadEvent event) {
+		getConfig().reload();
+		storage.reloadChannels();
 	}
 
 	public Logger getLog() {
