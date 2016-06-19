@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Chitchat by Katrix-</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Chitchat</h1>
+      <h2 class="project-tagline">A small chat plugin for Sponge</h2>
+      <a href="https://github.com/Katrix-/ChitChat" class="btn">View on GitHub</a>
+      <a href="https://github.com/Katrix-/ChitChat/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Katrix-/ChitChat/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="chitchat" class="anchor" href="#chitchat" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ChitChat</h1>
+
+<p>ChitChat is a powerful chat plugin that allows you to make the chat look just like you want it to. ChitChat allows you to make custom chat channels, and control who can enter those channels. ChitChat also provides basic commands like pm, me, broadcase, which you can also change the format of.</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Divide chat into channels.</li>
+<li>Create, modify and remove channels on the fly.</li>
+<li>Makes ugly commands look good.</li>
+<li>Completely customizable how every command and normal chat looks.</li>
+<li>Play a sound every time a player receives a PM, or is mentioned in chat</li>
+<li>Uses TextTemplateAppliers, which means that it will play nice with other chat plugins that also uses them</li>
+</ul>
+
+<h2>
+<a id="formatting" class="anchor" href="#formatting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Formatting</h2>
+
+<p>Every message in ChitChat is customizable. You can change these messages in the config. You will for the most part encounter two types of config values. <code>Text</code> is used for normal text when it's just printed without any changes. <code>TextTemplate</code> is a template <code>Text</code> where some values will be replaced before it is used. Note that if another plugin replaces the <code>TextTemplate</code> specified by ChitChat, you should still be able to insert the arguments into the new <code>TextTemplate</code> as ChitChat applies it's argument to all the <code>TextTemplate</code>s it can find.</p>
+
+<p>The second type of formatting you would want to do is to format how a player is represented in a chat message. ChitChat uses the permission options <code>prefix</code> and <code>suffix</code> to add prefix and suffix to the chat message. In these you can use normal minecraft formatting code like <code>&amp;9[&amp;2Admin&amp;9]</code>. Do note that the color of the player name is not supplied in the prefix, but instead in a separate permission option called <code>nameColor</code>. In here you specify the color and style you want for the player name, again with minecraft formatting code, for example <code>&amp;5</code>. The reason they are separate is to allow moving the prefix and the player name around in the config independently of each other.</p>
+
+<h2>
+<a id="commands" class="anchor" href="#commands" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Commands</h2>
+
+<ul>
+<li>
+<code>/announce -c &lt;message&gt;</code> - Send a message to all players. If the flag -c is specified, it will do the announcement as console.</li>
+<li>
+<code>/channel</code> - Do stuff with channels.</li>
+<li>
+<code>/channel create &lt;name&gt; [&lt;prefix&gt;] [&lt;description&gt;]</code> - Create a new channel. Prefix and description is optional. Prefix and description can also be formated using &amp;. If no prefix is specified, the name of the channel will be used instead.</li>
+<li>
+<code>/channel join &lt;channel name&gt;</code> - Join an already existing channel.</li>
+<li>
+<code>/channel list</code> - Will show you a list of all the channels you can join.</li>
+<li>
+<code>/channel load</code> - Tries to reload the channels from storage</li>
+<li>
+<code>/channel properties &lt;channel name&gt;</code> - Shows you the properties(name, prefix description, members) of a channel.</li>
+<li>
+<code>/channel properties description &lt;channel name&gt; [&lt;new description&gt;]</code> - Specify a new description for a channel. If no description is provided it will be removed.</li>
+<li>
+<code>/channel properties name &lt;channel name&gt; &lt;new name&gt;</code> - Specify a new name for a channel.</li>
+<li>
+<code>/channel properties prefix &lt;channel name&gt; [&lt;new prefix&gt;]</code> - Specify a new prefix for a channel. If no description is provided it will use the channel name instead.</li>
+<li>
+<code>/channel remove &lt;channel name&gt;</code> - Removes an already existing channel. If there is currently players in the channel, they will be moved to the global channel.</li>
+<li>
+<code>/channel move &lt;player&gt; &lt;channel&gt;</code> - Moves a player to another channel. Works on both online and offline players.</li>
+<li>
+<code>/chitchat</code> - Shows you information about ChitChat.</li>
+<li>
+<code>/chitchat help [&lt;command&gt;]</code> - If used with no parameters shows the help for all the commands registered by ChitChat. You can also show the help for individual commands by specifying the parameters to be that command. This also works with subcommands. For example do <code>/chitchat help channel create</code> to see the help for the create channel command.</li>
+<li>
+<code>/chitchat reload</code> - Reloads the configs for ChitChat.</li>
+<li>
+<code>/me &lt;message&gt;</code> - Act out something.</li>
+<li>
+<code>/pm &lt;player&gt; &lt;message&gt;</code> - Sends a PM to another player. If someone sends a PM to you, you will also hear a pling sound if not disabled in the config.</li>
+<li>
+<code>/r &lt;message&gt;</code> - Sends a PM to the person you most recently had a conversation with.</li>
+<li>
+<code>/shout &lt;channel name&gt; &lt;message&gt;</code> - Sends a message to a specific channel.</li>
+</ul>
+
+<h2>
+<a id="permissions" class="anchor" href="#permissions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Permissions</h2>
+
+<ul>
+<li>
+<code>chitchat.command.chitchat</code> - Allows players to use <code>/chitchat</code>.</li>
+<li>
+<code>chitchat.command.chitchat.help</code> - Allows players to use <code>/chitchat help</code>.</li>
+<li>
+<code>chitchat.chat.shout</code> - Allows players to use <code>/shout</code>.</li>
+<li>
+<code>chitchat.chat.shout.&lt;channel name&gt;</code> - Allows players to shout to the given channel.</li>
+<li>
+<code>chitchat.chat.pm</code> - Allows players to use <code>/pm</code>.</li>
+<li>
+<code>chitchat.chat.reply</code> - Allows players to use <code>/r</code>.</li>
+<li>
+<code>chitchat.chat.me</code> - Allows players to use <code>/me</code>.</li>
+<li>
+<code>chitchat.chat.color</code> - Will format players chat using formating codes(&amp;).</li>
+<li>
+<code>chitchat.chat.mod.announce</code> - Allows players to use <code>/announce</code>.</li>
+<li>
+<code>chitchat.chat.mod.announce.console</code> - Allows players to use <code>/announce -c</code>.</li>
+<li>
+<code>chitchat.admin.reload</code> - Allows players to use <code>/chitchat reload</code>.</li>
+<li>
+<code>chitchat.channel</code> - Allows players to use <code>/channel</code>.</li>
+<li>
+<code>chitchat.channel.join</code> - Allows players to use <code>/channel join</code>.</li>
+<li>
+<code>chitchat.channel.join.&lt;channelName&gt;</code> - Allows players to join players with the given channel.</li>
+<li>
+<code>chitchat.channel.list</code> - Allows players to use <code>/channel list</code>.</li>
+<li>
+<code>chitchat.channel.info</code> - Allows players to use <code>/channel properties</code>.</li>
+<li>
+<code>chitchat.channel.info.&lt;channel name&gt;</code> - Allows players to see the info of the given channel.</li>
+<li>
+<code>chitchat.channel.mod.modify.name</code> - Allows players to use <code>/channel properties name</code>.</li>
+<li>
+<code>chitchat.channel.mod.modify.name.&lt;channel name&gt;</code> - Allows players change the name of the given channel. The player also needs to have permission for the new name.</li>
+<li>
+<code>chitchat.channel.mod.modify.prefix</code> - Allows players to use <code>/channel properties prefix</code>.</li>
+<li>
+<code>chitchat.channel.mod.modify.prefix.&lt;channel name&gt;</code> - Allows players to change the prefix of the given channel.</li>
+<li>
+<code>chitchat.channel.mod.modify.description</code> - Allows players to use <code>/channel properties description</code>.</li>
+<li>
+<code>chitchat.channel.mod.modify.description.&lt;channel name&gt;</code> - Allows players to change the description of the given channel.</li>
+<li>
+<code>chitchat.channel.mod.create</code> - Allows players to use <code>/channel create</code>.</li>
+<li>
+<code>chitchat.channel.mod.create.&lt;channel name&gt;</code> - Allows players to use create channels with the given channel name.</li>
+<li>
+<code>chitchat.channel.mod.remove</code> - Allows players to use <code>/channel remove</code>.</li>
+<li>
+<code>chitchat.channel.mod.remove.&lt;channel name&gt;</code> - Allows players to remove channels with the given channel name.</li>
+<li>
+<code>chitchat.channel.mod.move.&lt;channel name&gt;</code> - Allows players to move another player to the specified channel.</li>
+<li>
+<code>chitchat.channel.mod.move.offline</code> - Allows players to move an offline player.</li>
+</ul>
+
+<h2>
+<a id="storage" class="anchor" href="#storage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Storage</h2>
+
+<p>By default ChitChat will store channel and user information in a plaintext json file. This can be changed in the settings. The current options are plaintext, h2 database and NBT.</p>
+
+<p>Why would you want to save to NBT? Well for one, you can specify if you want compression or not. It also allows you to still easily edit the file as it is a valid nbt file that you can open in any program that opens those. Do note that NBT support is still experimental.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Katrix-/ChitChat">Chitchat</a> is maintained by <a href="https://github.com/Katrix-">Katrix-</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
