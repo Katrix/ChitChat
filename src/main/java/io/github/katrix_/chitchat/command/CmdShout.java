@@ -22,19 +22,27 @@ package io.github.katrix_.chitchat.command;
 
 import java.util.Optional;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextFormat;
+import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
-import com.google.common.collect.ImmutableMap;
-
+import io.github.katrix_.chitchat.ChitChat;
 import io.github.katrix_.chitchat.chat.ChannelChitChat;
+import io.github.katrix_.chitchat.helper.TextHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
+import io.github.katrix_.chitchat.lib.LibCause;
 import io.github.katrix_.chitchat.lib.LibCommandKey;
 import io.github.katrix_.chitchat.lib.LibPerm;
 
@@ -54,11 +62,33 @@ public class CmdShout extends CommandBase {
 			@SuppressWarnings("OptionalGetWithoutIsPresent")
 			ChannelChitChat channel = optChannel.get();
 			if(permissionChannel(channel.getName(), src, LibPerm.SHOUT)) {
-				channel.send(src, getCfg().getShoutTemplate().apply(
-						ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message)))
-						.build());
-				src.sendMessage(Text.of(TextColors.GREEN, "Sent message " + message + " to channel " + channel.getName()));
-				return CommandResult.success();
+
+				Cause cause = Cause.builder().owner(src).named(LibCause.COMMAND, getCommand()).named(LibCause.PLUGIN, ChitChat.getPluginContainer()).build();
+				Text rawMessage = Text.of(message);
+
+				SimpleTextTemplateApplier headerApplier = new SimpleTextTemplateApplier(getCfg().getShoutTemplate());
+				headerApplier.setParameter(ConfigSettings.TEMPLATE_HEADER, Text.of(src.getName()));
+
+				MessageEvent.MessageFormatter formatter = new MessageEvent.MessageFormatter(rawMessage);
+				formatter.getHeader().add(headerApplier);
+
+				Text headerText = formatter.getHeader().format();
+				formatter.setBody(Text.of(TextHelper.getFormatAtEnd(headerText).orElse(TextFormat.NONE), rawMessage));
+
+
+				MessageChannelEvent event = SpongeEventFactory.createMessageChannelEvent(cause, channel, Optional.of(channel), formatter, false);
+
+				boolean cancelled = Sponge.getEventManager().post(event);
+
+				if(!cancelled) {
+					event.getChannel().ifPresent(c -> c.send(src, event.getMessage()));
+					src.sendMessage(Text.of(TextColors.GREEN, "Sent message ", event.getFormatter().getBody().format(), " to channel " + channel.getName()));
+					return CommandResult.builder().successCount(channel.getMembers().size()).build();
+				}
+				else {
+					src.sendMessage(Text.of(TextColors.RED, "Failed to send message. Maybe some other plugin blocked it"));
+					return CommandResult.empty();
+				}
 			}
 		}
 		return CommandResult.empty();

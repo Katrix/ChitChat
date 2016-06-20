@@ -21,13 +21,16 @@
 package io.github.katrix_.chitchat.io;
 
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.function.Predicate;
 
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 
 import io.github.katrix_.chitchat.lib.LibPlugin;
@@ -39,7 +42,7 @@ public class ConfigSettings extends ConfigurateBase {
 
 	public static final String TEMPLATE_PLAYER = LibPlugin.ID + ":playerName";
 	@SuppressWarnings("WeakerAccess")
-	public static final String TEMPLATE_HEADER = "header"; //No Plugin id as this refears to the already existing template that we replace
+	public static final String TEMPLATE_HEADER = MessageChannelEvent.PARAM_MESSAGE_HEADER; //No Plugin id as this refears to the already existing template that we replace
 	public static final String TEMPLATE_SUFFIX = LibPlugin.ID + ":suffix";
 	public static final String TEMPLATE_PREFIX = LibPlugin.ID + ":prefix";
 	public static final String TEMPLATE_MESSAGE = LibPlugin.ID + ":message";
@@ -51,18 +54,15 @@ public class ConfigSettings extends ConfigurateBase {
 	private TextTemplate headerTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_PREFIX).optional(), TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
 	private TextTemplate suffixTemplate = TextTemplate.of(TextTemplate.arg(TEMPLATE_SUFFIX));
 
-	private TextTemplate meTemplate = TextTemplate.of(Text.of(TextColors.GOLD, "* "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(" "),
-			TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate pmReciever = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "From "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "),
-			TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate pmSender = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "To "), TextTemplate.arg(TEMPLATE_PLAYER), Text.of(": "),
-			TextTemplate.arg(TEMPLATE_MESSAGE));
-	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.BOLD), TextTemplate.arg(TEMPLATE_PLAYER),
-			Text.of(" shouts: "), TextTemplate.arg(TEMPLATE_MESSAGE));
+	private TextTemplate meTemplate = TextTemplate.of(Text.of(TextColors.GOLD, "* "), TextTemplate.arg(TEMPLATE_HEADER), Text.of(" "));
+	private TextTemplate pmReciever = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "From "), TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
+	private TextTemplate pmSender = TextTemplate.of(Text.of(TextColors.LIGHT_PURPLE, "To "), TextTemplate.arg(TEMPLATE_HEADER), Text.of(": "));
+	private TextTemplate shoutTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.BOLD), TextTemplate.arg(TEMPLATE_HEADER),
+			Text.of(" shouts: "));
 	private TextTemplate channelTemplate = TextTemplate.of(Text.of(TextColors.WHITE, "["), TextTemplate.arg(TEMPLATE_PREFIX),
 			Text.of(TextColors.WHITE, "] "));
-	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_PLAYER),
-			Text.of(": "), TextTemplate.arg(TEMPLATE_MESSAGE));
+	private TextTemplate announceTemplate = TextTemplate.of(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE), TextTemplate.arg(TEMPLATE_HEADER),
+			Text.of(": "));
 	private TextTemplate chattingJoinTemplate = TextTemplate.of(TextColors.YELLOW, Text.of("You are currently chatting in the channel "),
 			TextTemplate.arg(TEMPLATE_CHANNEL));
 	private TextTemplate joinTemplate = TextTemplate.of(Text.of(TextColors.GREEN, "The player "), TextTemplate.arg("body").color(TextColors.AQUA),
@@ -85,17 +85,18 @@ public class ConfigSettings extends ConfigurateBase {
 		try {
 			TypeToken<TextTemplate> textTemplateToken = TypeToken.of(TextTemplate.class);
 
+			ImmutableSet<String> oldArgs = ImmutableSet.of(TEMPLATE_MESSAGE, TEMPLATE_MESSAGE, "playerName");
+			Predicate<TextTemplate> messagePredicate = t -> {
+				Set<String> argSet = t.getArguments().keySet();
+				return oldArgs.stream().anyMatch(argSet::contains);
+			};
+
 			//playerName and message
-			updateOldObject(cfgRoot.getNode("command", "meTemplate"), textTemplateToken,
-					t -> t.getArguments().containsKey("playerName"), meTemplate);
-			updateOldObject(cfgRoot.getNode("command", "pmReciever"), textTemplateToken,
-					t -> t.getArguments().containsKey("playerName"), pmReciever);
-			updateOldObject(cfgRoot.getNode("command", "pmSender"), textTemplateToken,
-					t -> t.getArguments().containsKey("playerName"), pmSender);
-			updateOldObject(cfgRoot.getNode("command", "shoutTemplate"), textTemplateToken,
-					t -> t.getArguments().containsKey("playerName"), shoutTemplate);
-			updateOldObject(cfgRoot.getNode("command", "announceTemplate"), textTemplateToken,
-					t -> t.getArguments().containsKey("playerName"), announceTemplate);
+			updateOldObject(cfgRoot.getNode("command", "meTemplate"), textTemplateToken, messagePredicate, meTemplate);
+			updateOldObject(cfgRoot.getNode("command", "pmReciever"), textTemplateToken, messagePredicate, pmReciever);
+			updateOldObject(cfgRoot.getNode("command", "pmSender"), textTemplateToken, messagePredicate, pmSender);
+			updateOldObject(cfgRoot.getNode("command", "shoutTemplate"), textTemplateToken, messagePredicate, shoutTemplate);
+			updateOldObject(cfgRoot.getNode("command", "announceTemplate"), textTemplateToken, messagePredicate, announceTemplate);
 
 			//suffix
 			updateOldObject(cfgRoot.getNode("chat", "suffixTemplate"), textTemplateToken,
