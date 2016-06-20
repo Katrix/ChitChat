@@ -20,19 +20,29 @@
  */
 package io.github.katrix.chitchat.command;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextFormat;
+import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
-import com.google.common.collect.ImmutableMap;
-
+import io.github.katrix.chitchat.ChitChat;
+import io.github.katrix.chitchat.chat.events.MessageChannelEventTmp;
+import io.github.katrix.chitchat.helper.TextHelper;
 import io.github.katrix.chitchat.io.ConfigSettings;
-import io.github.katrix.chitchat.lib.LibPerm;
+import io.github.katrix.chitchat.lib.LibCause;
 import io.github.katrix.chitchat.lib.LibCommandKey;
+import io.github.katrix.chitchat.lib.LibPerm;
 
 public class CmdMe extends CommandBase {
 
@@ -45,9 +55,32 @@ public class CmdMe extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
-		src.getMessageChannel().send(src, getCfg().getMeTemplate()
-				.apply(ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, Text.of(src.getName()), ConfigSettings.TEMPLATE_MESSAGE, Text.of(message))).build());
-		return CommandResult.success();
+
+		Cause cause = Cause.builder().owner(src).named(LibCause.COMMAND, getCommand()).named(LibCause.PLUGIN, ChitChat.getPluginContainer()).build();
+		MessageChannel channel = src.getMessageChannel();
+		Text rawMessage = Text.of(message);
+
+		SimpleTextTemplateApplier headerApplier = new SimpleTextTemplateApplier(getCfg().getMeTemplate());
+		headerApplier.setParameter(ConfigSettings.TEMPLATE_HEADER, Text.of(src.getName()));
+
+		MessageEvent.MessageFormatter formatter = new MessageEvent.MessageFormatter(rawMessage);
+		formatter.getHeader().add(headerApplier);
+
+		Text headerText = formatter.getHeader().format();
+		formatter.setBody(Text.of(TextHelper.getFormatAtEnd(headerText).orElse(TextFormat.NONE), rawMessage));
+
+		MessageChannelEvent event = new MessageChannelEventTmp(cause, channel, formatter, false);
+
+		boolean cancelled = Sponge.getEventManager().post(event);
+
+		if(!cancelled) {
+			event.getChannel().ifPresent(c -> c.send(src, event.getMessage()));
+			return CommandResult.builder().successCount(channel.getMembers().size()).build();
+		}
+		else {
+			src.sendMessage(Text.of(TextColors.RED, "Failed to send message. Maybe some other plugin blocked it"));
+			return CommandResult.empty();
+		}
 	}
 
 	@Override
