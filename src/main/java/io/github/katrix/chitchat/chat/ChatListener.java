@@ -27,7 +27,6 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -45,6 +44,7 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix.chitchat.ChitChat;
+import io.github.katrix.chitchat.helper.TextHelper;
 import io.github.katrix.chitchat.io.ConfigSettings;
 import io.github.katrix.chitchat.lib.LibKeys;
 import io.github.katrix.chitchat.lib.LibPerm;
@@ -52,67 +52,71 @@ import io.github.katrix.chitchat.lib.LibPerm;
 public class ChatListener {
 
 	@Listener(order = Order.LATE)
-	public void onChat(MessageChannelEvent.Chat event, @First Player player) {
-		ConfigSettings cfg = ChitChat.getConfig();
-		MessageEvent.MessageFormatter formatter = event.getFormatter();
-		FormattingCodeTextSerializer serializer = TextSerializers.FORMATTING_CODE;
-		TextElement name = getNameChat(formatter.getHeader().getAll(), "header").orElse(Text.of(player.getName()));
+	public void onMessageChannel(MessageChannelEvent event) {
+		Optional<Player> optPlayer = event.getCause().first(Player.class);
+		if(event instanceof MessageChannelEvent.Chat && optPlayer.isPresent()) {
+			Player player = optPlayer.get();
+			ConfigSettings cfg = ChitChat.getConfig();
+			MessageEvent.MessageFormatter formatter = event.getFormatter();
+			FormattingCodeTextSerializer serializer = TextSerializers.FORMATTING_CODE;
+			Text prefix = cfg.getDefaultPrefix();
+			Text suffix = cfg.getDefaultSuffix();
+			TextElement name = getNameChat(formatter.getHeader().getAll(), "header").orElse(Text.of(player.getName()));
 
-		Subject subject = player.getContainingCollection().get(player.getIdentifier());
-		Optional<String> option;
 
-		option = subject.getOption("prefix");
-		Text prefix = option.isPresent() ? serializer.deserialize(option.get()) : cfg.getDefaultPrefix();
+			Subject subject = player.getContainingCollection().get(player.getIdentifier());
+			Optional<String> option;
 
-		option = subject.getOption("suffix");
-		Text suffix = option.isPresent() ? serializer.deserialize(option.get()) : cfg.getDefaultSuffix();
+			option = subject.getOption("prefix");
+			prefix = option.isPresent() ? serializer.deserialize(option.get()) : prefix;
 
-		option = subject.getOption("nameColor");
-		Optional<TextFormat> textFormat = option.flatMap(s -> {
-			List<Text> children = serializer.deserialize(s).getChildren();
-			if(!children.isEmpty()) {
-				return Optional.of(children.get(0).getFormat());
+			option = subject.getOption("suffix");
+			suffix = option.isPresent() ? serializer.deserialize(option.get()) : suffix;
+
+			option = subject.getOption("nameColor");
+			Optional<TextFormat> textFormat = option.flatMap(s -> TextHelper.getFormatAtEnd(serializer.deserialize(s)));
+			name = textFormat.isPresent() ? Text.of(textFormat.get(), name) : name;
+
+			for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
+				if(applier.getParameters().containsKey("header")) {
+					applier.setTemplate(cfg.getHeaderTemplate());
+					applier.setParameter("header", name);
+				}
+
+				applier.setParameter(ConfigSettings.TEMPLATE_PREFIX, prefix);
 			}
-			else return Optional.empty();
-		});
-		name = textFormat.isPresent() ? Text.of(textFormat.get(), name) : name;
 
-		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
-			if(applier.getParameters().containsKey("header")) {
-				applier.setTemplate(cfg.getHeaderTemplate());
-				applier.setParameter("header", name);
-			}
-
-			applier.setParameter(ConfigSettings.TEMPLATE_PREFIX, prefix);
-		}
-
-		if(player.hasPermission(LibPerm.CHAT_COLOR)) {
-			for(SimpleTextTemplateApplier applier : formatter.getBody()) {
-				if(applier.getParameters().containsKey("body")) {
-					applier.setParameter("body", serializer.deserialize(serializer.serialize(Text.of(applier.getParameter("body"))))); //In case the message is already formatted
+			if(player.hasPermission(LibPerm.CHAT_COLOR)) {
+				for(SimpleTextTemplateApplier applier : formatter.getBody()) {
+					if(applier.getParameters().containsKey("body")) {
+						applier.setParameter("body", serializer.deserialize(serializer.serialize(Text.of(applier.getParameter("body"))))); //In case the message is already formatted
+					}
 				}
 			}
+
+			SimpleTextTemplateApplier suffixApplier = new SimpleTextTemplateApplier(cfg.getSuffixTemplate());
+			formatter.getFooter().add(suffixApplier);
+
+			for(SimpleTextTemplateApplier applier : formatter.getFooter().getAll()) {
+				applier.setParameter(ConfigSettings.TEMPLATE_SUFFIX, suffix);
+			}
+
+			ChannelChitChat playerChannel = getPlayerChannel(player);
+			event.setChannel(playerChannel);
+
+			if(cfg.getChatPling()) {
+				String message = event.getFormatter().getBody().format().toPlain();
+				playerChannel.getMembers().stream()
+						.filter(messageReceiver -> messageReceiver instanceof Player)
+						.map(m -> (Player)m)
+						.filter(p -> message.contains(p.getName()))
+						.forEach(p -> p.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, p.getLocation().getPosition(), 0.5D));
+			}
 		}
 
-		SimpleTextTemplateApplier suffixApplier = new SimpleTextTemplateApplier(cfg.getSuffixTemplate());
-		formatter.getFooter().add(suffixApplier);
-
-		for(SimpleTextTemplateApplier applier : formatter.getFooter().getAll()) {
-			applier.setParameter(ConfigSettings.TEMPLATE_SUFFIX, suffix);
-		}
-
-		ChannelChitChat playerChannel = getPlayerChannel(player);
-		event.setChannel(new CombinedMessageChannel(playerChannel, MessageChannel.TO_CONSOLE));
-
-		if(cfg.getChatPling()) {
-			String message = event.getFormatter().getBody().format().toPlain();
-
-			playerChannel.getMembers().stream()
-					.filter(messageReceiver -> messageReceiver instanceof Player)
-					.map(m -> (Player)m)
-					.filter(p -> message.contains(p.getName()))
-					.forEach(p -> p.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, p.getLocation().getPosition(), 0.5D));
-		}
+		//Console knows all!!!
+		Optional<MessageChannel> currentChannel = event.getChannel();
+		currentChannel.ifPresent(c -> event.setChannel(new CombinedMessageChannel(c, MessageChannel.TO_CONSOLE)));
 	}
 
 	@SuppressWarnings("Convert2streamapi")
