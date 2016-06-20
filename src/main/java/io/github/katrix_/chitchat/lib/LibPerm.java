@@ -46,6 +46,7 @@ public class LibPerm {
 
 	public static final String RELOAD = ADMIN + ".reload";
 	public static final String CHANNEL_LOAD = ADMIN + ".load";
+	public static final String FORCE_CHAT = ADMIN + ".forcechat";
 
 	public static final String CHANNEL_JOIN = CHANNEL + ".join";
 	public static final String CHANNEL_LIST = CHANNEL + ".list";
