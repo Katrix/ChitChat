@@ -44,7 +44,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix.chitchat.ChitChat;
 import io.github.katrix.chitchat.chat.channels.Channel;
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibPerm;
 import io.github.katrix.chitchat.io.ConfigSettings;
 import io.github.katrix.chitchat.lib.LibKeys;

@@ -30,7 +30,7 @@ import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.Value;
 
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibKeys;
 
 public class UserChitChatData extends AbstractData<UserChitChatData, ImmutableUserChitChatData> {

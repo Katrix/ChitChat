@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import ninja.leaping.configurate.ConfigurationNode;
 
-public interface ChannelTypeSerializer<T extends Channel> {
+public interface ChannelConfigurateSerializer<T extends Channel> {
 
 	Optional<ChannelBuilder<T>> deserializeConfigurate(ConfigurationNode node);
 

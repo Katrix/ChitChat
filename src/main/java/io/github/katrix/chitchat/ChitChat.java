@@ -36,8 +36,8 @@ import org.spongepowered.api.plugin.Plugin;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
-import io.github.katrix.chitchat.chat.channels.ChannelDefault;
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelDefault;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelRoot;
 import io.github.katrix.chitchat.chat.ChatListener;
 import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import io.github.katrix.chitchat.chat.data.ImmutableUserChitChatData;

@@ -27,7 +27,7 @@ import org.spongepowered.api.util.Tuple;
 
 import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelRoot;
 import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import ninja.leaping.configurate.ConfigurationNode;
 

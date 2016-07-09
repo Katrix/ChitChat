@@ -26,5 +26,5 @@ public interface ChannelType<T extends Channel> {
 
 	ChannelNBTSerializer<T> getNBTSerializer();
 
-	ChannelTypeSerializer<T> getConfigurateSerializer();
+	ChannelConfigurateSerializer<T> getConfigurateSerializer();
 }

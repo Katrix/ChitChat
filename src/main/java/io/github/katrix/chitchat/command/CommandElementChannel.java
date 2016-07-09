@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import io.github.katrix.chitchat.chat.channels.Channel;
-import io.github.katrix.chitchat.chat.channels.ChannelRoot;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelRoot;
 import io.github.katrix.chitchat.lib.LibKeys;
 
 import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;

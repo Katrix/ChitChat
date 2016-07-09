@@ -35,7 +35,7 @@ import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import io.github.katrix.chitchat.chat.channels.Channel;
-import io.github.katrix.chitchat.chat.channels.ChannelDefault;
+import io.github.katrix.chitchat.chat.channels.impl.ChannelDefault;
 import io.github.katrix.chitchat.lib.LibCommandKey;
 import io.github.katrix.chitchat.lib.LibPerm;
 
