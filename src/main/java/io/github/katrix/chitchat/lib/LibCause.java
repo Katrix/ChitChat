@@ -18,32 +18,10 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package io.github.katrix.chitchat.io;
+package io.github.katrix.chitchat.lib;
 
-import com.google.common.reflect.TypeToken;
+public class LibCause {
 
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
-
-public class StorageTypeSerializer implements TypeSerializer<StorageType> {
-
-	@Override
-	public StorageType deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
-		StorageType ret;
-		try {
-			ret = StorageType.valueOf(value.getString());
-		}
-		catch(IllegalArgumentException e) {
-			e.printStackTrace();
-			ret = StorageType.PLAINTEXT;
-		}
-
-		return ret;
-	}
-
-	@Override
-	public void serialize(TypeToken<?> type, StorageType obj, ConfigurationNode value) throws ObjectMappingException {
-		value.setValue(obj.toString());
-	}
+	public static final String COMMAND = "Command";
+	public static final String PLUGIN = "Plugin";
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * This file is part of ChitChat, licensed under the MIT License (MIT).
  *
  * Copyright (c) 2016 Katrix
@@ -18,32 +18,54 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package io.github.katrix.chitchat.io;
+package io.github.katrix.chitchat.chat.events;
 
-import com.google.common.reflect.TypeToken;
+import javax.annotation.Nullable;
 
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.message.MessageEvent;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 
-public class StorageTypeSerializer implements TypeSerializer<StorageType> {
+/**
+ * Tmp(for now) to use for events until I figure out the best way to solve it.
+ */
+public class MessageEventTmp implements MessageEvent {
 
-	@Override
-	public StorageType deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
-		StorageType ret;
-		try {
-			ret = StorageType.valueOf(value.getString());
-		}
-		catch(IllegalArgumentException e) {
-			e.printStackTrace();
-			ret = StorageType.PLAINTEXT;
-		}
+	private final Text originalMessage;
+	private boolean isCancelled;
+	private final MessageFormatter formatter;
+	private final Cause cause;
 
-		return ret;
+	public MessageEventTmp(Cause cause, MessageFormatter formatter, boolean isCancelled) {
+		this.originalMessage = formatter.format();
+		this.isCancelled = isCancelled;
+		this.formatter = formatter;
+		this.cause = cause;
 	}
 
 	@Override
-	public void serialize(TypeToken<?> type, StorageType obj, ConfigurationNode value) throws ObjectMappingException {
-		value.setValue(obj.toString());
+	public Text getOriginalMessage() {
+		return originalMessage;
+	}
+
+	@Override
+	public boolean isMessageCancelled() {
+		return isCancelled;
+	}
+
+	@Override
+	public void setMessageCancelled(boolean cancelled) {
+		isCancelled = cancelled;
+	}
+
+	@Override
+	public MessageFormatter getFormatter() {
+		return formatter;
+	}
+
+	@Override
+	public Cause getCause() {
+		return cause;
 	}
 }

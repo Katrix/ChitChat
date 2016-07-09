@@ -32,6 +32,7 @@ import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
@@ -46,6 +47,7 @@ import io.github.katrix.chitchat.chat.data.UserChitChatManipulatorBuilder;
 import io.github.katrix.chitchat.command.CmdAnnounce;
 import io.github.katrix.chitchat.command.CmdChannel;
 import io.github.katrix.chitchat.command.CmdChitChat;
+import io.github.katrix.chitchat.command.CmdForceChat;
 import io.github.katrix.chitchat.command.CmdMe;
 import io.github.katrix.chitchat.command.CmdPM;
 import io.github.katrix.chitchat.command.CmdReply;
@@ -68,6 +70,9 @@ public class ChitChat {
 	private static ChitChat plugin;
 	private IPersistentStorage storage;
 	private ConfigSettings cfg;
+
+	@Inject
+	private PluginContainer pluginContainer;
 
 	@Inject
 	private Logger log;
@@ -102,6 +107,7 @@ public class ChitChat {
 		registerCommand(CmdMe.INSTANCE);
 		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
+		registerCommand(CmdForceChat.INSTANCE);
 
 		Sponge.getEventManager().registerListeners(this, new ChatListener());
 		ChannelRoot.init();
@@ -109,6 +115,7 @@ public class ChitChat {
 
 	@Listener
 	public void reload(GameReloadEvent event) {
+		getConfig().reload();
 		storage.loadRootChannel();
 	}
 
@@ -126,6 +133,10 @@ public class ChitChat {
 
 	public static ConfigSettings getConfig() {
 		return plugin.cfg;
+	}
+
+	public static PluginContainer getPluginContainer() {
+		return plugin.pluginContainer;
 	}
 
 	/**
