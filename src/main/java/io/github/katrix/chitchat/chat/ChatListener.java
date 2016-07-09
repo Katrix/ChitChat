@@ -31,7 +31,6 @@ import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextElement;
 import org.spongepowered.api.text.TranslatableText;
@@ -68,14 +67,11 @@ public class ChatListener {
 		}
 
 		Subject subject = player.getContainingCollection().get(player.getIdentifier());
-		if(subject instanceof OptionSubject) {
-			OptionSubject optionSubject = (OptionSubject)subject;
-			Optional<String> option;
-			option = optionSubject.getOption("prefix");
-			prefixName = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get() + nameString) : prefixName;
-			option = optionSubject.getOption("suffix");
-			suffix = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get()) : suffix;
-		}
+		Optional<String> option;
+		option = subject.getOption("prefix");
+		prefixName = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get() + nameString) : prefixName;
+		option = subject.getOption("suffix");
+		suffix = option.isPresent() ? TextSerializers.FORMATTING_CODE.deserialize(option.get()) : suffix;
 
 		for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
 			if(applier.getParameters().containsKey("header")) {
