@@ -1,5 +1,5 @@
 /*
- * This file is part of PermissionBlock, licensed under the MIT License (MIT).
+ * This file is part of ChitChat, licensed under the MIT License (MIT).
  *
  * Copyright (c) 2016 Katrix
  *
