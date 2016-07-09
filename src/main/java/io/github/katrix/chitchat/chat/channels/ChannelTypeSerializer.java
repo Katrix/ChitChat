@@ -20,11 +20,13 @@
  */
 package io.github.katrix.chitchat.chat.channels;
 
-public interface ChannelType<T extends Channel> {
+import java.util.Optional;
 
-	String getTypeIdentifier();
+import ninja.leaping.configurate.ConfigurationNode;
 
-	ChannelNBTSerializer<T> getNBTSerializer();
+public interface ChannelTypeSerializer<T extends Channel> {
 
-	ChannelTypeSerializer<T> getConfigurateSerializer();
+	Optional<ChannelBuilder<T>> deserializeConfigurate(ConfigurationNode node);
+
+	ConfigurationNode serializeConfigurate(T channel, ConfigurationNode node);
 }

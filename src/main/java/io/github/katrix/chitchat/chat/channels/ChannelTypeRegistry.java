@@ -20,27 +20,27 @@
  */
 package io.github.katrix.chitchat.chat.channels;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class ChannelTypeRegistry {
 
-	private final Set<ChannelType> registry = new HashSet<>();
+	private final Map<String, ChannelType> registry = new HashMap<>();
 	public static final ChannelTypeRegistry INSTANCE = new ChannelTypeRegistry();
 
 	private ChannelTypeRegistry() {}
 
 	public void register(ChannelType channelType) {
-		if(registry.stream().noneMatch(t -> t.getTypeIdentifier().equals(channelType.getTypeIdentifier()))) {
-			registry.add(channelType);
+		if(!registry.containsKey(channelType.getTypeIdentifier())) {
+			registry.put(channelType.getTypeIdentifier(), channelType);
 		}
 		else {
-			throw new IllegalStateException("A channelType with that idetifier has already been registered");
+			throw new IllegalStateException("A channelType with that identifier has already been registered");
 		}
 	}
 
 	public Optional<ChannelType> getType(String identifier) {
-		return registry.stream().filter(t -> t.getTypeIdentifier().equals(identifier)).findFirst();
+		return Optional.ofNullable(registry.get(identifier));
 	}
 }

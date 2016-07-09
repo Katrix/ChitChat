@@ -25,23 +25,16 @@ import static io.github.katrix.spongebt.nbt.NBTType.TAG_COMPOUND;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tuple;
 
 import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
-import io.github.katrix.chitchat.chat.channels.ChannelDefault;
-import io.github.katrix.chitchat.chat.channels.ChannelNBTSerializer;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
 import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import io.github.katrix.spongebt.nbt.NBTCompound;
-import io.github.katrix.spongebt.nbt.NBTList;
 import io.github.katrix.spongebt.nbt.NBTString;
 import io.github.katrix.spongebt.nbt.NBTTag;
-import io.github.katrix.spongebt.sponge.NBTTranslator;
 import scala.compat.java8.OptionConverters;
 
 public class NBTStorage extends NBTBase implements IPersistentStorage {
@@ -69,7 +62,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 				.map(NBTString::value);
 
 		if(name.isPresent() && rootIdentifier.isPresent() && rootIdentifier.get().equals(ROOT)) {
-			Optional<ChannelBuilder<ChannelRoot>> rootBuilder =  ChannelRoot.ChannelRootType.INSTANCE.deserializeNBT(channelTag);
+			Optional<ChannelBuilder<ChannelRoot>> rootBuilder =  ChannelRoot.ChannelRootType.INSTANCE.deserializeNbt(channelTag);
 
 			if(rootBuilder.isPresent()) {
 				return Optional.of(rootBuilder.get().createChannel(name.get(), null));
@@ -79,7 +72,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		return Optional.empty();
 	}
 
-	public Optional<Tuple<ChannelBuilder, String>> loadChannel(NBTCompound compound) {
+	public static Optional<Tuple<ChannelBuilder, String>> loadChannel(NBTCompound compound) {
 		Optional<String> name = compound.getJava(NAME)
 				.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTString()))
 				.map(NBTString::value);
@@ -90,11 +83,9 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 
 		if(name.isPresent() && identifier.isPresent()) {
 			Optional<ChannelBuilder> builder = ChannelTypeRegistry.INSTANCE.getType(identifier.get())
-					.flatMap(t -> t.getNBTSerializer().deserializeNBT(compound));
+					.flatMap(t -> t.getNBTSerializer().deserializeNbt(compound));
 
-			if(builder.isPresent()) {
-				return Optional.of(new Tuple<>(builder.get(), name.get()));
-			}
+			return builder.map(b -> new Tuple<>(b, name.get()));
 		}
 
 		return Optional.empty();
@@ -104,7 +95,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		NBTCompound compound = new NBTCompound();
 		compound.setString(IDENTIFIER, channel.getChannelType().getTypeIdentifier());
 		compound.setString(NAME, channel.getName());
-		channel.getChannelType().getNBTSerializer().serializeNBT(channel, compound);
+		channel.getChannelType().getNBTSerializer().serializeNbt(channel, compound);
 
 		return compound;
 	}
@@ -115,7 +106,7 @@ public class NBTStorage extends NBTBase implements IPersistentStorage {
 		ChannelRoot root = ChannelRoot.getRoot();
 		channelTag.setString(IDENTIFIER, ROOT);
 		channelTag.setString(NAME, root.getName());
-		ChannelRoot.ChannelRootType.INSTANCE.serializeNBT(root, channelTag);
+		ChannelRoot.ChannelRootType.INSTANCE.serializeNbt(root, channelTag);
 		save();
 		return true;
 	}

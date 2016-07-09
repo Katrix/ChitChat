@@ -23,22 +23,22 @@ package io.github.katrix.chitchat.io;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import javax.annotation.Nullable;
-
 import org.spongepowered.api.util.Tuple;
-
-import com.google.common.reflect.TypeToken;
 
 import io.github.katrix.chitchat.chat.channels.Channel;
 import io.github.katrix.chitchat.chat.channels.ChannelBuilder;
 import io.github.katrix.chitchat.chat.channels.ChannelRoot;
-import io.github.katrix.spongebt.nbt.NBTCompound;
+import io.github.katrix.chitchat.chat.channels.ChannelTypeRegistry;
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurateStorage extends ConfigurateBase implements IPersistentStorage {
 
 	private static final String CHANNELS = "channel";
+
+	private static final String NAME = "name";
+	private static final String IDENTIFIER = "typeIdentifier";
+
+	private static final String ROOT = ChannelRoot.ChannelRootType.INSTANCE.getTypeIdentifier();
 
 	public ConfigurateStorage(Path path, String name) {
 		super(path, name, true);
@@ -51,26 +51,56 @@ public class ConfigurateStorage extends ConfigurateBase implements IPersistentSt
 
 	@Override
 	public Optional<ChannelRoot> loadRootChannel() {
-		try {
-			return Optional.ofNullable(cfgRoot.getNode(CHANNELS).getValue(ChannelRoot.ChannelRootType.INSTANCE.getConfigurateSerializer()));
+		ConfigurationNode channelNode = cfgRoot.getNode(CHANNELS);
+
+		String name = channelNode.getNode(NAME).getString();
+		String rootIdentifier = channelNode.getNode(IDENTIFIER).getString();
+
+		if(name != null && rootIdentifier != null && rootIdentifier.equals(ROOT)) {
+			Optional<ChannelBuilder<ChannelRoot>> rootBuilder = ChannelRoot.ChannelRootType.INSTANCE.deserializeConfigurate(channelNode);
+
+			if(rootBuilder.isPresent()) {
+				return Optional.of(rootBuilder.get().createChannel(name, null));
+			}
 		}
-		catch(ObjectMappingException e) {
-			e.printStackTrace();
+
+		return Optional.empty();
+	}
+
+	public static Optional<Tuple<ChannelBuilder, String>> loadChannel(ConfigurationNode node) {
+		String name = node.getNode(NAME).getString();
+		String identifier = node.getNode(IDENTIFIER).getString();
+
+		if(name != null && identifier != null) {
+			Optional<ChannelBuilder<Channel>> builder = ChannelTypeRegistry.INSTANCE.getType(identifier)
+					.flatMap(t -> t.getConfigurateSerializer().deserializeConfigurate(node));
+
+			return builder.map(b -> new Tuple<>(b, name));
 		}
+
 		return Optional.empty();
 	}
 
 	@Override
 	public boolean saveRootChannel() {
-		try {
-			cfgRoot.getNode(CHANNELS).setValue(ChannelRoot.ChannelRootType.INSTANCE.getConfigurateSerializer(), ChannelRoot.getRoot());
-		}
-		catch(ObjectMappingException e) {
-			e.printStackTrace();
-			return false;
-		}
+		ConfigurationNode channelNode = cfgRoot.getNode(CHANNELS);
+		ChannelRoot root = ChannelRoot.getRoot();
+
+		channelNode.getNode(NAME).setValue(root.getName());
+		channelNode.getNode(IDENTIFIER).setValue(ROOT);
+
+		ChannelRoot.ChannelRootType.INSTANCE.serializeConfigurate(root, channelNode);
 		saveFile();
 
 		return true;
+	}
+
+	public static ConfigurationNode saveChannel(Channel channel, ConfigurationNode node) {
+		ConfigurationNode childNode = node.getNode(channel.getName());
+		childNode.getNode(NAME).setValue(channel.getName());
+		childNode.getNode(IDENTIFIER).setValue(channel.getChannelType().getTypeIdentifier());
+		channel.getChannelType().getConfigurateSerializer().serializeConfigurate(channel, childNode);
+
+		return childNode;
 	}
 }

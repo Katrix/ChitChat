@@ -24,12 +24,9 @@ import java.util.Optional;
 
 import io.github.katrix.spongebt.nbt.NBTCompound;
 
-/**
- * Placeholder interface until SpongeBT gets it's own serializer
- */
 public interface ChannelNBTSerializer<T extends Channel> {
 
-	Optional<ChannelBuilder<T>> deserializeNBT(NBTCompound compound);
+	Optional<ChannelBuilder<T>> deserializeNbt(NBTCompound compound);
 
-	NBTCompound serializeNBT(T channel, NBTCompound compound);
+	NBTCompound serializeNbt(T channel, NBTCompound compound);
 }

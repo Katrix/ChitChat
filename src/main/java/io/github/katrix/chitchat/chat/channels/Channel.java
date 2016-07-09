@@ -49,8 +49,9 @@ public interface Channel extends MutableMessageChannel {
 	/**
 	 * Sets the name of this channel. The online users
 	 * of this channel must also have their data updated.
+	 * @return If saving was successful
 	 */
-	void setName(String name);
+	boolean setName(String name);
 
 	/**
 	 * A special name that includes all the names up the tree.
@@ -106,7 +107,7 @@ public interface Channel extends MutableMessageChannel {
 	 * but to get serialized correctly it needs to registered in the {@link ChannelTypeRegistry}
 	 * @param builder The builder for the new channel.
 	 * @param name The name for this channel.
-	 * will be passed into the builder after passing it's own test.
+	 * will be passed into the builder after checking if it is valid.
 	 * @return If the channel was created successfully
 	 */
 	boolean addChild(ChannelBuilder builder, String name);
@@ -115,7 +116,7 @@ public interface Channel extends MutableMessageChannel {
 	 * Removes a child.
 	 * @return If a child was removed.
 	 */
-	boolean removeChild(Channel name);
+	boolean removeChild(Channel channel);
 
 	/**
 	 * Gets a child with the passed in name.
@@ -135,6 +136,7 @@ public interface Channel extends MutableMessageChannel {
 			return Optional.empty();
 		}
 
+		//If they have the same size, check if it is this channel.
 		if(thisNameParts.size() == thatNameParts.size()) {
 			if(thisNameParts.equals(thatNameParts)) {
 				return Optional.of(this);

@@ -24,24 +24,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.AbstractMutableMessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
 
 import io.github.katrix.chitchat.ChitChat;
 import io.github.katrix.chitchat.helper.LogHelper;
-import io.github.katrix.chitchat.io.NBTStorage;
+import io.github.katrix.chitchat.helper.SerializationHelper;
 import io.github.katrix.spongebt.nbt.NBTCompound;
-import io.github.katrix.spongebt.nbt.NBTList;
-import io.github.katrix.spongebt.nbt.NBTType;
-import io.github.katrix.spongebt.sponge.NBTTranslator;
+import ninja.leaping.configurate.ConfigurationNode;
 import scala.compat.java8.OptionConverters;
 
 public class ChannelRoot extends AbstractMutableMessageChannel implements Channel {
@@ -106,7 +101,9 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 	}
 
 	@Override
-	public void setName(String name) {} //NO-OP
+	public boolean setName(String name) {
+		return false; //NO-OP
+	}
 
 	@Override
 	public Text getPrefix() {
@@ -168,12 +165,9 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 				.findFirst();
 	}
 
-	public static class ChannelRootType implements ChannelType<ChannelRoot>, ChannelNBTSerializer<ChannelRoot> {
+	public static class ChannelRootType implements ChannelType<ChannelRoot>, ChannelNBTSerializer<ChannelRoot>, ChannelTypeSerializer<ChannelRoot> {
 
-		private static final String NBT_IS_ROOT = "isRoot";
-		private static final String NBT_PREFIX = "prefix";
-		private static final String NBT_DESCRIPTION = "description";
-		private static final String NBT_CHILDREN = "children";
+		private static final String IS_ROOT = "isRoot";
 
 		public static final ChannelRootType INSTANCE = new ChannelRootType();
 
@@ -190,45 +184,25 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 		}
 
 		@Override
-		public TypeToken<ChannelRoot> getConfigurateSerializer() {
-			return TypeToken.of(ChannelRoot.class);
+		public ChannelTypeSerializer<ChannelRoot> getConfigurateSerializer() {
+			return this;
 		}
 
 		@Override
-		public Optional<ChannelBuilder<ChannelRoot>> deserializeNBT(NBTCompound compound) {
-			Optional<Text> prefix = compound.getJava(NBT_PREFIX)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-					.flatMap(c -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(c)));
-
-			Optional<Text> description = compound.getJava(NBT_DESCRIPTION)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTCompound()))
-					.flatMap(c -> Sponge.getDataManager().deserialize(Text.class, NBTTranslator.translateFrom(c)));
-
-			Optional<Boolean> isRoot = compound.getJava(NBT_IS_ROOT)
+		public Optional<ChannelBuilder<ChannelRoot>> deserializeNbt(NBTCompound compound) {
+			Optional<Text> prefix = SerializationHelper.getPrefixNbt(compound);
+			Optional<Text> description = SerializationHelper.getDescriptionNbt(compound);
+			Optional<List<NBTCompound>> children = SerializationHelper.getChildrenNbt(compound);
+			Optional<Boolean> isRoot = compound.getJava(IS_ROOT)
 					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTByte()))
 					.map(b -> b.value() == 1);
 
-			Optional<List<NBTCompound>> children = compound.getJava(NBT_CHILDREN)
-					.flatMap(t -> OptionConverters.toJava(t.asInstanceOfNBTList()))
-					.filter(l -> l.getListType() == NBTType.TAG_COMPOUND)
-					.map(l -> l.getAllJava().stream()
-							.map(t -> (NBTCompound)t)
-							.collect(Collectors.toList()));
-
 			if(prefix.isPresent() && description.isPresent() && isRoot.isPresent() && isRoot.get() && children.isPresent()) {
-				ChannelBuilder<ChannelRoot> ret = ((name, parent) -> {
-					ChannelRoot channelRoot = ChannelRoot.createNewRoot(name, prefix.get(), description.get());
-
-					children.get().stream()
-							.map(c -> ((NBTStorage)ChitChat.getStorage()).loadChannel(c))
-							.filter(Optional::isPresent)
-							.map(Optional::get)
-							.forEach(b -> channelRoot.addChild(b.getFirst(), b.toString()));
-
+				return Optional.of(((name1, parent) -> {
+					ChannelRoot channelRoot = ChannelRoot.createNewRoot(name1, prefix.get(), description.get());
+					SerializationHelper.addChildrenToChannelNbt(children.get(), channelRoot);
 					return channelRoot;
-				});
-
-				return Optional.of(ret);
+				}));
 			}
 			else {
 				return Optional.empty();
@@ -236,20 +210,39 @@ public class ChannelRoot extends AbstractMutableMessageChannel implements Channe
 		}
 
 		@Override
-		public NBTCompound serializeNBT(ChannelRoot channel, NBTCompound compound) {
-			compound.setTag(NBT_PREFIX, NBTTranslator.translateData(channel.getPrefix().toContainer()));
-			compound.setTag(NBT_DESCRIPTION, NBTTranslator.translateData(channel.getDescription().toContainer()));
-			compound.setBoolean(NBT_IS_ROOT, true);
-
-			NBTList children = new NBTList(NBTType.TAG_COMPOUND);
-
-			channel.getChildren().stream()
-					.map(NBTStorage::saveChannel)
-					.forEach(children::add);
-
-			compound.setTag(NBT_CHILDREN, children);
-
+		public NBTCompound serializeNbt(ChannelRoot channel, NBTCompound compound) {
+			SerializationHelper.setPrefixNbt(compound, channel.getPrefix());
+			SerializationHelper.setDescriptionNbt(compound, channel.getDescription());
+			SerializationHelper.setChildrenNbt(compound, channel.getChildren());
+			compound.setBoolean(IS_ROOT, true);
 			return compound;
+		}
+
+		@Override
+		public Optional<ChannelBuilder<ChannelRoot>> deserializeConfigurate(ConfigurationNode value) {
+			Optional<Text> prefix = SerializationHelper.getPrefixConfigurate(value);
+			Optional<Text> description = SerializationHelper.getDescriptionConfigurate(value);
+			List<? extends ConfigurationNode> children = SerializationHelper.getChildrenConfigurate(value);
+			boolean isRoot = value.getNode(IS_ROOT).getBoolean();
+
+			if(prefix.isPresent() && description.isPresent() && children != null && isRoot) {
+				return Optional.of((((name, parent) -> {
+					ChannelRoot channelRoot = ChannelRoot.createNewRoot(name, prefix.get(), description.get());
+					SerializationHelper.addChildrenToChannelConfigurate(children, channelRoot);
+					return channelRoot;
+				})));
+			}
+
+			return Optional.empty();
+		}
+
+		@Override
+		public ConfigurationNode serializeConfigurate(ChannelRoot channel, ConfigurationNode value) {
+			SerializationHelper.setPrefixConfigurate(value, channel.getPrefix());
+			SerializationHelper.setDescriptionConfigurate(value, channel.getDescription());
+			SerializationHelper.setChildrenConfigurate(value, channel.getChildren());
+			value.getNode(IS_ROOT).setValue(true);
+			return value;
 		}
 	}
 }
