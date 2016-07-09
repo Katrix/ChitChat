@@ -47,6 +47,7 @@ import io.github.katrix.chitchat.chat.data.UserChitChatManipulatorBuilder;
 import io.github.katrix.chitchat.command.CmdAnnounce;
 import io.github.katrix.chitchat.command.CmdChannel;
 import io.github.katrix.chitchat.command.CmdChitChat;
+import io.github.katrix.chitchat.command.CmdForceChat;
 import io.github.katrix.chitchat.command.CmdMe;
 import io.github.katrix.chitchat.command.CmdPM;
 import io.github.katrix.chitchat.command.CmdReply;
@@ -105,6 +106,7 @@ public class ChitChat {
 		registerCommand(CmdMe.INSTANCE);
 		registerCommand(CmdChitChat.INSTANCE);
 		registerCommand(CmdAnnounce.INSTANCE);
+		registerCommand(CmdForceChat.INSTANCE);
 
 		Sponge.getEventManager().registerListeners(this, new ChatListener());
 		ChannelChitChat.ChannelRoot.init();
