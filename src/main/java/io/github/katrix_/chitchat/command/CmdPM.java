@@ -35,6 +35,7 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextElement;
@@ -45,6 +46,7 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.chat.MessageChannelSingle;
 import io.github.katrix_.chitchat.helper.TextHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibCause;
@@ -54,7 +56,7 @@ import io.github.katrix_.chitchat.lib.LibPerm;
 public class CmdPM extends CommandBase {
 
 	public static final CmdPM INSTANCE = new CmdPM();
-	private final Map<CommandSource, CommandSource> conversations = new WeakHashMap<>();
+	private final Map<CommandSource, MessageChannelSingle> conversations = new WeakHashMap<>();
 
 	private CmdPM() {
 		super(null);
@@ -66,8 +68,9 @@ public class CmdPM extends CommandBase {
 		if(optReceiver.isPresent()) {
 			Player receiver = optReceiver.get();
 			String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
-			conversations.put(src, receiver);
-			conversations.put(receiver, src);
+			MessageChannelSingle receiverChannel = new MessageChannelSingle(receiver);
+			conversations.put(src, receiverChannel);
+			conversations.put(receiver, new MessageChannelSingle(src));
 
 			Cause cause = Cause.builder().owner(src).named(LibCause.COMMAND, getCommand()).named(LibCause.PLUGIN, ChitChat.getPluginContainer()).build();
 			Text srcName = Text.of(src.getName());
@@ -82,17 +85,16 @@ public class CmdPM extends CommandBase {
 			Text headerText = formatter.getHeader().format();
 			formatter.setBody(Text.of(TextHelper.getFormatAtEnd(headerText).orElse(TextFormat.NONE), textMessage));
 
-
-			MessageEvent event = SpongeEventFactory.createMessageEvent(cause, formatter, false);
+			MessageChannelEvent event = SpongeEventFactory.createMessageChannelEvent(cause, receiverChannel, Optional.of(receiverChannel), formatter, false);
 			boolean cancelled = Sponge.getEventManager().post(event);
 
 			if(!cancelled) {
 				Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_HEADER, srcName);
-				receiver.sendMessage(event.getMessage());
+				event.getChannel().ifPresent(c -> c.send(event.getMessage()));
 				src.sendMessage(getCfg().getPmSenderTemplate().apply(templateMap).append(event.getFormatter().getBody().format()).build());
 
 				if(getCfg().getChatPling()) {
-					receiver.playSound(SoundTypes.ORB_PICKUP, receiver.getLocation().getPosition(), 0.5D);
+					receiver.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, receiver.getLocation().getPosition(), 0.5D);
 				}
 
 				return CommandResult.success();
@@ -118,7 +120,7 @@ public class CmdPM extends CommandBase {
 		return new String[] {"pm", "msg", "tell", "w"};
 	}
 
-	public Optional<CommandSource> getConversationPartner(CommandSource player) {
+	public Optional<MessageChannelSingle> getConversationPartner(CommandSource player) {
 		return Optional.ofNullable(conversations.get(player));
 	}
 }

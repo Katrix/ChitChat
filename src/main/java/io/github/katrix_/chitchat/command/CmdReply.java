@@ -34,9 +34,11 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextElement;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
@@ -44,6 +46,7 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
+import io.github.katrix_.chitchat.chat.MessageChannelSingle;
 import io.github.katrix_.chitchat.helper.TextHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibCause;
@@ -61,10 +64,10 @@ public class CmdReply extends CommandBase {
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 		String message = args.<String>getOne(LibCommandKey.MESSAGE).orElse("");
-		Optional<CommandSource> receiverOpt = CmdPM.INSTANCE.getConversationPartner(src);
+		Optional<MessageChannelSingle> receiverOpt = CmdPM.INSTANCE.getConversationPartner(src);
 
 		if(receiverOpt.isPresent()) {
-			CommandSource receiver = receiverOpt.get();
+			MessageChannelSingle receiverChannel = receiverOpt.get();
 
 			Cause cause = Cause.builder().owner(src).named(LibCause.COMMAND, getCommand()).named(LibCause.PLUGIN, ChitChat.getPluginContainer()).build();
 			Text srcName = Text.of(src.getName());
@@ -81,23 +84,27 @@ public class CmdReply extends CommandBase {
 			formatter.setBody(Text.of(TextHelper.getFormatAtEnd(headerText).orElse(TextFormat.NONE), textMessage));
 
 
-			MessageEvent event = SpongeEventFactory.createMessageEvent(cause, formatter, false);
+			MessageChannelEvent event = SpongeEventFactory.createMessageChannelEvent(cause, receiverChannel, Optional.of(receiverChannel), formatter, false);
 			boolean cancelled = Sponge.getEventManager().post(event);
 
 			if(!cancelled) {
+				Optional<MessageChannel> newChannel = event.getChannel();
 				Map<String, TextElement> templateMap = ImmutableMap.of(ConfigSettings.TEMPLATE_PLAYER, srcName, ConfigSettings.TEMPLATE_MESSAGE, textMessage);
-				receiver.sendMessage(event.getMessage());
+				newChannel.ifPresent(c -> c.send(event.getMessage()));
 				src.sendMessage(getCfg().getPmSenderTemplate().apply(templateMap).build());
 
-				if(getCfg().getChatPling() && receiver instanceof Player) {
-					Player player = (Player)receiver;
-					player.playSound(SoundTypes.ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+				if(getCfg().getChatPling() && newChannel.isPresent()) {
+					MessageChannel channel = newChannel.get();
+					channel.getMembers().stream().filter(m -> m instanceof Player).forEach(m -> {
+						Player player = (Player)m;
+						player.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, player.getLocation().getPosition(), 0.5D);
+					});
 				}
 
 				return CommandResult.success();
 			}
 			else {
-				src.sendMessage(Text.of(TextColors.RED, "Your message did not reach " + receiver.getName()));
+				src.sendMessage(Text.of(TextColors.RED, "Your message did not reach thr target"));
 				return CommandResult.empty();
 			}
 		}

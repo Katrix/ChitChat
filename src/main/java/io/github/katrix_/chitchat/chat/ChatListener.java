@@ -31,13 +31,9 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextElement;
-import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.TranslatableText;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.type.CombinedMessageChannel;
 import org.spongepowered.api.text.format.TextFormat;
@@ -48,7 +44,6 @@ import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.katrix_.chitchat.ChitChat;
-import io.github.katrix_.chitchat.helper.LogHelper;
 import io.github.katrix_.chitchat.helper.TextHelper;
 import io.github.katrix_.chitchat.io.ConfigSettings;
 import io.github.katrix_.chitchat.lib.LibPerm;
@@ -68,21 +63,16 @@ public class ChatListener {
 			TextElement name = getNameChat(formatter.getHeader().getAll(), "header").orElse(Text.of(player.getName()));
 
 
-			Subject subject = player.getContainingCollection().get(player.getIdentifier());
-			if(subject instanceof OptionSubject) {
-				OptionSubject optionSubject = (OptionSubject)subject;
-				Optional<String> option;
+			Optional<String> option;
+			option = player.getContainingCollection().get(player.getIdentifier()).getOption("prefix");
+			prefix = option.isPresent() ? serializer.deserialize(option.get()) : prefix;
 
-				option = optionSubject.getOption("prefix");
-				prefix = option.isPresent() ? serializer.deserialize(option.get()) : prefix;
+			option = player.getContainingCollection().get(player.getIdentifier()).getOption("suffix");
+			suffix = option.isPresent() ? serializer.deserialize(option.get()) : suffix;
 
-				option = optionSubject.getOption("suffix");
-				suffix = option.isPresent() ? serializer.deserialize(option.get()) : suffix;
-
-				option = optionSubject.getOption("nameColor");
-				Optional<TextFormat> textFormat = option.flatMap(s -> TextHelper.getFormatAtEnd(serializer.deserialize(s)));
-				name = textFormat.isPresent() ? Text.of(textFormat.get(), name) : name;
-			}
+			option = player.getContainingCollection().get(player.getIdentifier()).getOption("nameColor");
+			Optional<TextFormat> textFormat = option.flatMap(s -> TextHelper.getFormatAtEnd(serializer.deserialize(s)));
+			name = textFormat.isPresent() ? Text.of(textFormat.get(), name) : name;
 
 			for(SimpleTextTemplateApplier applier : formatter.getHeader()) {
 				if(applier.getParameters().containsKey("header")) {
@@ -117,7 +107,7 @@ public class ChatListener {
 				for(Map.Entry<Player, UserChitChat> entry : playerMap.entrySet()) {
 					Player player1 = entry.getKey();
 					if(entry.getValue().getChannel().equals(playerChannel) && message.contains(player1.getName())) {
-						player1.playSound(SoundTypes.ORB_PICKUP, player1.getLocation().getPosition(), 0.5D);
+						player1.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, player1.getLocation().getPosition(), 0.5D);
 					}
 				}
 			}
