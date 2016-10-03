@@ -23,5 +23,9 @@ build
 #runtime
 run
 
+#sbt
+target
+project/target
+
 #mac
 .DS_Store
