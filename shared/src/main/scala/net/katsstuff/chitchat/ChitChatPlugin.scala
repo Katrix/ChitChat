@@ -8,13 +8,13 @@ import net.katsstuff.chitchat.persistant.ChitChatConfig
 
 trait ChitChatPlugin extends KatPlugin {
 
-	def config: ChitChatConfig
+  def config: ChitChatConfig
 
-	def versionHelper: VersionHelper
+  def versionHelper: VersionHelper
 
-	trait VersionHelper {
+  trait VersionHelper {
 
-		def getSubjectOption(subject: Subject, option: String): Option[String]
-		def experiencePling: SoundType
-	}
+    def getSubjectOption(subject: Subject, option: String): Option[String]
+    def experiencePling: SoundType
+  }
 }
