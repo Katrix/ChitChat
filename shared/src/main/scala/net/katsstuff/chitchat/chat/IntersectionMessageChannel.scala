@@ -1,0 +1,23 @@
+package net.katsstuff.chitchat.chat
+
+import java.util
+import java.util.Optional
+
+import scala.collection.JavaConverters._
+
+import org.spongepowered.api.text.Text
+import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
+import org.spongepowered.api.text.chat.ChatType
+
+class IntersectionMessageChannel(val channels: Set[MessageChannel]) extends MessageChannel {
+
+  override def transformMessage(sender: scala.Any, recipient: MessageReceiver, original: Text, `type`: ChatType): Optional[Text] =
+    Optional.ofNullable(channels.foldLeft(original)((acc, channel) => channel.transformMessage(sender, recipient, acc, `type`).orElse(acc)))
+
+  override def getMembers: util.Collection[MessageReceiver] =
+    channels
+      .map(_.getMembers.asScala.toSet)
+      .reduceLeftOption((acc, members) => acc.intersect(members))
+      .getOrElse(Set())
+      .asJava
+}

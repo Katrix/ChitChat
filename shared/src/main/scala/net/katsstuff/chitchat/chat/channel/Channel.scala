@@ -1,55 +1,57 @@
 package net.katsstuff.chitchat.chat.channel
 
+import scala.collection.mutable
 import scala.ref.WeakReference
+import scala.reflect.ClassTag
+import scala.util.Try
 
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
 
-import net.katsstuff.chitchat.chat.channel.Channel.PositionedChannel
+import io.github.katrix.katlib.serializer.ConfigSerializerBase.{ConfigNode, ConfigSerializer}
+import net.katsstuff.chitchat.chat.RenamePermission
 
 trait Channel {
   type Self <: Channel
 
   def messageChannel: MessageChannel
 
-  def localName: String
-  def localName_=(newName: String): Self
+  def name: String
+  def rename(newName: String)(implicit permission: RenamePermission): Self
   def prefix: Text
   def prefix_=(newPrefix: Text): Self
   def description: Text
   def description_=(newDescription: Text): Self
 
-  def name: Seq[String] = parent.map(_.name).getOrElse(Seq()) :+ localName
   def members: Set[WeakReference[MessageReceiver]]
   def members_=(newMembers: Set[WeakReference[MessageReceiver]]): Self
 
-  def membersNested: Set[WeakReference[MessageReceiver]] = children.flatMap(_._1.membersNested).toSet ++ members
-
-  def children: Seq[PositionedChannel]
-  def children_=(newChildren: Seq[PositionedChannel]): Self
-  def parent: Option[Channel]
-
-  private lazy val childrenMap = children.map(t => (t._1.localName, t._1)).toMap
-
-  def findChild(localName:  String): Option[Channel] = childrenMap.get(localName)
-  def findChannel(thatName: Seq[String]): Option[Channel] = {
-    val thisName = name
-
-    if (thisName.length > thatName.length) None
-    else if (thisName.length == thatName.length) {
-      if (thisName == thatName) Some(this)
-      else None
-    } else {
-      val isSubSeq = thatName.startsWith(thisName)
-      if (!isSubSeq) None
-      else {
-        val rest = thatName.slice(0, thatName.lastIndexOfSlice(thisName) + 1)
-        val head = rest.head //Safe as we know that thatName is bigger than thisName
-        findChild(head).flatMap(_.findChannel(thatName))
-      }
-    }
-  }
+  def addMember(receiver:    MessageReceiver): Self = this.members = members + WeakReference(receiver)
+  def removeMember(receiver: MessageReceiver): Self = this.members = members.filter(!_.get.contains(receiver))
 }
+
 object Channel {
-  type PositionedChannel = (Channel, Int)
+
+  //Yuck!
+  //We need to allow custom channel types that are provided at runtime. As such we can't use implicits to resolve the serializers.
+
+  private val channelTypes   = new mutable.HashMap[String, ConfigSerializer[_ <: Channel]]
+  private val channelClasses = new mutable.HashMap[Class[_ <: Channel], ConfigSerializer[_ <: Channel]]
+
+  def registerChannelType[A <: Channel: ClassTag: ConfigSerializer](name: String): Unit = {
+    val serializer = implicitly[ConfigSerializer[A]]
+
+    channelTypes.put(name, serializer)
+    channelClasses.put(implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]], serializer)
+  }
+
+  implicit object ChannelSerializer extends ConfigSerializer[Channel] {
+    override def write(obj: Channel, node: ConfigNode): ConfigNode = {
+      //Super hacky
+      channelClasses(obj.getClass).asInstanceOf[ConfigSerializer[obj.Self]].write(obj.asInstanceOf[obj.Self], node)
+    }
+
+    override def read(node: ConfigNode): Try[Channel] =
+      node.getNode("type").read[String].flatMap(tpe => channelTypes(tpe).read(node))
+  }
 }

@@ -1,5 +1,7 @@
 package net.katsstuff.chitchat
 
+import org.spongepowered.api.data.key.Key
+import org.spongepowered.api.data.value.mutable.Value
 import org.spongepowered.api.effect.sound.SoundType
 import org.spongepowered.api.service.permission.Subject
 
@@ -16,5 +18,7 @@ trait ChitChatPlugin extends KatPlugin {
 
     def getSubjectOption(subject: Subject, option: String): Option[String]
     def experiencePling: SoundType
+
+    def ChannelKey: Key[Value[String]]
   }
 }
