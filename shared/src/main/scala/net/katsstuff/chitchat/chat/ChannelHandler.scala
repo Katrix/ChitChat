@@ -2,55 +2,99 @@ package net.katsstuff.chitchat.chat
 
 import scala.collection.mutable
 
-import org.spongepowered.api.entity.living.player.Player
-
-import net.katsstuff.chitchat.ChitChatPlugin
-import net.katsstuff.chitchat.chat.channel.{Channel, SimpleChannel}
+import org.spongepowered.api.entity.living.player.{Player, User}
+import org.spongepowered.api.text.Text
 
 import io.github.katrix.katlib.helper.Implicits._
+import net.katsstuff.chitchat.ChitChatPlugin
+import net.katsstuff.chitchat.chat.channel.{Channel, ChannelRegistry, SimpleChannel}
+import net.katsstuff.chitchat.persistant.StorageLoader
 
-class ChannelHandler(implicit plugin: ChitChatPlugin) {
+class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
 
-  protected object RenamePermission extends RenamePermission
+  private implicit object HandlerOnly extends HandlerOnly
 
-  private val channels = new mutable.HashMap[String, Channel]
-  addChannel(SimpleChannel("global", t"G", t"The global channel", Set()))
+  private var channels: mutable.HashMap[String, Channel] = _
+  val registry = new ChannelRegistry
+  reloadChannels()
 
-  def globalChannel: Channel = channels("global")
+  def reloadChannels(): Unit = {
+    val map = new mutable.HashMap[String, Channel]
+    map ++= storage.loadData
 
+    if (!map.contains("global")) {
+      map.put("global", SimpleChannel("global", t"G", t"The global channel", Set()))
+    }
+
+    channels = map
+  }
+
+  def saveChannels(): Unit = storage.saveData(channels.toMap)
+
+  def globalChannel: Channel              = channels("global")
+  def allChannels:   Map[String, Channel] = channels.toMap
   def getChannel(name: String): Option[Channel] = channels.get(name)
 
-  def addChannel(channel: Channel): Either[String, Unit] =
-    if (channels.contains(channel.name)) {
-      Left("A channel by that name already exists")
+  def addChannel(channel: Channel): Boolean =
+    if (channels.contains(channel.name) && channel.name != "global") {
+      false
     } else {
       channels.put(channel.name, channel)
-      Right(Unit)
+      saveChannels()
+      true
     }
 
-  def removeChannel(channel: Channel): Unit =
-    channels.remove(channel.name)
-
-  def renameChannel(channel: Channel, newName: String)(implicit permission: RenamePermission): Unit =
+  def removeChannel(channel: Channel): Boolean =
     if (channel.name != "global") {
       channels.remove(channel.name)
-      channels.put(newName, channel.rename(newName))
-    }
+      saveChannels()
+      true
+    } else false
 
-  def setPlayerChannel(player: Player, channel: Channel): Unit = {
-    val old    = getChannelForPlayer(player)
-    val result = player.offer(plugin.versionHelper.ChannelKey, channel.name)
+  def renameChannel(channel: Channel, newName: String): Boolean =
+    if (channel.name != "global") {
+      channels.remove(channel.name)
+      channels.put(newName, channel.name = newName)
+      saveChannels()
+      true
+    } else false
 
-    if (result.isSuccessful) {
-      val newOld     = old.removeMember(player)
-      val newChannel = channel.addMember(player)
+  def setChannelPrefix(channel:      Channel, newPrefix:      Text): Unit = {
+    channels.put(channel.name, channel.prefix = newPrefix)
+    saveChannels()
+  }
 
-      channels.put(newOld.name, newOld)
-      channels.put(newChannel.name, channel)
+  def setChannelDescription(channel: Channel, newDescription: Text): Unit = {
+    channels.put(channel.name, channel.description = newDescription)
+    saveChannels()
+  }
+
+  def setExtraData(channel: Channel, extra: String): Option[Text] = {
+    val handled = channel.handleExtraData(extra)
+
+    handled.fold(Some(_), newChannel => {
+      channels.put(newChannel.name, newChannel)
+      saveChannels()
+      None
+    })
+  }
+
+  def setPlayerChannel(user: User, channel: Channel): Unit = {
+    val old    = getChannelForPlayer(user)
+    val result = user.offer(plugin.versionHelper.ChannelKey, channel.name)
+
+    user match {
+      case player: Player if result.isSuccessful =>
+        val newOld     = old.removeMember(player)
+        val newChannel = channel.addMember(player)
+
+        channels.put(newOld.name, newOld)
+        channels.put(newChannel.name, channel)
+      case _ =>
     }
   }
 
-  def getChannelForPlayer(player: Player): Channel = channels.getOrElse(player.getOrElse(plugin.versionHelper.ChannelKey, "global"), globalChannel)
+  def getChannelForPlayer(user: User): Channel = channels.getOrElse(user.getOrElse(plugin.versionHelper.ChannelKey, "global"), globalChannel)
 }
 
-sealed trait RenamePermission
+sealed trait HandlerOnly

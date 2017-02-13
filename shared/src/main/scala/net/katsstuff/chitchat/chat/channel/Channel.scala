@@ -9,7 +9,9 @@ import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
 
 import io.github.katrix.katlib.serializer.ConfigSerializerBase.{ConfigNode, ConfigSerializer}
-import net.katsstuff.chitchat.chat.RenamePermission
+import net.katsstuff.chitchat.chat.HandlerOnly
+
+case class ExtraData(displayName: String, data: Any)
 
 trait Channel {
   type Self <: Channel
@@ -17,17 +19,21 @@ trait Channel {
   def messageChannel: MessageChannel
 
   def name: String
-  def rename(newName: String)(implicit permission: RenamePermission): Self
+  def name_=(newName: String)(implicit perm: HandlerOnly): Self
   def prefix: Text
-  def prefix_=(newPrefix: Text): Self
+  def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly): Self
   def description: Text
-  def description_=(newDescription: Text): Self
+  def description_=(newDescription: Text)(implicit perm: HandlerOnly): Self
 
   def members: Set[WeakReference[MessageReceiver]]
-  def members_=(newMembers: Set[WeakReference[MessageReceiver]]): Self
+  def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self
 
-  def addMember(receiver:    MessageReceiver): Self = this.members = members + WeakReference(receiver)
-  def removeMember(receiver: MessageReceiver): Self = this.members = members.filter(!_.get.contains(receiver))
+  def addMember(receiver:    MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members + WeakReference(receiver)
+  def removeMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members.filter(!_.get.contains(receiver))
+
+  def typeName: String
+  def extraData: Map[String, ExtraData] = Map()
+  def handleExtraData(data: String): Either[Text, Self]
 }
 
 object Channel {
@@ -46,10 +52,9 @@ object Channel {
   }
 
   implicit object ChannelSerializer extends ConfigSerializer[Channel] {
-    override def write(obj: Channel, node: ConfigNode): ConfigNode = {
+    override def write(obj: Channel, node: ConfigNode): ConfigNode =
       //Super hacky
       channelClasses(obj.getClass).asInstanceOf[ConfigSerializer[obj.Self]].write(obj.asInstanceOf[obj.Self], node)
-    }
 
     override def read(node: ConfigNode): Try[Channel] =
       node.getNode("type").read[String].flatMap(tpe => channelTypes(tpe).read(node))

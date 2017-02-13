@@ -1,5 +1,5 @@
 def removeSnapshot(str:     String): String = if (str.endsWith("-SNAPSHOT")) str.substring(0, str.length - 9) else str
-def katLibDependecy(module: String) = "com.github.Katrix-.KatLib" % s"katlib-$module" % "2.0.1" % Provided
+def katLibDependecy(module: String) = "com.github.Katrix-.KatLib" % s"katlib-$module" % "develop-SNAPSHOT" % Provided
 
 lazy val publishResolver = {
   val artifactPattern = s"""${file("publish").absolutePath}/[revision]/[artifact]-[revision](-[classifier]).[ext]"""

@@ -1,17 +1,17 @@
 package net.katsstuff.chitchat.persistant
 
 import java.nio.file.Path
+import java.util.{Map => JMap}
+
+import scala.collection.JavaConverters._
 
 import io.github.katrix.katlib.KatPlugin
+import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.helper.LogHelper
 import io.github.katrix.katlib.persistant.ConfigurateBase
 import net.katsstuff.chitchat.chat.channel.Channel
 import ninja.leaping.configurate.ConfigurationNode
 import ninja.leaping.configurate.gson.GsonConfigurationLoader
-import io.github.katrix.katlib.helper.Implicits._
-import java.util.{Map => JMap}
-
-import scala.collection.JavaConverters._
 
 class StorageLoader(dir: Path)(implicit plugin: KatPlugin)
     extends ConfigurateBase[Map[String, Channel], ConfigurationNode, GsonConfigurationLoader](

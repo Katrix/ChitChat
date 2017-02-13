@@ -44,7 +44,6 @@ import com.google.common.collect.ImmutableMap;
 import net.katsstuff.old.chitchat.ChitChat;
 import net.katsstuff.old.chitchat.io.ConfigSettings;
 import net.katsstuff.old.chitchat.lib.LibKeys;
-import net.katsstuff.old.chitchat.helper.LogHelper;
 
 @SuppressWarnings("unused")
 @NonnullByDefault

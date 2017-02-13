@@ -3,13 +3,12 @@ package net.katsstuff.chitchat.persistant
 import java.nio.file.Path
 
 import org.spongepowered.api.text.Text
-
-import io.github.katrix.katlib.KatPlugin
-import io.github.katrix.katlib.persistant.{ConfigLoader, ConfigValue}
-import io.github.katrix.katlib.helper.Implicits._
 import org.spongepowered.api.text.format.TextColors._
 
+import io.github.katrix.katlib.KatPlugin
+import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.helper.LogHelper
+import io.github.katrix.katlib.persistant.{ConfigLoader, ConfigValue}
 
 class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends ConfigLoader[ChitChatConfig](dir, identity) {
   override def loadData: ChitChatConfig = {

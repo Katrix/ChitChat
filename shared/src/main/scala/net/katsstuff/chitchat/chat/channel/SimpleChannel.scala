@@ -7,23 +7,31 @@ import scala.util.Try
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
 
+import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.serializer.ConfigSerializerBase.{ConfigNode, ConfigSerializer}
-import net.katsstuff.chitchat.chat.RenamePermission
+import io.github.katrix.katlib.serializer.TypeSerializerImpl
+import net.katsstuff.chitchat.chat.HandlerOnly
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 
 case class SimpleChannel(name: String, prefix: Text, description: Text, members: Set[WeakReference[MessageReceiver]]) extends Channel {
   type Self = SimpleChannel
 
   lazy val messageChannel: MessageChannel = MessageChannel.fixed(members.flatMap(_.get).asJava)
 
-  override def rename(newName:               String)(permission: RenamePermission): Self = copy(name = newName)
-  override def prefix_=(newPrefix:           Text): Self = copy(prefix = newPrefix)
-  override def description_=(newDescription: Text): Self = copy(description = newDescription)
-  override def members_=(newMembers:         Set[WeakReference[MessageReceiver]]): Self = copy(members = newMembers)
+  override def name_=(newName:               String)(implicit perm: HandlerOnly): Self = copy(name = newName)
+  override def prefix_=(newPrefix:           Text)(implicit perm: HandlerOnly): Self = copy(prefix = newPrefix)
+  override def description_=(newDescription: Text)(implicit perm: HandlerOnly): Self = copy(description = newDescription)
+  override def members_=(newMembers:         Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self = copy(members = newMembers)
+  override def handleExtraData(data:         String): Either[Text, Self] = Left(t"This channel does not support extra data")
+  override def typeName: String = "Simple"
 }
 
 object SimpleChannel {
 
   //We want to ignore the members field
+
+  implicit private val uuidSerializer =
+    TypeSerializerImpl.fromTypeSerializer(TypeSerializers.getDefaultSerializers.get(typeToken[Text]), classOf[Text])
 
   implicit object SimpleChannelSerializer extends ConfigSerializer[SimpleChannel] {
     override def write(obj: SimpleChannel, node: ConfigNode): ConfigNode =
