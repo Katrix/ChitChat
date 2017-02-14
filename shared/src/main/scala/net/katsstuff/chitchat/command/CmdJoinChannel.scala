@@ -15,13 +15,12 @@ class CmdJoinChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
-      user    <- userTypeable.cast(src).toRight(nonUserError)
       channel <- args.one(LibCommandKey.Channel).toRight(channelNotFound)
-    } yield (user, channel)
+    } yield channel
 
     data match {
-      case Right((user, channel)) =>
-        handler.setPlayerChannel(user, channel)
+      case Right(channel) =>
+        handler.setReceiverChannel(src, channel)
         src.sendMessage(t"""${GREEN}Joined "${channel.name}"""")
         CommandResult.success()
       case Left(e) => throw e

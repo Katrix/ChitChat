@@ -2,8 +2,9 @@ package net.katsstuff.chitchat.chat
 
 import scala.collection.mutable
 
-import org.spongepowered.api.entity.living.player.{Player, User}
+import org.spongepowered.api.data.DataHolder
 import org.spongepowered.api.text.Text
+import org.spongepowered.api.text.channel.MessageReceiver
 
 import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.ChitChatPlugin
@@ -59,7 +60,7 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
       true
     } else false
 
-  def setChannelPrefix(channel:      Channel, newPrefix:      Text): Unit = {
+  def setChannelPrefix(channel: Channel, newPrefix: Text): Unit = {
     channels.put(channel.name, channel.prefix = newPrefix)
     saveChannels()
   }
@@ -79,22 +80,40 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     })
   }
 
-  def setPlayerChannel(user: User, channel: Channel): Unit = {
-    val old    = getChannelForPlayer(user)
-    val result = user.offer(plugin.versionHelper.ChannelKey, channel.name)
+  def setReceiverChannel(receiver: MessageReceiver, channel: Channel): Unit = {
+    val channel = getChannelForReceiver(receiver)
 
-    user match {
-      case player: Player if result.isSuccessful =>
-        val newOld     = old.removeMember(player)
-        val newChannel = channel.addMember(player)
+    receiver match {
+      case holder: DataHolder =>
+        val result = holder.offer(plugin.versionHelper.ChannelKey, channel.name)
+
+        if (result.isSuccessful) {
+          val newOld     = channel.removeMember(receiver)
+          val newChannel = channel.addMember(receiver)
+
+          channels.put(newOld.name, newOld)
+          channels.put(newChannel.name, channel)
+        }
+
+      case _ =>
+        val newOld     = channel.removeMember(receiver)
+        val newChannel = channel.addMember(receiver)
 
         channels.put(newOld.name, newOld)
         channels.put(newChannel.name, channel)
-      case _ =>
     }
   }
 
-  def getChannelForPlayer(user: User): Channel = channels.getOrElse(user.getOrElse(plugin.versionHelper.ChannelKey, "global"), globalChannel)
+  def getChannelForReceiver(receiver: MessageReceiver): Channel =
+    receiver match {
+      case holder: DataHolder => channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, "global"), globalChannel)
+      case _ =>
+        channels
+          .collectFirst {
+            case (_, c) if c.members.exists(_.get.contains(receiver)) => c
+          }
+          .getOrElse(globalChannel)
+    }
 }
 
 sealed trait HandlerOnly

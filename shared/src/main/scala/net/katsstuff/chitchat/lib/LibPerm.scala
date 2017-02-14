@@ -10,6 +10,7 @@ object LibPerm {
   final val UserCmd = s"$ChitChat.userCmd"
   final val JoinChannel = s"$UserCmd.joinChannel"
   final val ListChannels = s"$UserCmd.listChannels"
+  final val InChannel = s"$UserCmd.inChannel"
 
   final val AdminCmd = s"$ChitChat.adminCmd"
   final val AdminInterfaceCmd = s"$AdminCmd.interface"

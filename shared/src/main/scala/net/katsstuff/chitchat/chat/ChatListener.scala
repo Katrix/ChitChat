@@ -77,7 +77,7 @@ class ChatListener(handler: ChannelHandler)(implicit plugin: ChitChatPlugin) {
         }
 
         event.getChannel.toOption.foreach { existing =>
-          val playerChannel = handler.getChannelForPlayer(player)
+          val playerChannel = handler.getChannelForReceiver(player)
           event.setChannel(new IntersectionMessageChannel(Set(existing, playerChannel.messageChannel)))
 
           if (cfg.mentionPling.value) {
