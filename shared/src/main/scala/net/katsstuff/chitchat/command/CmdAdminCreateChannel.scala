@@ -19,13 +19,12 @@ class CmdAdminCreateChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
     val serializer = TextSerializers.FORMATTING_CODE
 
     val data = for {
-      name        <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterError)
-      prefix      <- args.one(LibCommandKey.ChannelPrefix).toRight(invalidParameterError)
-      description <- args.one(LibCommandKey.ChannelDescription).toRight(invalidParameterError)
+      name <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterError)
+      _ <- if(src.hasPermission(s"${LibPerm.CreateChannelCmd}.$name")) Right(()) else Left(missingPermissionChannel)
     } yield
       (name,
-       serializer.deserialize(prefix),
-       serializer.deserialize(description),
+       serializer.deserialize(args.one(LibCommandKey.ChannelPrefix).getOrElse("")),
+       serializer.deserialize(args.one(LibCommandKey.ChannelDescription).getOrElse("")),
        args.one(LibCommandKey.ChannelType),
        args.one(LibCommandKey.ChannelExtra))
 
@@ -37,7 +36,7 @@ class CmdAdminCreateChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
           .createChannel(channelType, name, prefix, description, extra.getOrElse(""))
           .fold(e => throw new CommandException(e), identity)
       case Left(e) => throw e
-      case _ => throw invalidParameterError
+      case _       => throw invalidParameterError
     }
 
     if (handler.addChannel(channel)) {
@@ -51,8 +50,8 @@ class CmdAdminCreateChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
       .builder()
       .arguments(
         GenericArguments.string(LibCommandKey.ChannelName),
-        GenericArguments.string(LibCommandKey.ChannelPrefix),
-        GenericArguments.string(LibCommandKey.ChannelDescription),
+        GenericArguments.optional(GenericArguments.string(LibCommandKey.ChannelPrefix)),
+        GenericArguments.optional(GenericArguments.string(LibCommandKey.ChannelDescription)),
         GenericArguments.optional(GenericArguments.string(LibCommandKey.ChannelType)),
         GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.ChannelExtra))
       )

@@ -18,4 +18,5 @@ package object command {
 
   def nonUserError: CommandException = new CommandException(t"${RED}You need to be a user to be able to use this command")
   def channelNotFound: CommandException = new CommandException(t"${RED}No channel with that name found")
+  def missingPermissionChannel: CommandException = new CommandException(t"${RED}You don't have the permission to do that with this channel")
 }

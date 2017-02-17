@@ -16,6 +16,7 @@ class CmdJoinChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
       channel <- args.one(LibCommandKey.Channel).toRight(channelNotFound)
+      _ <- if(src.hasPermission(s"${LibPerm.JoinChannelCmd}.${channel.name}")) Right(()) else Left(missingPermissionChannel)
     } yield channel
 
     data match {
@@ -32,7 +33,7 @@ class CmdJoinChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
       .builder()
       .arguments(new ChannelCommandArgument(LibCommandKey.Channel))
       .description(t"Join a specific channel")
-      .permission(LibPerm.JoinChannel)
+      .permission(LibPerm.JoinChannelCmd)
       .executor(this)
       .build()
 

@@ -17,7 +17,7 @@ import net.katsstuff.chitchat.lib.LibPerm
 class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(None) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
-    val channels = handler.allChannels.map {
+    val channels = handler.allChannels.filter{ case (k, _) => src.hasPermission(s"${LibPerm.JoinChannelCmd}.$k")}.map {
       case (channelName, channel) =>
         val join = button(t"${YELLOW}Join")(s"/joinChannel $channelName")
 
@@ -39,7 +39,7 @@ class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
     CommandSpec
       .builder()
       .description(t"Lists all the chat channels")
-      .permission(LibPerm.ListChannels)
+      .permission(LibPerm.ListChannelsCmd)
       .executor(this)
       .build()
 

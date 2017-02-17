@@ -13,6 +13,12 @@ trait ChitChatConfig extends Config {
 
   final val TemplateHeader = MessageEvent.PARAM_MESSAGE_HEADER
 
+  final val PlayerName = s"${LibPlugin.Id}.playerName"
+  final val Message    = s"${LibPlugin.Id}.message"
+
+  final val Sender   = s"${LibPlugin.Id}.sender"
+  final val Receiver = s"${LibPlugin.Id}.receiver"
+
   def version: CommentedConfigValue[String]
 
   def mentionPling: CommentedConfigValue[Boolean]
@@ -26,6 +32,11 @@ trait ChitChatConfig extends Config {
   def joinTemplate:       CommentedConfigValue[TextTemplate]
   def disconnectTemplate: CommentedConfigValue[TextTemplate]
 
+  def announceTemplate:  CommentedConfigValue[TextTemplate]
+  def meTemplate:        CommentedConfigValue[TextTemplate]
+  def pmTemplate:    CommentedConfigValue[TextTemplate]
+  def shoutTemplate:     CommentedConfigValue[TextTemplate]
+
   override def seq: Seq[CommentedConfigValue[_]] = Seq(
     version,
 
@@ -38,6 +49,11 @@ trait ChitChatConfig extends Config {
     suffixTemplate,
 
     joinTemplate,
-    disconnectTemplate
+    disconnectTemplate,
+
+    announceTemplate,
+    meTemplate,
+    pmTemplate,
+    shoutTemplate
   )
 }

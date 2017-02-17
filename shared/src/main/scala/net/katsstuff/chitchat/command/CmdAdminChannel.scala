@@ -17,7 +17,7 @@ import net.katsstuff.chitchat.lib.LibPerm
 class CmdAdminChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(None) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
-    val channels = handler.allChannels.map {
+    val channels = handler.allChannels.filter{ case (k, _) => src.hasPermission(s"${LibPerm.AdminInterfaceCmd}.$k") }.map {
       case (channelName, channel) =>
         val setName        = button(t"${YELLOW}Set name")(s"/channelAdmin change $channelName --name <newName>")
         val setPrefix      = button(t"${YELLOW}Set prefix")(s"/channelAdmin change $channelName --prefix <newprefix>")

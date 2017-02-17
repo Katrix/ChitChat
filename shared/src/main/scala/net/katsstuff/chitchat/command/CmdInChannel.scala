@@ -30,7 +30,7 @@ class CmdInChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends 
       .builder()
       .arguments(GenericArguments.optional(new ChannelCommandArgument(LibCommandKey.Channel)))
       .description(t"List the people in a channel")
-      .permission(LibPerm.InChannel)
+      .permission(LibPerm.InChannelCmd)
       .executor(this)
       .build()
 
