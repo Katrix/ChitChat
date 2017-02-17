@@ -16,11 +16,12 @@ object LibPerm {
   final val PMCmd    = s"$UserCmd.pmCmd"
   final val ShoutCmd = s"$UserCmd.shoutCmd"
 
-  final val AdminCmd          = s"$ChitChat.adminCmd"
-  final val AdminInterfaceCmd = s"$AdminCmd.interface"
-  final val CreateChannelCmd  = s"$AdminCmd.createChannel"
-  final val ChangeChannelCmd  = s"$AdminCmd.editChannel"
-  final val DeleteChannelCmd  = s"$AdminCmd.deleteChannel"
-  final val AnnounceCmd       = s"$AdminCmd.announceCmd"
+  final val AdminCmd           = s"$ChitChat.adminCmd"
+  final val AdminInterfaceCmd  = s"$AdminCmd.interface"
+  final val CreateChannelCmd   = s"$AdminCmd.createChannel"
+  final val ChangeChannelCmd   = s"$AdminCmd.editChannel"
+  final val DeleteChannelCmd   = s"$AdminCmd.deleteChannel"
+  final val AnnounceCmd        = s"$AdminCmd.announceCmd"
+  final val AnnounceConsoleCmd = s"$AnnounceCmd.console"
 
 }
