@@ -23,14 +23,14 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends CommandBas
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
-      message <- args.one(LibCommandKey.Message).toRight(invalidParameterError)
-      channel <- pmCmd.conversations.get(src).toRight(new CommandException(t"${RED}No one to reply to"))
+      message  <- args.one(LibCommandKey.Message).toRight(invalidParameterError)
+      channel  <- pmCmd.conversations.get(src).toRight(new CommandException(t"${RED}No one to reply to"))
       receiver <- channel.receiver.get.toRight(new CommandException(t"${RED}That player is no longer online"))
     } yield (receiver, message, channel)
 
     data match {
       case Right((receiver, message, channel)) =>
-        val cause = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
+        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.pmTemplate.value)
         headerApplier.setParameter(plugin.config.Sender, src.getName.text)
         headerApplier.setParameter(plugin.config.Receiver, receiver.getName.text)
@@ -39,14 +39,13 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends CommandBas
         val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
         formatter.getHeader.add(headerApplier)
 
-        val event = SpongeEventFactory.createMessageChannelEvent(cause, channel, Optional.of(channel), formatter, false)
+        val event     = SpongeEventFactory.createMessageChannelEvent(cause, channel, Optional.of(channel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
 
-        if(!cancelled) {
+        if (!cancelled) {
           event.getChannel.toOption.foreach(_.send(src, event.getMessage))
           CommandResult.success()
-        }
-        else {
+        } else {
           src.sendMessage(t"${RED}Failed to send message. Maybe some other plugin blocked it")
           CommandResult.empty()
         }

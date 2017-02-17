@@ -29,7 +29,7 @@ class StorageLoader(dir: Path)(implicit plugin: KatPlugin)
         Option(node.getValue(mapTypeToken)).fold {
           LogHelper.error("Could not load channels from storage.")
           Map[String, Channel]()
-        } (map => Map(map.asScala.toSeq: _*))
+        }(map => Map(map.asScala.toSeq: _*))
 
       case unknown =>
         LogHelper.error(s"Unknown version for config $unknown. Using default")

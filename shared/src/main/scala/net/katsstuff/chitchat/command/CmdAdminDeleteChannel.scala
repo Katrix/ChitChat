@@ -16,19 +16,18 @@ class CmdAdminDeleteChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
       channel <- args.one(LibCommandKey.Channel).toRight(invalidParameterError)
-      _ <- if(src.hasPermission(s"${LibPerm.DeleteChannelCmd}.${channel.name}")) Right(()) else Left(missingPermissionChannel)
+      _       <- if (src.hasPermission(s"${LibPerm.DeleteChannelCmd}.${channel.name}")) Right(()) else Left(missingPermissionChannel)
     } yield channel
 
     data match {
       case Right(channel) =>
-        if(handler.removeChannel(channel)) {
+        if (handler.removeChannel(channel)) {
           src.sendMessage(t"${GREEN}Deleted ${channel.name}")
           CommandResult.success()
-        }
-        else {
+        } else {
           throw new CommandException(t"${RED}Can't delete global channel")
         }
-      case Left(e)        => throw e
+      case Left(e) => throw e
     }
 
   }

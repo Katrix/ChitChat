@@ -17,7 +17,7 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val channel = args.one(LibCommandKey.Channel).getOrElse(throw channelNotFound)
-    if(!src.hasPermission(s"${LibPerm.ChangeChannelCmd}.${channel.name}")) throw missingPermissionChannel
+    if (!src.hasPermission(s"${LibPerm.ChangeChannelCmd}.${channel.name}")) throw missingPermissionChannel
 
     val serializer = TextSerializers.FORMATTING_CODE
 

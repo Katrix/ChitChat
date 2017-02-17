@@ -3,12 +3,14 @@ package net.katsstuff.chitchat.command
 import java.util
 import java.util.Optional
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.ref.WeakReference
 
 import org.spongepowered.api.Sponge
-import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
+import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
 import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
@@ -18,13 +20,11 @@ import org.spongepowered.api.text.format.TextFormat
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier
 
 import io.github.katrix.katlib.command.CommandBase
-import io.github.katrix.katlib.lib.LibCommonTCommandKey
-import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 import io.github.katrix.katlib.helper.Implicits._
+import io.github.katrix.katlib.lib.LibCommonTCommandKey
 import net.katsstuff.chitchat.ChitChatPlugin
 import net.katsstuff.chitchat.helper.TextHelper
-import scala.collection.JavaConverters._
-import scala.ref.WeakReference
+import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
 class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
 

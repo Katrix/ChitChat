@@ -30,14 +30,16 @@ object SimpleChannel {
 
   //We want to ignore the members field
 
-  implicit private val uuidSerializer =
+  implicit private val textSerializer =
     TypeSerializerImpl.fromTypeSerializer(TypeSerializers.getDefaultSerializers.get(typeToken[Text]), classOf[Text])
 
   implicit object SimpleChannelSerializer extends ConfigSerializer[SimpleChannel] {
+    // @formatter:off
     override def write(obj: SimpleChannel, node: ConfigNode): ConfigNode =
       node.getNode("name").write(obj.name).getParent
         .getNode("prefix").write(obj.prefix).getParent
         .getNode("description").write(obj.description)
+    // @formatter:on
 
     override def read(node: ConfigNode): Try[SimpleChannel] =
       for {

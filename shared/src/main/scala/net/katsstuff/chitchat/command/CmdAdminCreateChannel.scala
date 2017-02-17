@@ -20,7 +20,7 @@ class CmdAdminCreateChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
 
     val data = for {
       name <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterError)
-      _ <- if(src.hasPermission(s"${LibPerm.CreateChannelCmd}.$name")) Right(()) else Left(missingPermissionChannel)
+      _    <- if (src.hasPermission(s"${LibPerm.CreateChannelCmd}.$name")) Right(()) else Left(missingPermissionChannel)
     } yield
       (name,
        serializer.deserialize(args.one(LibCommandKey.ChannelPrefix).getOrElse("")),

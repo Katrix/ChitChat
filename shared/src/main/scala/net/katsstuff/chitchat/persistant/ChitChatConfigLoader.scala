@@ -2,8 +2,8 @@ package net.katsstuff.chitchat.persistant
 
 import java.nio.file.Path
 
-import org.spongepowered.api.text.{Text, TextTemplate}
 import org.spongepowered.api.text.format.TextColors._
+import org.spongepowered.api.text.{Text, TextTemplate}
 
 import io.github.katrix.katlib.KatPlugin
 import io.github.katrix.katlib.helper.Implicits._
@@ -54,7 +54,7 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
       ConfigValue(tt"* $TemplateHeader ", "The template for the me cmd", Seq("formatting", "cmd", "me"))
     override val pmTemplate: CommentedConfigValue[TextTemplate] =
       ConfigValue(tt"From $Sender to $Receiver: ", "The template used for PMs", Seq("formatting", "cmd", "pm"))
-    override val shoutTemplate : CommentedConfigValue[TextTemplate] =
+    override val shoutTemplate: CommentedConfigValue[TextTemplate] =
       ConfigValue(tt"$TemplateHeader shouts: ", "The template used when shouting to a channel", Seq("formatting", "cmd", "shout"))
   }
 }

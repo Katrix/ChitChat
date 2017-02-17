@@ -17,14 +17,17 @@ import net.katsstuff.chitchat.lib.LibPerm
 class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(None) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
-    val channels = handler.allChannels.filter{ case (k, _) => src.hasPermission(s"${LibPerm.JoinChannelCmd}.$k")}.map {
-      case (channelName, channel) =>
-        val join = button(t"${YELLOW}Join")(s"/joinChannel $channelName")
+    val channels = handler.allChannels
+      .filter { case (k, _) => src.hasPermission(s"${LibPerm.JoinChannelCmd}.$k") }
+      .map {
+        case (channelName, channel) =>
+          val join = button(t"${YELLOW}Join")(s"/joinChannel $channelName")
 
-        val typeName = if (channel.typeName == "Simple") Text.EMPTY else t" $YELLOW${channel.typeName} channel"
+          val typeName = if (channel.typeName == "Simple") Text.EMPTY else t" $YELLOW${channel.typeName} channel"
 
-        t""""$channelName"$typeName - ${channel.description}: $join"""
-    }.toSeq
+          t""""$channelName"$typeName - ${channel.description}: $join"""
+      }
+      .toSeq
 
     val pagination = Sponge.getServiceManager.provideUnchecked(classOf[PaginationService]).builder()
 

@@ -32,11 +32,12 @@ trait ChitChatConfig extends Config {
   def joinTemplate:       CommentedConfigValue[TextTemplate]
   def disconnectTemplate: CommentedConfigValue[TextTemplate]
 
-  def announceTemplate:  CommentedConfigValue[TextTemplate]
-  def meTemplate:        CommentedConfigValue[TextTemplate]
-  def pmTemplate:    CommentedConfigValue[TextTemplate]
-  def shoutTemplate:     CommentedConfigValue[TextTemplate]
+  def announceTemplate: CommentedConfigValue[TextTemplate]
+  def meTemplate:       CommentedConfigValue[TextTemplate]
+  def pmTemplate:       CommentedConfigValue[TextTemplate]
+  def shoutTemplate:    CommentedConfigValue[TextTemplate]
 
+  // @formatter:off
   override def seq: Seq[CommentedConfigValue[_]] = Seq(
     version,
 
@@ -56,4 +57,5 @@ trait ChitChatConfig extends Config {
     pmTemplate,
     shoutTemplate
   )
+  // @formatter:on
 }

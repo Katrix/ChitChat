@@ -84,7 +84,7 @@ class ChatListener(handler: ChannelHandler)(implicit plugin: ChitChatPlugin) {
             val message = event.getFormatter.getBody.format.toPlain
             playerChannel.members
               .collect { case player: Player if message.contains(player.getName) => player }
-              .foreach(p => p.playSound(versionHelper.experiencePling, p.getLocation.getPosition, 0.5D))
+              .foreach(p => p.playSound(versionHelper.levelUpSound, p.getLocation.getPosition, 0.5D))
           }
         }
       case None =>

@@ -25,10 +25,10 @@ class ChitChatConfigV1(cfgRoot: CommentedConfigurationNode, default: ChitChatCon
   override val joinTemplate:       CommentedConfigValue[TextTemplate] = configValue(default.joinTemplate)
   override val disconnectTemplate: CommentedConfigValue[TextTemplate] = configValue(default.disconnectTemplate)
 
-  override val announceTemplate:  CommentedConfigValue[TextTemplate] = configValue(default.announceTemplate)
-  override val meTemplate:        CommentedConfigValue[TextTemplate] = configValue(default.meTemplate)
-  override val pmTemplate       :    CommentedConfigValue[TextTemplate]  = configValue(default.pmTemplate)
-  override val shoutTemplate    :     CommentedConfigValue[TextTemplate] = configValue(default.shoutTemplate)
+  override val announceTemplate: CommentedConfigValue[TextTemplate] = configValue(default.announceTemplate)
+  override val meTemplate:       CommentedConfigValue[TextTemplate] = configValue(default.meTemplate)
+  override val pmTemplate:       CommentedConfigValue[TextTemplate] = configValue(default.pmTemplate)
+  override val shoutTemplate:    CommentedConfigValue[TextTemplate] = configValue(default.shoutTemplate)
 
   def configValue[A](existing: CommentedConfigValue[A])(implicit plugin: KatPlugin): CommentedConfigValue[A] =
     Try(Option(cfgRoot.getNode(existing.path: _*).getValue(existing.typeToken)).get)

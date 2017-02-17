@@ -10,7 +10,7 @@ object LibCommandKey {
   val ChannelName:        CommandKey[String]  = cmdKey[String](t"channel name")
   val ChannelPrefix:      CommandKey[String]  = cmdKey[String](t"prefix")
   val ChannelDescription: CommandKey[String]  = cmdKey[String](t"description")
-  val ChannelType       : CommandKey[String]  = cmdKey[String](t"type")
-  val ChannelExtra      : CommandKey[String]  = cmdKey[String](t"extra")
+  val ChannelType:        CommandKey[String]  = cmdKey[String](t"type")
+  val ChannelExtra:       CommandKey[String]  = cmdKey[String](t"extra")
 
 }
