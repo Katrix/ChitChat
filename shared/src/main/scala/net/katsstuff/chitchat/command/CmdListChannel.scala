@@ -19,6 +19,8 @@ class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val channels = handler.allChannels
       .filter { case (k, _) => src.hasPermission(s"${LibPerm.JoinChannelCmd}.$k") }
+      .toSeq
+      .sortBy(_._1)
       .map {
         case (channelName, channel) =>
           val join = button(t"${YELLOW}Join")(s"/joinChannel $channelName")
@@ -27,7 +29,6 @@ class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
 
           t""""$channelName"$typeName - ${channel.description}: $join"""
       }
-      .toSeq
 
     val pagination = Sponge.getServiceManager.provideUnchecked(classOf[PaginationService]).builder()
 

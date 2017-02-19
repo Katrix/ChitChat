@@ -19,29 +19,34 @@ class CmdAdminChannel(implicit handler: ChannelHandler, plugin: KatPlugin) exten
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val channels = handler.allChannels
       .filter { case (k, _) => src.hasPermission(s"${LibPerm.AdminInterfaceCmd}.$k") }
+      .toSeq
+      .sortBy(_._1)
       .map {
         case (channelName, channel) =>
-          val setName        = button(t"${YELLOW}Set name")(s"/channelAdmin change $channelName --name <newName>")
-          val setPrefix      = button(t"${YELLOW}Set prefix")(s"/channelAdmin change $channelName --prefix <newprefix>")
-          val setDescription = button(t"${YELLOW}Set description")(s"/channelAdmin change $channelName --name <newDescription>")
+          val setName        = button(t"${YELLOW}Set name")(s"/channelAdmin edit $channelName --name <newName>")
+          val setPrefix      = button(t"${YELLOW}Set prefix")(s"/channelAdmin edit $channelName --prefix <newprefix>")
+          val setDescription = button(t"${YELLOW}Set description")(s"/channelAdmin edit $channelName --description <newDescription>")
 
           val extraSets = channel.extraData.values.map { extraData =>
             val extraDataName = extraData.displayName
-            button(t"${YELLOW}Set $extraDataName")(s"/channelAdmin change $channelName --extra $extraDataName <new${extraDataName.capitalize}")
+            button(t"${YELLOW}Set $extraDataName")(s"/channelAdmin edit $channelName --extra $extraDataName <new${extraDataName.capitalize}")
           }
 
           val combinedExtra = Text.of(extraSets.toSeq: _*)
 
-          val delete   = button(t"${RED}Delete")(s"/channelAdmin delete $channelName")
-          val typeName = if (channel.typeName == "Simple") Text.EMPTY else t" $YELLOW${channel.typeName} channel"
+          val delete = button(t"${RED}Delete")(s"/channelAdmin delete $channelName")
+          val typeName =
+            if (channel.typeName == "Simple") Text.EMPTY
+            else t" $YELLOW${channel.typeName} channel"
 
-          t""""$channelName"$typeName: $setName$setPrefix$setDescription$combinedExtra$delete"""
+          t""""$channelName"$typeName: $setName $setPrefix $setDescription $combinedExtra $delete"""
       }
-      .toSeq
 
-    val create = button(t"${GREEN}Create")("/channelAdmin create [type] <name> <prefix> <description> <extraData...>")
+    val create = button(t"${GREEN}Create")("/channelAdmin create [type] <name> [prefix] [description] [extraData...]")
 
-    val pagination = Sponge.getServiceManager.provideUnchecked(classOf[PaginationService]).builder()
+    val pagination = Sponge.getServiceManager
+      .provideUnchecked(classOf[PaginationService])
+      .builder()
 
     pagination.title(t"${YELLOW}Edit channels")
     pagination.contents(create +: channels: _*)
@@ -56,6 +61,7 @@ class CmdAdminChannel(implicit handler: ChannelHandler, plugin: KatPlugin) exten
       .description(t"Interface for administrating different channels")
       .permission(LibPerm.AdminInterfaceCmd)
       .children(this)
+      .executor(this)
       .build()
 
   // @formatter:off
@@ -66,5 +72,5 @@ class CmdAdminChannel(implicit handler: ChannelHandler, plugin: KatPlugin) exten
   )
   // @formatter:on
 
-  override def aliases: Seq[String] = Seq("channelAdmin", "roomAdmin")
+  override def aliases: Seq[String] = Seq("channelAdmin", "adminChannel")
 }

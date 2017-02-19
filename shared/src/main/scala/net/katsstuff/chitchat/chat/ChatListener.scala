@@ -9,6 +9,7 @@ import org.spongepowered.api.event.network.ClientConnectionEvent
 import org.spongepowered.api.event.{Listener, Order}
 import org.spongepowered.api.text.channel.MessageChannel
 import org.spongepowered.api.text.channel.`type`.CombinedMessageChannel
+import org.spongepowered.api.text.format.TextColors._
 import org.spongepowered.api.text.serializer.TextSerializers
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier
 import org.spongepowered.api.text.{Text, TextElement, TextTemplate, TranslatableText}
@@ -18,7 +19,7 @@ import net.katsstuff.chitchat.ChitChatPlugin
 import net.katsstuff.chitchat.helper.TextHelper
 import net.katsstuff.chitchat.lib.LibPerm
 
-class ChatListener(handler: ChannelHandler)(implicit plugin: ChitChatPlugin) {
+class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
 
   private def cfg = plugin.config
 
@@ -83,6 +84,7 @@ class ChatListener(handler: ChannelHandler)(implicit plugin: ChitChatPlugin) {
           if (cfg.mentionPling.value) {
             val message = event.getFormatter.getBody.format.toPlain
             playerChannel.members
+              .flatMap(_.get)
               .collect { case player: Player if message.contains(player.getName) => player }
               .foreach(p => p.playSound(versionHelper.levelUpSound, p.getLocation.getPosition, 0.5D))
           }
@@ -94,10 +96,17 @@ class ChatListener(handler: ChannelHandler)(implicit plugin: ChitChatPlugin) {
     event.getChannel.toOption.foreach(c => event.setChannel(new CombinedMessageChannel(c, MessageChannel.TO_CONSOLE)))
   }
 
-  @Listener def onJoin(event:       ClientConnectionEvent.Join):       Unit = onConnectEvent(event, cfg.joinTemplate.value)
-  @Listener def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit = onConnectEvent(event, cfg.disconnectTemplate.value)
+  @Listener
+  def onJoin(event: ClientConnectionEvent.Join): Unit = {
+    val player = event.getTargetEntity
+    handler.loginPlayer(player)
+    formatConnectEvent(event, cfg.joinTemplate.value)
+    player.sendMessage(t"${YELLOW}You are chatting in ${handler.getChannelForReceiver(player).name}")
+  }
 
-  def onConnectEvent(event: ClientConnectionEvent with MessageEvent with TargetPlayerEvent, template: TextTemplate): Unit = {
+  @Listener def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit = formatConnectEvent(event, cfg.disconnectTemplate.value)
+
+  def formatConnectEvent(event: ClientConnectionEvent with MessageEvent with TargetPlayerEvent, template: TextTemplate): Unit = {
     val appliers = event.getFormatter.getBody.getAll.asScala
     val player   = event.getTargetEntity
     val name     = findNameConnect(appliers, "body").getOrElse(t"${player.getName}")

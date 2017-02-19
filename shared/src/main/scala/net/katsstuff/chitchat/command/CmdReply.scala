@@ -63,5 +63,5 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends CommandBas
       .executor(this)
       .build()
 
-  override def aliases: Seq[String] = Seq("pm", "msg", "whisper")
+  override def aliases: Seq[String] = Seq("r", "reply")
 }

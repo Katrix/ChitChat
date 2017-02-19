@@ -3,6 +3,7 @@ package net.katsstuff.chitchat.command
 import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.command.{CommandResult, CommandSource}
+import org.spongepowered.api.text.format.TextColors._
 
 import io.github.katrix.katlib.KatPlugin
 import io.github.katrix.katlib.command.CommandBase
@@ -21,7 +22,7 @@ class CmdInChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends 
       }
       .mkString(", ")
 
-    src.sendMessage(t"$members")
+    src.sendMessage(t"${GREEN}Players in ${channel.name}: $members")
     CommandResult.success()
   }
 

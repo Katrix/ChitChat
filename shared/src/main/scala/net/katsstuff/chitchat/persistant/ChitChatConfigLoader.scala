@@ -37,24 +37,34 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
 
     override val joinTemplate =
       ConfigValue(
-        tt"${GREEN}The player $AQUA${"body"}$GREEN has joined the server",
+        TextTemplate.of(t"${GREEN}The player ", TextTemplate.arg("body").color(AQUA), t"$GREEN has joined the server"),
         "Template to use when someone joins",
         Seq("formatting", "connect", "join-template")
       )
     override val disconnectTemplate =
       ConfigValue(
-        tt"${RED}The player $AQUA${"body"}$RED has left the server",
+        TextTemplate.of(t"${RED}The player ", TextTemplate.arg("body").color(AQUA), t"$RED has left the server"),
         "Template to use when someone disconnects",
         Seq("formatting", "connect", "disconnect-template")
       )
 
     override val announceTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"$BLUE[Announcement]$RESET $TemplateHeader: ", "The template for announcements", Seq("formatting", "cmd", "announce"))
+      ConfigValue(tt"$BLUE[Announcement] $TemplateHeader: ", "The template for announcements", Seq("formatting", "cmd", "announce"))
     override val meTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"* $TemplateHeader ", "The template for the me cmd", Seq("formatting", "cmd", "me"))
+      ConfigValue(tt"$GOLD* $TemplateHeader ", "The template for the me cmd", Seq("formatting", "cmd", "me"))
     override val pmTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"From $Sender to $Receiver: ", "The template used for PMs", Seq("formatting", "cmd", "pm"))
+      ConfigValue(
+        TextTemplate.of(
+          t"${DARK_PURPLE}From ",
+          TextTemplate.arg(Sender).color(AQUA),
+          t" ${DARK_PURPLE}to ",
+          TextTemplate.arg(Receiver).color(AQUA),
+          t"$DARK_PURPLE: "
+        ),
+        "The template used for PMs",
+        Seq("formatting", "cmd", "pm")
+      )
     override val shoutTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"$TemplateHeader shouts: ", "The template used when shouting to a channel", Seq("formatting", "cmd", "shout"))
+      ConfigValue(tt"$YELLOW$TemplateHeader shouts: ", "The template used when shouting to a channel", Seq("formatting", "cmd", "shout"))
   }
 }

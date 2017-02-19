@@ -42,7 +42,7 @@ class CmdAdminCreateChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
     if (handler.addChannel(channel)) {
       src.sendMessage(t"${GREEN}Created new channel")
       CommandResult.success()
-    } else throw new CommandException(t"${RED}Channel name can't be global")
+    } else throw new CommandException(t"${RED}Channel name can't be Global")
   }
 
   override def commandSpec: CommandSpec =

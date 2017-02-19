@@ -47,11 +47,11 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
         val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
         formatter.getHeader.add(headerApplier)
 
-        val channel = new PmMessageChannel(src, player)
-        conversations.put(src, channel)
-        conversations.put(player, channel)
+        val srcChannel = new PmMessageChannel(src, player)
+        conversations.put(src, srcChannel)
+        conversations.put(player, new PmMessageChannel(player, src))
 
-        val event     = SpongeEventFactory.createMessageChannelEvent(cause, channel, Optional.of(channel), formatter, false)
+        val event     = SpongeEventFactory.createMessageChannelEvent(cause, srcChannel, Optional.of(srcChannel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
 
         if (!cancelled) {

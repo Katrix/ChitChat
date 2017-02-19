@@ -32,7 +32,6 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
     name.foreach { newName =>
       handler.renameChannel(channel, newName)
       builder.append(t"Set name to $newName")
-      builder.append(Text.NEW_LINE)
       counter += 1
     }
 
@@ -40,7 +39,7 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
       val deseralized = serializer.deserialize(newPrefix)
       handler.setChannelPrefix(channel, deseralized)
       builder.append(t"Set prefix to $deseralized")
-      builder.append(Text.NEW_LINE)
+      if (counter > 0) builder.append(Text.NEW_LINE)
       counter += 1
     }
 
@@ -48,7 +47,7 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
       val deseralized = serializer.deserialize(newDescription)
       handler.setChannelDescription(channel, deseralized)
       builder.append(t"Set description to $deseralized")
-      builder.append(Text.NEW_LINE)
+      if (counter > 0) builder.append(Text.NEW_LINE)
       counter += 1
     }
 
@@ -63,7 +62,7 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
     }
 
     if (counter != 0) src.sendMessage(builder.trim().build())
-    else src.sendMessage(t"No changes made, please specify flags for what to change")
+    else src.sendMessage(t"${RED}No changes made, please specify flags for what to change")
 
     CommandResult.builder().successCount(counter).build()
   }
@@ -85,5 +84,5 @@ class CmdAdminChangeChannel(cmdAdmin: CmdAdminChannel)(implicit handler: Channel
       .executor(this)
       .build()
 
-  override def aliases: Seq[String] = Seq("change", "edit", "modify")
+  override def aliases: Seq[String] = Seq("edit", "modify")
 }

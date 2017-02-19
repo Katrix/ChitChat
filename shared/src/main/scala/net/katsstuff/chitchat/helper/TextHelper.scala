@@ -16,7 +16,7 @@ object TextHelper {
     @tailrec
     def allEnds(acc: List[Text], end: Text): List[Text] = {
       val children = end.getChildren.asScala
-      if (children.isEmpty) acc
+      if (children.isEmpty) end :: acc
       else allEnds(end :: acc, children.last)
     }
 

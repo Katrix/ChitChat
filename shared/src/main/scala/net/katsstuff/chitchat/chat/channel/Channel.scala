@@ -41,22 +41,25 @@ object Channel {
   //Yuck!
   //We need to allow custom channel types that are provided at runtime. As such we can't use implicits to resolve the serializers.
 
-  private val channelTypes   = new mutable.HashMap[String, ConfigSerializer[_ <: Channel]]
-  private val channelClasses = new mutable.HashMap[Class[_ <: Channel], ConfigSerializer[_ <: Channel]]
+  private val nameToSerializer = new mutable.HashMap[String, ConfigSerializer[_ <: Channel]]
+  private val classToName      = new mutable.HashMap[Class[_ <: Channel], String]
 
   def registerChannelType[A <: Channel: ClassTag: ConfigSerializer](name: String): Unit = {
     val serializer = implicitly[ConfigSerializer[A]]
+    val clazz      = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
 
-    channelTypes.put(name, serializer)
-    channelClasses.put(implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]], serializer)
+    nameToSerializer.put(name, serializer)
+    classToName.put(clazz, name)
   }
 
   implicit object ChannelSerializer extends ConfigSerializer[Channel] {
-    override def write(obj: Channel, node: ConfigNode): ConfigNode =
-      //Super hacky
-      channelClasses(obj.getClass).asInstanceOf[ConfigSerializer[obj.Self]].write(obj.asInstanceOf[obj.Self], node)
+    //Super hacky
+    override def write(obj: Channel, node: ConfigNode): ConfigNode = {
+      val withType = node.getNode("type").write(classToName(obj.getClass)).getParent
+      nameToSerializer(classToName(obj.getClass)).asInstanceOf[ConfigSerializer[obj.Self]].write(obj.asInstanceOf[obj.Self], withType)
+    }
 
     override def read(node: ConfigNode): Try[Channel] =
-      node.getNode("type").read[String].flatMap(tpe => channelTypes(tpe).read(node))
+      node.getNode("type").read[String].flatMap(tpe => nameToSerializer(tpe).read(node))
   }
 }

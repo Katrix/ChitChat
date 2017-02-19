@@ -24,10 +24,11 @@ class CmdAnnounce(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val message = args.one(LibCommandKey.Message).getOrElse(throw invalidParameterError)
+    val console = args.hasAny("c")
 
     val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
     val headerApplier = new SimpleTextTemplateApplier(plugin.config.announceTemplate.value)
-    headerApplier.setParameter(plugin.config.TemplateHeader, src.getName.text)
+    headerApplier.setParameter(plugin.config.TemplateHeader, if (console) t"Console" else src.getName.text)
     val headerText = headerApplier.toText
 
     val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")

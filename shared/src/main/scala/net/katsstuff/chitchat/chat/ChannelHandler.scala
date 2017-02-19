@@ -3,15 +3,20 @@ package net.katsstuff.chitchat.chat
 import scala.collection.mutable
 
 import org.spongepowered.api.data.DataHolder
+import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.MessageReceiver
+import org.spongepowered.api.text.format.TextColors._
 
 import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.ChitChatPlugin
 import net.katsstuff.chitchat.chat.channel.{Channel, ChannelRegistry, SimpleChannel}
+import net.katsstuff.chitchat.chat.data.ChannelData
 import net.katsstuff.chitchat.persistant.StorageLoader
 
 class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
+
+  final val GlobalName = "Global"
 
   private implicit object HandlerOnly extends HandlerOnly
 
@@ -23,8 +28,8 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     val map = new mutable.HashMap[String, Channel]
     map ++= storage.loadData
 
-    if (!map.contains("global")) {
-      map.put("global", SimpleChannel("global", t"G", t"The global channel", Set()))
+    if (!map.contains(GlobalName)) {
+      map.put(GlobalName, SimpleChannel(GlobalName, t"${GOLD}G", t"The global channel", Set()))
     }
 
     channels = map
@@ -32,12 +37,12 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
 
   def saveChannels(): Unit = storage.saveData(channels.toMap)
 
-  def globalChannel: Channel              = channels("global")
+  def globalChannel: Channel              = channels(GlobalName)
   def allChannels:   Map[String, Channel] = channels.toMap
   def getChannel(name: String): Option[Channel] = channels.get(name)
 
   def addChannel(channel: Channel): Boolean =
-    if (channels.contains(channel.name) && channel.name != "global") {
+    if (channels.contains(channel.name) && channel.name != GlobalName) {
       false
     } else {
       channels.put(channel.name, channel)
@@ -46,14 +51,19 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     }
 
   def removeChannel(channel: Channel): Boolean =
-    if (channel.name != "global") {
+    if (channel.name != GlobalName) {
+      channel.messageChannel.send(t"${YELLOW}The channel you are in is being deleted. You are being moved to the main channel")
+      val global    = globalChannel
+      val newGlobal = global.members = global.members ++ channel.members
+      channels.put(newGlobal.name, newGlobal)
+
       channels.remove(channel.name)
       saveChannels()
       true
     } else false
 
   def renameChannel(channel: Channel, newName: String): Boolean =
-    if (channel.name != "global") {
+    if (channel.name != GlobalName) {
       channels.remove(channel.name)
       channels.put(newName, channel.name = newName)
       saveChannels()
@@ -80,33 +90,42 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     })
   }
 
-  def setReceiverChannel(receiver: MessageReceiver, channel: Channel): Unit = {
-    val channel = getChannelForReceiver(receiver)
+  def loginPlayer(player: Player): Unit = {
+    val channel = getChannelForReceiver(player)
+    channels.put(channel.name, channel.addMember(player))
+  }
+
+  def setReceiverChannel(receiver: MessageReceiver, channel: Channel): Boolean = {
+    val oldChannel = getChannelForReceiver(receiver)
 
     receiver match {
       case holder: DataHolder =>
-        val result = holder.offer(plugin.versionHelper.ChannelKey, channel.name)
+        val data   = new ChannelData(channel.name)
+        val result = holder.offer(data)
 
         if (result.isSuccessful) {
-          val newOld     = channel.removeMember(receiver)
+          val newOld     = oldChannel.removeMember(receiver)
           val newChannel = channel.addMember(receiver)
 
           channels.put(newOld.name, newOld)
-          channels.put(newChannel.name, channel)
+          channels.put(newChannel.name, newChannel)
         }
 
+        result.isSuccessful
       case _ =>
-        val newOld     = channel.removeMember(receiver)
+        val newOld     = oldChannel.removeMember(receiver)
         val newChannel = channel.addMember(receiver)
 
         channels.put(newOld.name, newOld)
-        channels.put(newChannel.name, channel)
+        channels.put(newChannel.name, newChannel)
+
+        true
     }
   }
 
   def getChannelForReceiver(receiver: MessageReceiver): Channel =
     receiver match {
-      case holder: DataHolder => channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, "global"), globalChannel)
+      case holder: DataHolder => channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, GlobalName), globalChannel)
       case _ =>
         channels
           .collectFirst {

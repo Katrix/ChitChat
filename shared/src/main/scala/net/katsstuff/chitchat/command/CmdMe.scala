@@ -33,7 +33,7 @@ class CmdMe(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
     formatter.getHeader.add(headerApplier)
 
     val event = SpongeEventFactory
-      .createMessageChannelEventChat(cause, src.getMessageChannel, Optional.of(src.getMessageChannel), formatter, rawMessage, false)
+      .createMessageChannelEvent(cause, src.getMessageChannel, Optional.of(src.getMessageChannel), formatter, false)
     val cancelled = Sponge.getEventManager.post(event)
 
     if (!cancelled) {

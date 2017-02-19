@@ -2,7 +2,7 @@ package net.katsstuff.chitchat.command
 
 import org.spongepowered.api.command.args.CommandContext
 import org.spongepowered.api.command.spec.CommandSpec
-import org.spongepowered.api.command.{CommandResult, CommandSource}
+import org.spongepowered.api.command.{CommandException, CommandResult, CommandSource}
 import org.spongepowered.api.text.format.TextColors._
 
 import io.github.katrix.katlib.KatPlugin
@@ -21,9 +21,10 @@ class CmdJoinChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
 
     data match {
       case Right(channel) =>
-        handler.setReceiverChannel(src, channel)
-        src.sendMessage(t"""${GREEN}Joined "${channel.name}"""")
-        CommandResult.success()
+        if (handler.setReceiverChannel(src, channel)) {
+          src.sendMessage(t"""${GREEN}Joined "${channel.name}"""")
+          CommandResult.success()
+        } else throw new CommandException(t"${RED}Failed to set new channel")
       case Left(e) => throw e
     }
   }
