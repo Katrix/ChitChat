@@ -35,5 +35,5 @@ class CmdInChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends 
       .executor(this)
       .build()
 
-  override def aliases: Seq[String] = Seq("inChannel", "showMembers")
+  override def aliases: Seq[String] = Seq("inChannel")
 }

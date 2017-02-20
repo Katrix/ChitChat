@@ -38,5 +38,5 @@ class CmdJoinChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
       .executor(this)
       .build()
 
-  override def aliases: Seq[String] = Seq("joinChannel", "joinRoom")
+  override def aliases: Seq[String] = Seq("joinChannel", "chjoin")
 }

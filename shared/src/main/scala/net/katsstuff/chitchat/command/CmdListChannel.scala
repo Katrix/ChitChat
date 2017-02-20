@@ -47,5 +47,5 @@ class CmdListChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extend
       .executor(this)
       .build()
 
-  override def aliases: Seq[String] = Seq("listChannels", "listRooms")
+  override def aliases: Seq[String] = Seq("listChannels", "channels", "chlist")
 }

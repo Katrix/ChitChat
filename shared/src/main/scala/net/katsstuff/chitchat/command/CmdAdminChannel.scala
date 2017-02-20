@@ -72,5 +72,5 @@ class CmdAdminChannel(implicit handler: ChannelHandler, plugin: KatPlugin) exten
   )
   // @formatter:on
 
-  override def aliases: Seq[String] = Seq("channelAdmin", "adminChannel")
+  override def aliases: Seq[String] = Seq("channelAdmin", "chadmin")
 }
