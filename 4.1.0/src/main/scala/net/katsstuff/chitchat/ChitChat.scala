@@ -35,7 +35,7 @@ import ninja.leaping.configurate.objectmapping.serialize.{TypeSerializer, TypeSe
 object ChitChat {
 
   final val Version         = s"${KatLib.CompiledAgainst}-2.0.0"
-  final val ConstantVersion = "5.0.0-2.0.0"
+  final val ConstantVersion = "4.1.0-2.0.0"
   assert(Version == ConstantVersion)
 
   private var _plugin: ChitChat = _
@@ -107,11 +107,8 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
 
   override val versionHelper: VersionHelper = new VersionHelper {
     override val levelUpSound: SoundType = SoundTypes.LEVEL_UP
-    override val ChannelKey: Key[Value[String]] = KeyFactory.makeSingleKey(
-      classOf[String],
-      classOf[Value[String]],
-      DataQuery.of(LibPlugin.Id, "channel", "currentChannel")
-    )
+    override val ChannelKey: Key[Value[String]] =
+      KeyFactory.makeSingleKey(classOf[String], classOf[Value[String]], DataQuery.of(LibPlugin.Id, "channel", "currentChannel"))
     override def getSubjectOption(subject: Subject, option: String): Option[String] = subject match {
       case optSubject: OptionSubject => optSubject.getOption(option).toOption
       case _ => None
