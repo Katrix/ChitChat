@@ -10,6 +10,7 @@ import org.spongepowered.api.data.key.{Key, KeyFactory}
 import org.spongepowered.api.data.value.mutable.Value
 import org.spongepowered.api.effect.sound.{SoundType, SoundTypes}
 import org.spongepowered.api.event.Listener
+import org.spongepowered.api.event.game.GameReloadEvent
 import org.spongepowered.api.event.game.state.{GameConstructionEvent, GameInitializationEvent}
 import org.spongepowered.api.plugin.{Dependency, Plugin, PluginContainer}
 import org.spongepowered.api.service.permission.Subject
@@ -55,8 +56,9 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
 
   implicit private val plugin: ChitChatPlugin = this
 
-  private lazy val configLoader = new ChitChatConfigLoader(configDir)
-  lazy val storageLoader        = new StorageLoader(configDir)
+  private lazy val configLoader            = new ChitChatConfigLoader(configDir)
+  lazy val storageLoader                   = new StorageLoader(configDir)
+  private lazy implicit val channelHandler = new ChannelHandler(storageLoader)
 
   private var _config: ChitChatConfig = _
   override def config: ChitChatConfig = _config
@@ -91,6 +93,13 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
     val pmCmd = new CmdPm
     registerCommand(pmCmd)
     registerCommand(new CmdReply(pmCmd))
+  }
+
+  @Listener
+  def reload(event: GameReloadEvent): Unit = {
+    configLoader.reload()
+    _config = configLoader.loadData
+    channelHandler.reloadChannels()
   }
 
   private def registerCommand(cmd: CommandBase): Unit =

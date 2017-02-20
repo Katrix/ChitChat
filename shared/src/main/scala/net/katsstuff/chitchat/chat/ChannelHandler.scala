@@ -33,14 +33,16 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     * Reloads the channels and logs in all players again.
     */
   def reloadChannels(): Unit = {
-    val map = new mutable.HashMap[String, Channel]
-    map ++= storage.loadData
+    storage.reload()
 
-    if (!map.contains(GlobalName)) {
-      map.put(GlobalName, SimpleChannel(GlobalName, t"${GOLD}G", t"The global channel", Set()))
+    channels.clear()
+    channels ++= storage.loadData
+
+    if (!channels.contains(GlobalName)) {
+      channels.put(GlobalName, SimpleChannel(GlobalName, t"${GOLD}G", t"The global channel", Set()))
     }
 
-    channels = map
+    Sponge.getServer.getOnlinePlayers.asScala.foreach(loginPlayer)
   }
 
   /**

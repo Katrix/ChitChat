@@ -22,6 +22,10 @@ class StorageLoader(dir: Path)(implicit plugin: KatPlugin)
 
   private val mapTypeToken = typeToken[JMap[String, Channel]]
 
+  def reload(): Unit = {
+    cfgRoot = cfgLoader.load()
+  }
+
   override def loadData: Map[String, Channel] = {
     val node = channelNode
     versionNode.getString("1") match {
