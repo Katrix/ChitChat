@@ -9,6 +9,10 @@ import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
 import org.spongepowered.api.text.chat.ChatType
 
+/**
+  * A [[MessageChannel]] that has the members that are contained in all the
+  * channels passed in.
+  */
 class IntersectionMessageChannel(val channels: Set[MessageChannel]) extends MessageChannel {
 
   def this(channels: MessageChannel*) = this(channels.toSet)

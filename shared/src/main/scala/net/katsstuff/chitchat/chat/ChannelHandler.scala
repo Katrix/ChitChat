@@ -1,7 +1,9 @@
 package net.katsstuff.chitchat.chat
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+import org.spongepowered.api.Sponge
 import org.spongepowered.api.data.DataHolder
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.text.Text
@@ -16,6 +18,9 @@ import net.katsstuff.chitchat.persistant.StorageLoader
 
 class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
 
+  /**
+    * The name of the global channel. This channel should always be present.
+    */
   final val GlobalName = "Global"
 
   private implicit object HandlerOnly extends HandlerOnly
@@ -24,6 +29,9 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   val registry = new ChannelRegistry
   reloadChannels()
 
+  /**
+    * Reloads the channels and logs in all players again.
+    */
   def reloadChannels(): Unit = {
     val map = new mutable.HashMap[String, Channel]
     map ++= storage.loadData
@@ -35,12 +43,22 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     channels = map
   }
 
+  /**
+    * Saves the channels using the [[StorageLoader]].
+    */
   def saveChannels(): Unit = storage.saveData(channels.toMap)
 
+  /**
+    * The global channel. This channel should always be present.
+    */
   def globalChannel: Channel              = channels(GlobalName)
   def allChannels:   Map[String, Channel] = channels.toMap
   def getChannel(name: String): Option[Channel] = channels.get(name)
 
+  /**
+    * Adds a new channel and saves all the channels.
+    * The channel name may not be the same as [[GlobalName]]
+    */
   def addChannel(channel: Channel): Boolean =
     if (channels.contains(channel.name) && channel.name != GlobalName) {
       false
@@ -50,6 +68,11 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
       true
     }
 
+  /**
+    * Removes a channel, moves all of it's members to the global channel and
+    * saves all the channels. The channel name may not be the
+    * same as [[GlobalName]].
+    */
   def removeChannel(channel: Channel): Boolean =
     if (channel.name != GlobalName) {
       channel.messageChannel.send(t"${YELLOW}The channel you are in is being deleted. You are being moved to the main channel")
@@ -62,6 +85,10 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
       true
     } else false
 
+  /**
+    * Renames a channel and saves all the channels.
+    * The new name may not be the same as [[GlobalName]]
+    */
   def renameChannel(channel: Channel, newName: String): Boolean =
     if (channel.name != GlobalName) {
       channels.remove(channel.name)
@@ -70,16 +97,25 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
       true
     } else false
 
+  /**
+    * Sets the prefix for a channel and saves all the channels.
+    */
   def setChannelPrefix(channel: Channel, newPrefix: Text): Unit = {
     channels.put(channel.name, channel.prefix = newPrefix)
     saveChannels()
   }
 
+  /**
+    * Sets the prefix for a channel and saves all the channels.
+    */
   def setChannelDescription(channel: Channel, newDescription: Text): Unit = {
     channels.put(channel.name, channel.description = newDescription)
     saveChannels()
   }
 
+  /**
+    * Sets extra data for a channel and saves all the channels.
+    */
   def setExtraData(channel: Channel, extra: String): Option[Text] = {
     val handled = channel.handleExtraData(extra)
 
@@ -90,11 +126,19 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     })
   }
 
+  /**
+    * Adds a player to the channel they are currently in.
+    */
   def loginPlayer(player: Player): Unit = {
     val channel = getChannelForReceiver(player)
     channels.put(channel.name, channel.addMember(player))
   }
 
+  /**
+    * Sets the channel for a [[MessageReceiver]], while removing the receiver
+    * from the old channel.
+    * @return If setting the channel was successful.
+    */
   def setReceiverChannel(receiver: MessageReceiver, channel: Channel): Boolean = {
     val oldChannel = getChannelForReceiver(receiver)
 
@@ -123,6 +167,11 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     }
   }
 
+  /**
+    * Tries to find the channel for a [[MessageReceiver]].
+    * @return The channel the receiver is currently in. If the channel is
+    * found, [[globalChannel]] is returned.
+    */
   def getChannelForReceiver(receiver: MessageReceiver): Channel =
     receiver match {
       case holder: DataHolder => channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, GlobalName), globalChannel)
@@ -135,4 +184,8 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     }
 }
 
+/**
+  * Represents that if this type is defined as an implicit parameter on a
+  * method, that method may only be called from within the [[ChannelHandler]].
+  */
 sealed trait HandlerOnly

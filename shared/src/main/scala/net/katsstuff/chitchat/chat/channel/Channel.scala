@@ -13,6 +13,14 @@ import net.katsstuff.chitchat.chat.HandlerOnly
 
 case class ExtraData(displayName: String, data: Any)
 
+/**
+  * Base trait for all channels.
+  * All channels are required to have a name, a prefix, and a description.
+  * How to represent them is up to the implementation.
+  *
+  * A channel also has a set of members,
+  * which should also be the members of the [[MessageChannel]].
+  */
 trait Channel {
   type Self <: Channel
 
@@ -31,8 +39,22 @@ trait Channel {
   def addMember(receiver:    MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members + WeakReference(receiver)
   def removeMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members.filter(!_.get.contains(receiver))
 
+  /**
+    * The display name of this type of channel.
+    */
   def typeName: String
+
+  /**
+    * The extra data this channel holds.
+    */
   def extraData: Map[String, ExtraData] = Map()
+
+  /**
+    * Handles changing custom data.
+    * @param data The data to set. The implementation decides what is a
+    *             correct format for the data.
+    * @return Left if setting the data failed, else Right.
+    */
   def handleExtraData(data: String): Either[Text, Self]
 }
 
@@ -44,6 +66,13 @@ object Channel {
   private val nameToSerializer = new mutable.HashMap[String, ConfigSerializer[_ <: Channel]]
   private val classToName      = new mutable.HashMap[Class[_ <: Channel], String]
 
+  /**
+    * Due to allowing the system to be expanded dynamically,
+    * we need to be able to add new types to serialization and
+    * deserialization at runtime. And thus this thing was born.
+    * @param name The name of the channel type when serialized.
+    * @tparam A The channel type
+    */
   def registerChannelType[A <: Channel: ClassTag: ConfigSerializer](name: String): Unit = {
     val serializer = implicitly[ConfigSerializer[A]]
     val clazz      = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
