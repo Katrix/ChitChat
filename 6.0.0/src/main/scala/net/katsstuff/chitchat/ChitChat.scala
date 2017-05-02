@@ -5,7 +5,7 @@ import java.nio.file.Path
 import org.slf4j.Logger
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.config.ConfigDir
-import org.spongepowered.api.data.DataQuery
+import org.spongepowered.api.data.{DataQuery, DataRegistration}
 import org.spongepowered.api.data.key.{Key, KeyFactory}
 import org.spongepowered.api.data.value.mutable.Value
 import org.spongepowered.api.effect.sound.{SoundType, SoundTypes}
@@ -73,9 +73,16 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
 
     channelHandler.registry.registerChannelType("simple", {
       case (name, prefix, description, none) if none.trim.isEmpty => Right(new SimpleChannel(name, prefix, description, Set()))
-      case _ => Left(t"${RED}This channel does not take extra arguments")
+      case _                                                      => Left(t"${RED}This channel does not take extra arguments")
     })
-    Sponge.getDataManager.register(classOf[ChannelData], classOf[ImmutableChannelData], new ChannelDataBuilder)
+
+    DataRegistration
+      .builder
+      .dataClass[ChannelData, ImmutableChannelData](classOf[ChannelData])
+      .immutableClass(classOf[ImmutableChannelData])
+      .builder(new ChannelDataBuilder())
+      .manipulatorId(s"${LibPlugin.Id}:ChannelData")
+      .buildAndRegister(container.container)
 
     Sponge.getEventManager.registerListeners(this, new ChatListener)
 
