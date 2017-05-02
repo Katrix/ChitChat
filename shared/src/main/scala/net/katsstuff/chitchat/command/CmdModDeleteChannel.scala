@@ -11,7 +11,7 @@ import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
-class CmdAdminDeleteChannel(cmdAdmin: CmdAdminChannel)(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(Some(cmdAdmin)) {
+class CmdModDeleteChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(Some(cmdAdmin)) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {

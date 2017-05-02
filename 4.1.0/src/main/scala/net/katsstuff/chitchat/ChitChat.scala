@@ -27,7 +27,7 @@ import io.github.katrix.katlib.{ImplKatPlugin, KatLib}
 import net.katsstuff.chitchat.chat.{ChannelHandler, ChatListener}
 import net.katsstuff.chitchat.chat.channel.{Channel, SimpleChannel}
 import net.katsstuff.chitchat.chat.data.{ChannelData, ChannelDataBuilder, ImmutableChannelData}
-import net.katsstuff.chitchat.command.{CmdAdminChannel, CmdAnnounce, CmdInChannel, CmdJoinChannel, CmdListChannel, CmdMe, CmdPm, CmdReply, CmdShout}
+import net.katsstuff.chitchat.command.{CmdModChannel, CmdAnnounce, CmdInChannel, CmdJoinChannel, CmdListChannel, CmdMe, CmdPm, CmdReply, CmdShout}
 import net.katsstuff.chitchat.lib.LibPlugin
 import net.katsstuff.chitchat.persistant.{ChitChatConfig, ChitChatConfigLoader, StorageLoader}
 import ninja.leaping.configurate.objectmapping.serialize.{TypeSerializer, TypeSerializers}
@@ -82,7 +82,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
     Sponge.getEventManager.registerListeners(this, new ChatListener)
 
     registerCommand(pluginCmd)
-    registerCommand(new CmdAdminChannel)
+    registerCommand(new CmdModChannel)
     registerCommand(new CmdAnnounce)
     registerCommand(new CmdInChannel)
     registerCommand(new CmdJoinChannel)
