@@ -39,7 +39,6 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
         val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
         formatter.getHeader.add(headerApplier)
 
-        //TODO: Use chat event, and add ignore objects to listener
         val event =
           SpongeEventFactory.createMessageChannelEvent(cause, channel.messageChannel, Optional.of(channel.messageChannel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
