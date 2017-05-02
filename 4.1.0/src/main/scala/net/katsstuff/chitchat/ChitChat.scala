@@ -72,7 +72,6 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
     Channel.registerChannelType[SimpleChannel]("simple")
     TypeSerializers.getDefaultSerializers.registerType(typeToken[Channel], implicitly[TypeSerializer[Channel]])
 
-    implicit val channelHandler = new ChannelHandler(storageLoader)
     channelHandler.registry.registerChannelType("simple", {
       case (name, prefix, description, none) if none.trim.isEmpty => Right(new SimpleChannel(name, prefix, description, Set()))
       case _ => Left(t"${RED}This channel does not take extra arguments")
