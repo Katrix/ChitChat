@@ -26,17 +26,17 @@ trait Channel {
 
   def messageChannel: MessageChannel
 
-  def name: String
-  def name_=(newName: String)(implicit perm: HandlerOnly): Self
-  def prefix: Text
-  def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly): Self
-  def description: Text
+  def name:                                                            String
+  def name_=(newName: String)(implicit perm: HandlerOnly):             Self
+  def prefix:                                                          Text
+  def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly):           Self
+  def description:                                                     Text
   def description_=(newDescription: Text)(implicit perm: HandlerOnly): Self
 
-  def members: Set[WeakReference[MessageReceiver]]
+  def members:                                                                                Set[WeakReference[MessageReceiver]]
   def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self
 
-  def addMember(receiver:    MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members + WeakReference(receiver)
+  def addMember(receiver: MessageReceiver)(implicit perm: HandlerOnly):    Self = this.members = members + WeakReference(receiver)
   def removeMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members.filter(!_.get.contains(receiver))
 
   /**

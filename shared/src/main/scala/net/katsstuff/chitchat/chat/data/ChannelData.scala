@@ -16,9 +16,9 @@ import net.katsstuff.chitchat.ChitChatPlugin
 
 class ChannelData(_value: String)(implicit plugin: ChitChatPlugin)
     extends AbstractSingleData[String, ChannelData, ImmutableChannelData](_value, plugin.versionHelper.ChannelKey) {
-  override def asImmutable(): ImmutableChannelData = new ImmutableChannelData(getValue)
-  override def compareTo(o: ChannelData): Int = getValue.compareTo(o.getValue)
-  override def getValueGetter: Value[_] = Sponge.getRegistry.getValueFactory.createValue(plugin.versionHelper.ChannelKey, getValue)
+  override def asImmutable():                  ImmutableChannelData  = new ImmutableChannelData(getValue)
+  override def compareTo(o: ChannelData):      Int                   = getValue.compareTo(o.getValue)
+  override def getValueGetter:                 Value[_]              = Sponge.getRegistry.getValueFactory.createValue(plugin.versionHelper.ChannelKey, getValue)
   override def from(container: DataContainer): Optional[ChannelData] = from(container)
 
   def from(view: DataView): Optional[ChannelData] = {
@@ -42,13 +42,13 @@ class ImmutableChannelData(_value: String)(implicit plugin: ChitChatPlugin)
   override def getValueGetter: ImmutableValue[_] =
     Sponge.getRegistry.getValueFactory.createValue(plugin.versionHelper.ChannelKey, getValue).asImmutable()
   override def compareTo(o: ImmutableChannelData): Int = value.compareTo(o.value)
-  override def getContentVersion: Int = 1
+  override def getContentVersion:                  Int = 1
 }
 
 class ChannelDataBuilder(implicit plugin: ChitChatPlugin)
     extends AbstractDataBuilder[ChannelData](classOf[ChannelData], 1)
     with DataManipulatorBuilder[ChannelData, ImmutableChannelData] {
-  override def create(): ChannelData = new ChannelData("Global")
-  override def createFrom(dataHolder:  DataHolder): Optional[ChannelData] = create().fill(dataHolder)
-  override def buildContent(container: DataView):   Optional[ChannelData] = create().from(container)
+  override def create():                           ChannelData           = new ChannelData("Global")
+  override def createFrom(dataHolder: DataHolder): Optional[ChannelData] = create().fill(dataHolder)
+  override def buildContent(container: DataView):  Optional[ChannelData] = create().from(container)
 }

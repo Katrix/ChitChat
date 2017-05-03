@@ -14,6 +14,6 @@ class ChannelCommandArgument(key: Option[Text])(implicit handler: ChannelHandler
 
   def this(key: Text)(implicit handler: ChannelHandler) = this(Some(key))
 
-  override def getValue(choice:   String):        AnyRef           = handler.getChannel(choice).getOrElse(throw new IllegalArgumentException)
+  override def getValue(choice: String):          AnyRef           = handler.getChannel(choice).getOrElse(throw new IllegalArgumentException)
   override def getChoices(source: CommandSource): Iterable[String] = handler.allChannels.keys.asJava
 }

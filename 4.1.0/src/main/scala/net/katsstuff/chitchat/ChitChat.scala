@@ -111,7 +111,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
       KeyFactory.makeSingleKey(classOf[String], classOf[Value[String]], DataQuery.of(LibPlugin.Id, "channel", "currentChannel"))
     override def getSubjectOption(subject: Subject, option: String): Option[String] = subject match {
       case optSubject: OptionSubject => optSubject.getOption(option).toOption
-      case _ => None
+      case _                         => None
     }
   }
 }

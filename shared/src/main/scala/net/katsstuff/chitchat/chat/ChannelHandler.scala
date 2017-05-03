@@ -53,9 +53,9 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   /**
     * The global channel. This channel should always be present.
     */
-  def globalChannel: Channel              = channels(GlobalName)
-  def allChannels:   Map[String, Channel] = channels.toMap
-  def getChannel(name: String): Option[Channel] = channels.get(name)
+  def globalChannel:            Channel              = channels(GlobalName)
+  def allChannels:              Map[String, Channel] = channels.toMap
+  def getChannel(name: String): Option[Channel]      = channels.get(name)
 
   /**
     * Adds a new channel and saves all the channels.

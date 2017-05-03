@@ -17,7 +17,7 @@ trait ChitChatPlugin extends KatPlugin {
   trait VersionHelper {
 
     def getSubjectOption(subject: Subject, option: String): Option[String]
-    def levelUpSound: SoundType
+    def levelUpSound:                                       SoundType
 
     def ChannelKey: Key[Value[String]]
   }

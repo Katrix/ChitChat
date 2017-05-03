@@ -1,4 +1,4 @@
-def removeSnapshot(str:     String): String = if (str.endsWith("-SNAPSHOT")) str.substring(0, str.length - 9) else str
+def removeSnapshot(str: String): String = if (str.endsWith("-SNAPSHOT")) str.substring(0, str.length - 9) else str
 def katLibDependecy(module: String) = "com.github.Katrix-.KatLib" % s"katlib-$module" % "develop-SNAPSHOT" % Provided
 
 lazy val publishResolver = {
