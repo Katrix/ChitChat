@@ -74,6 +74,7 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
         GenericArguments.remainingJoinedStrings(LibCommandKey.Message)
       )
       .description(t"Send a message to another player")
+      .extendedDescription(t"The player is optional if you they were the previous player you sent a message to")
       .permission(LibPerm.PMCmd)
       .executor(this)
       .build()

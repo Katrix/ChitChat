@@ -58,7 +58,7 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends CommandBas
     CommandSpec
       .builder()
       .arguments(GenericArguments.remainingJoinedStrings(LibCommandKey.Message))
-      .description(t"Send a message to another player")
+      .description(t"Sends a PM to the person you most recently had a conversation with")
       .permission(LibPerm.PMCmd)
       .executor(this)
       .build()
