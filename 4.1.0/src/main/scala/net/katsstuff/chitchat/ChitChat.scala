@@ -98,6 +98,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
   def reload(event: GameReloadEvent): Unit = {
     configLoader.reload()
     _config = configLoader.loadData
+    storageLoader.reload()
     channelHandler.reloadChannels()
   }
 
