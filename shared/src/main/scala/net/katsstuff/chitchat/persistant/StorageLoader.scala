@@ -17,7 +17,7 @@ class StorageLoader(dir: Path)(implicit plugin: KatPlugin)
     extends ConfigurateBase[Map[String, Channel], ConfigurationNode, GsonConfigurationLoader](
       dir,
       "storage.json",
-      path => GsonConfigurationLoader.builder().setPath(path).build()
+      path => GsonConfigurationLoader.builder().setPath(path).setPreservesHeader(true).build()
     ) {
 
   private val mapTypeToken = typeToken[JMap[String, Channel]]
