@@ -22,11 +22,13 @@ class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
       name <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterError)
       _    <- if (src.hasPermission(s"${LibPerm.CreateChannelCmd}.$name")) Right(()) else Left(missingPermissionChannel)
     } yield
-      (name,
-       serializer.deserialize(args.one(LibCommandKey.ChannelPrefix).getOrElse("")),
-       serializer.deserialize(args.one(LibCommandKey.ChannelDescription).getOrElse("")),
-       args.one(LibCommandKey.ChannelType),
-       args.one(LibCommandKey.ChannelExtra))
+      (
+        name,
+        serializer.deserialize(args.one(LibCommandKey.ChannelPrefix).getOrElse("")),
+        serializer.deserialize(args.one(LibCommandKey.ChannelDescription).getOrElse("")),
+        args.one(LibCommandKey.ChannelType),
+        args.one(LibCommandKey.ChannelExtra)
+      )
 
     val channel = data match {
       case Right((name, prefix, description, None, None)) =>

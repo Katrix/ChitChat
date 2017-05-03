@@ -12,9 +12,8 @@ import io.github.katrix.katlib.persistant.{CommentedConfigValue, ConfigLoader, C
 
 class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends ConfigLoader[ChitChatConfig](dir, identity) {
 
-  def reload(): Unit = {
+  def reload(): Unit =
     cfgRoot = cfgLoader.load()
-  }
 
   override def loadData: ChitChatConfig = {
     val loaded = cfgRoot.getNode("version").getString("1") match {

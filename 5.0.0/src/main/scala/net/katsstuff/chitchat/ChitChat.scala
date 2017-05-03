@@ -26,7 +26,7 @@ import io.github.katrix.katlib.{ImplKatPlugin, KatLib}
 import net.katsstuff.chitchat.chat.{ChannelHandler, ChatListener}
 import net.katsstuff.chitchat.chat.channel.{Channel, SimpleChannel}
 import net.katsstuff.chitchat.chat.data.{ChannelData, ChannelDataBuilder, ImmutableChannelData}
-import net.katsstuff.chitchat.command.{CmdModChannel, CmdAnnounce, CmdInChannel, CmdJoinChannel, CmdListChannel, CmdMe, CmdPm, CmdReply, CmdShout}
+import net.katsstuff.chitchat.command.{CmdAnnounce, CmdInChannel, CmdJoinChannel, CmdListChannel, CmdMe, CmdModChannel, CmdPm, CmdReply, CmdShout}
 import net.katsstuff.chitchat.lib.LibPlugin
 import net.katsstuff.chitchat.persistant.{ChitChatConfig, ChitChatConfigLoader, StorageLoader}
 import ninja.leaping.configurate.objectmapping.serialize.{TypeSerializer, TypeSerializers}
@@ -73,7 +73,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
 
     channelHandler.registry.registerChannelType("simple", {
       case (name, prefix, description, none) if none.trim.isEmpty => Right(new SimpleChannel(name, prefix, description, Set()))
-      case _ => Left(t"${RED}This channel does not take extra arguments")
+      case _                                                      => Left(t"${RED}This channel does not take extra arguments")
     })
     Sponge.getDataManager.register(classOf[ChannelData], classOf[ImmutableChannelData], new ChannelDataBuilder)
 

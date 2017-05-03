@@ -16,12 +16,12 @@ object TextHelper {
   /**
     * Gets the color at the end of a [[Text]].
     */
-  def getColorAtEnd(text:  Text): Option[TextColor]  = getTextAtEnd(text, _.getColor != TextColors.NONE).map(_.getColor)
+  def getColorAtEnd(text: Text): Option[TextColor] = getTextAtEnd(text, _.getColor != TextColors.NONE).map(_.getColor)
 
   /**
     * Gets the style at the end of a [[Text]].
     */
-  def getStyleAtEnd(text:  Text): Option[TextStyle]  = getTextAtEnd(text, _.getStyle != TextStyles.NONE).map(_.getStyle)
+  def getStyleAtEnd(text: Text): Option[TextStyle] = getTextAtEnd(text, _.getStyle != TextStyles.NONE).map(_.getStyle)
 
   /**
     * Gets some [[Text]] at the end of another [[Text]], according to a

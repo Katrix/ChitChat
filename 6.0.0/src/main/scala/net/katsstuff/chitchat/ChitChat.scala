@@ -76,8 +76,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
       case _                                                      => Left(t"${RED}This channel does not take extra arguments")
     })
 
-    DataRegistration
-      .builder
+    DataRegistration.builder
       .dataClass[ChannelData, ImmutableChannelData](classOf[ChannelData])
       .immutableClass(classOf[ImmutableChannelData])
       .builder(new ChannelDataBuilder())
