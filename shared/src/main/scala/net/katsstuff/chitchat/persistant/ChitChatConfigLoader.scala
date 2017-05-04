@@ -60,9 +60,9 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
       ConfigValue(
         TextTemplate.of(
           t"${DARK_PURPLE}From ",
-          TextTemplate.arg(Sender).color(AQUA),
+          TextTemplate.arg(Sender).color(DARK_AQUA),
           t" ${DARK_PURPLE}to ",
-          TextTemplate.arg(Receiver).color(AQUA),
+          TextTemplate.arg(Receiver).color(DARK_AQUA),
           t"$DARK_PURPLE: "
         ),
         "The template used for PMs",

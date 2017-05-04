@@ -56,7 +56,7 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
   implicit private val plugin: ChitChatPlugin = this
 
   private lazy val configLoader            = new ChitChatConfigLoader(configDir)
-  lazy val storageLoader                   = new StorageLoader(configDir)
+  private lazy val storageLoader           = new StorageLoader(configDir)
   private lazy implicit val channelHandler = new ChannelHandler(storageLoader)
 
   private var _config: ChitChatConfig = _

@@ -25,7 +25,7 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
 
   private implicit object HandlerOnly extends HandlerOnly
 
-  private var channels: mutable.HashMap[String, Channel] = _
+  private val channels: mutable.HashMap[String, Channel] = mutable.HashMap.empty
   val registry = new ChannelRegistry
   reloadChannels()
 

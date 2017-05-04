@@ -1,12 +1,14 @@
 #ChitChat
 ChitChat is a powerful chat plugin that allows you to make the chat look just like you want it to. ChitChat allows you to make custom chat channels, and control who can enter those channels. ChitChat also provides basic commands like pm, me, broadcast, which you can also change the format of.
 
+ChitChat needs KatLib 2.1.0.
+
 ##Features
 - Divide chat into channels.
 - Create, modify and remove channels on the fly.
 - Makes ugly commands look good.
 - Completely customizable how every command and normal chat looks.
-- Play a sound every time a player receives a PM, or is mentioned in chat
+- Play a sound every time a player is mentioned in chat
 - Uses TextTemplateAppliers, which means that it will play nice with other chat plugins that also uses them
 
 ##Formatting
@@ -23,8 +25,8 @@ The second type of formatting you would want to do is to format how a player is 
 - `/chitchat help [<command>]` - If used with no parameters shows the help for all the commands registered by ChitChat. You can also show the help for individual commands by specifying the parameters to be that command. This also works with subcommands.
 - `/me <message>` - Act out an action.
 - `/channelmod|chmod` - Interface for editing different channels.
-- `/channelmod|chmod edit|modify [--name <name>] [--prefix <prefix>] [--description <description>] [--extra <extra...>]` - Change a channel's settings.
-- `/channelmod|chmod create|new <name> [prefix] [description] [type] [extra...]` - Create a new channel.
+- `/channelmod|chmod edit|modify [--name <name>] [--prefix <prefix>] [--description <description>] [--extra <extra...>]` - Change a channel's settings. Note that you can use quotes to include spaces. So if you for example wanted to change the name and description, you would do `/chmod edit MyChannel --name MyNewChannel --description "This is a description"`. Don't worry about the type and extra field, they are currently unused.
+- `/channelmod|chmod create|new <name> [prefix] [description] [type] [extra...]` - Create a new channel. Note that you can use quotes to include spaces. Don't worry about the type and extra field, they are currently unused.
 - `/channelmod|chmod delete|remove <channel>` - Delete a channel.
 - `/pm|msg|whisper [player] <message>` - Send a message to another player. The player is optional if you they were the previous player you sent a message to.
 - `/r|reply <message>` - Sends a PM to the person you most recently had a conversation with. Same as `/pm <message>`
