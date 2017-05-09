@@ -92,8 +92,9 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
       case None =>
     }
 
-    //Console knows all!!!
-    event.getChannel.toOption.foreach(c => event.setChannel(new CombinedMessageChannel(c, MessageChannel.TO_CONSOLE)))
+    if(event.getCause.contains(SendToConsole)) {
+      event.getChannel.toOption.foreach(c => event.setChannel(new CombinedMessageChannel(c, MessageChannel.TO_CONSOLE)))
+    }
   }
 
   @Listener
@@ -130,3 +131,5 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
       .withFilter(_.getParameters.containsKey(parameterName))
       .map(_.getParameter(parameterName))
 }
+
+object SendToConsole

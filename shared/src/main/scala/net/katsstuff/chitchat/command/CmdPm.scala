@@ -23,6 +23,7 @@ import io.github.katrix.katlib.command.CommandBase
 import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.lib.LibCommonTCommandKey
 import net.katsstuff.chitchat.ChitChatPlugin
+import net.katsstuff.chitchat.chat.SendToConsole
 import net.katsstuff.chitchat.helper.TextHelper
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
@@ -38,7 +39,7 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
 
     data match {
       case Right((player, message)) =>
-        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
+        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).named("SendToConsole", SendToConsole).build()
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.pmTemplate.value)
         headerApplier.setParameter(plugin.config.Sender, src.getName.text)
         headerApplier.setParameter(plugin.config.Receiver, player.getName.text)
