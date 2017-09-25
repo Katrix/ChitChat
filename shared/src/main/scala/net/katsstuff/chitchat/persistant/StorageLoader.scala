@@ -22,21 +22,22 @@ class StorageLoader(dir: Path)(implicit plugin: KatPlugin)
 
   private val mapTypeToken = typeToken[JMap[String, Channel]]
 
-  def reload(): Unit =
-    cfgRoot = cfgLoader.load()
+  def reload(): Unit = cfgRoot = cfgLoader.load()
 
   override def loadData: Map[String, Channel] = {
     val node = channelNode
     versionNode.getString("1") match {
       case "1" =>
         Option(node.getValue(mapTypeToken)).fold {
-          LogHelper.error("Could not load channels from storage.")
-          Map[String, Channel]()
+          if(versionNode.getString != null) {
+            LogHelper.error("Could not load channels from storage.")
+          }
+          Map.empty[String, Channel]
         }(map => Map(map.asScala.toSeq: _*))
 
       case unknown =>
         LogHelper.error(s"Unknown version for config $unknown. Using default")
-        Map()
+        Map.empty
     }
   }
 
