@@ -30,14 +30,22 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
 
     override val version = ConfigValue("1", "Please don't touch this", Seq("version"))
 
-    override val mentionPling = ConfigValue(true, "Should players be plinged if they are mentioned", Seq("chat", "mention-pling"))
+    override val mentionPling =
+      ConfigValue(true, "Should players be plinged if they are mentioned", Seq("chat", "mention-pling"))
 
-    override val defaultPrefix = ConfigValue(Text.EMPTY, "Prefix to add if no prefix is found", Seq("formatting", "default", "prefix"))
-    override val defaultSuffix = ConfigValue(Text.EMPTY, "Suffix to add if no suffix is found", Seq("formatting", "default", "suffix"))
+    override val defaultPrefix =
+      ConfigValue(Text.EMPTY, "Prefix to add if no prefix is found", Seq("formatting", "default", "prefix"))
+    override val defaultSuffix =
+      ConfigValue(Text.EMPTY, "Suffix to add if no suffix is found", Seq("formatting", "default", "suffix"))
 
     override val headerTemplate =
-      ConfigValue(tt"$TemplatePrefix$TemplateHeader: ", "Template to use for the header", Seq("formatting", "chat", "header-template"))
-    override def suffixTemplate = ConfigValue(tt"$TemplateSuffix", "Template to use for the suffix", Seq("formatting", "chat", "suffix-template"))
+      ConfigValue(
+        tt"$TemplatePrefix$TemplateHeader: ",
+        "Template to use for the header",
+        Seq("formatting", "chat", "header-template")
+      )
+    override def suffixTemplate =
+      ConfigValue(tt"$TemplateSuffix", "Template to use for the suffix", Seq("formatting", "chat", "suffix-template"))
 
     override val joinTemplate =
       ConfigValue(
@@ -53,7 +61,11 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
       )
 
     override val announceTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"$BLUE[Announcement] $TemplateHeader: ", "The template for announcements", Seq("formatting", "cmd", "announce"))
+      ConfigValue(
+        tt"$BLUE[Announcement] $TemplateHeader: ",
+        "The template for announcements",
+        Seq("formatting", "cmd", "announce")
+      )
     override val meTemplate: CommentedConfigValue[TextTemplate] =
       ConfigValue(tt"$GOLD* $TemplateHeader ", "The template for the me cmd", Seq("formatting", "cmd", "me"))
     override val pmTemplate: CommentedConfigValue[TextTemplate] =
@@ -69,6 +81,10 @@ class ChitChatConfigLoader(dir: Path)(implicit plugin: KatPlugin) extends Config
         Seq("formatting", "cmd", "pm")
       )
     override val shoutTemplate: CommentedConfigValue[TextTemplate] =
-      ConfigValue(tt"$YELLOW$TemplateHeader shouts: ", "The template used when shouting to a channel", Seq("formatting", "cmd", "shout"))
+      ConfigValue(
+        tt"$YELLOW$TemplateHeader shouts: ",
+        "The template used when shouting to a channel",
+        Seq("formatting", "cmd", "shout")
+      )
   }
 }

@@ -36,8 +36,10 @@ trait Channel {
   def members:                                                                                Set[WeakReference[MessageReceiver]]
   def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self
 
-  def addMember(receiver: MessageReceiver)(implicit perm: HandlerOnly):    Self = this.members = members + WeakReference(receiver)
-  def removeMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self = this.members = members.filter(!_.get.contains(receiver))
+  def addMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self =
+    this.members = members + WeakReference(receiver)
+  def removeMember(receiver: MessageReceiver)(implicit perm: HandlerOnly): Self =
+    this.members = members.filter(!_.get.contains(receiver))
 
   /**
     * The display name of this type of channel.
@@ -85,7 +87,9 @@ object Channel {
     //Super hacky
     override def write(obj: Channel, node: ConfigNode): ConfigNode = {
       val withType = node.getNode("type").write(classToName(obj.getClass)).getParent
-      nameToSerializer(classToName(obj.getClass)).asInstanceOf[ConfigSerializer[obj.Self]].write(obj.asInstanceOf[obj.Self], withType)
+      nameToSerializer(classToName(obj.getClass))
+        .asInstanceOf[ConfigSerializer[obj.Self]]
+        .write(obj.asInstanceOf[obj.Self], withType)
     }
 
     override def read(node: ConfigNode): Try[Channel] =

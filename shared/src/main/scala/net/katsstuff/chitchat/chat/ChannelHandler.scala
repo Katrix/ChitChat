@@ -77,7 +77,9 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     */
   def removeChannel(channel: Channel): Boolean =
     if (channel.name != GlobalName) {
-      channel.messageChannel.send(t"${YELLOW}The channel you are in is being deleted. You are being moved to the main channel")
+      channel.messageChannel.send(
+        t"${YELLOW}The channel you are in is being deleted. You are being moved to the main channel"
+      )
       val global    = globalChannel
       val newGlobal = global.members = global.members ++ channel.members
       channels.put(newGlobal.name, newGlobal)
@@ -176,7 +178,8 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     */
   def getChannelForReceiver(receiver: MessageReceiver): Channel =
     receiver match {
-      case holder: DataHolder => channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, GlobalName), globalChannel)
+      case holder: DataHolder =>
+        channels.getOrElse(holder.getOrElse(plugin.versionHelper.ChannelKey, GlobalName), globalChannel)
       case _ =>
         channels
           .collectFirst {

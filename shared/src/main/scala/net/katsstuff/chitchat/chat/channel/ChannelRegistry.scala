@@ -31,6 +31,15 @@ class ChannelRegistry {
     * @return If the creation failed, returns the error message on the left
     *         side, else returns the channel on the right side.
     */
-  def createChannel(channelType: String, name: String, prefix: Text, description: Text, extra: String): Either[Text, Channel] =
-    channels.get(channelType).toRight(t"${RED}No channel type by that name").flatMap(f => f(name, prefix, description, extra))
+  def createChannel(
+      channelType: String,
+      name: String,
+      prefix: Text,
+      description: Text,
+      extra: String
+  ): Either[Text, Channel] =
+    channels
+      .get(channelType)
+      .toRight(t"${RED}No channel type by that name")
+      .flatMap(f => f(name, prefix, description, extra))
 }

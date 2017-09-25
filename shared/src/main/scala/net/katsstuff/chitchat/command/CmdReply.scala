@@ -36,7 +36,9 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends CommandBas
         headerApplier.setParameter(plugin.config.Receiver, receiver.getName.text)
         val headerText = headerApplier.toText
 
-        val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
+        val formatter = new MessageFormatter(
+          t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message"
+        )
         formatter.getHeader.add(headerApplier)
 
         val event     = SpongeEventFactory.createMessageChannelEvent(cause, channel, Optional.of(channel), formatter, false)

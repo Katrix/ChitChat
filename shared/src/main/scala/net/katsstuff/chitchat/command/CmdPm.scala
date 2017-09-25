@@ -33,26 +33,37 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
-      player  <- args.one(LibCommonTCommandKey.Player).orElse(conversations.get(src).flatMap(_.receiver.get)).toRight(playerNotFoundError)
+      player <- args
+        .one(LibCommonTCommandKey.Player)
+        .orElse(conversations.get(src).flatMap(_.receiver.get))
+        .toRight(playerNotFoundError)
       message <- args.one(LibCommandKey.Message).toRight(invalidParameterError)
     } yield (player, message)
 
     data match {
       case Right((player, message)) =>
-        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).named("SendToConsole", SendToConsole).build()
+        val cause = Cause
+          .builder()
+          .suggestNamed("Plugin", plugin)
+          .named(NamedCause.owner(src))
+          .named("SendToConsole", SendToConsole)
+          .build()
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.pmTemplate.value)
         headerApplier.setParameter(plugin.config.Sender, src.getName.text)
         headerApplier.setParameter(plugin.config.Receiver, player.getName.text)
         val headerText = headerApplier.toText
 
-        val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
+        val formatter = new MessageFormatter(
+          t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message"
+        )
         formatter.getHeader.add(headerApplier)
 
         val srcChannel = new PmMessageChannel(src, player)
         conversations.put(src, srcChannel)
         conversations.put(player, new PmMessageChannel(player, src))
 
-        val event     = SpongeEventFactory.createMessageChannelEvent(cause, srcChannel, Optional.of(srcChannel), formatter, false)
+        val event =
+          SpongeEventFactory.createMessageChannelEvent(cause, srcChannel, Optional.of(srcChannel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
 
         if (!cancelled) {
@@ -83,7 +94,8 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
   override def aliases: Seq[String] = Seq("pm", "msg", "whisper")
 }
 
-case class PmMessageChannel(src: WeakReference[CommandSource], receiver: WeakReference[CommandSource]) extends MessageChannel {
+case class PmMessageChannel(src: WeakReference[CommandSource], receiver: WeakReference[CommandSource])
+    extends MessageChannel {
 
   def this(src: CommandSource, receiver: CommandSource) = this(WeakReference(src), WeakReference(receiver))
 

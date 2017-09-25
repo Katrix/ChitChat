@@ -48,8 +48,6 @@ lazy val extraScalacOptions = Seq(
   "-Ywarn-unused:privates"             // Warn if a private member is unused.
 )
 
-
-
 lazy val commonSettings = Seq(
   name := s"ChitChat-${removeSnapshot(spongeApiVersion.value)}",
   organization := "net.katsstuff",
@@ -58,9 +56,7 @@ lazy val commonSettings = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
   libraryDependencies += katLibDependecy("shared"),
   scalacOptions ++= extraScalacOptions,
-  scalacOptions in (Compile, console) ~= (_.filterNot(Set(
-    "-Ywarn-unused:imports"
-  ))),
+  scalacOptions in (Compile, console) ~= (_.filterNot(Set("-Ywarn-unused:imports"))),
   crossPaths := false,
   assemblyShadeRules in assembly := Seq(
     ShadeRule.rename("scala.**"     -> "io.github.katrix.katlib.shade.scala.@1").inAll,
@@ -122,6 +118,12 @@ lazy val chitChatV600 = (project in file("6.0.0"))
   .settings(spongeApiVersion := "6.0.0-SNAPSHOT", libraryDependencies += katLibDependecy("6-0-0"))
 
 lazy val chitChatRoot = (project in file("."))
-  .settings(publishArtifact := false, assembleArtifact := false, spongeMetaCreate := false, publish := {}, publishLocal := {})
+  .settings(
+    publishArtifact := false,
+    assembleArtifact := false,
+    spongeMetaCreate := false,
+    publish := {},
+    publishLocal := {}
+  )
   .disablePlugins(AssemblyPlugin)
   .aggregate(chitChatShared, chitChatV410, chitChatV500, chitChatV600)

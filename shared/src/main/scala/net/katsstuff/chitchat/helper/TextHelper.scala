@@ -11,7 +11,8 @@ object TextHelper {
   /**
     * Gets the format at the end of a [[Text]].
     */
-  def getFormatAtEnd(text: Text): Option[TextFormat] = getTextAtEnd(text, _.getFormat != TextFormat.NONE).map(_.getFormat)
+  def getFormatAtEnd(text: Text): Option[TextFormat] =
+    getTextAtEnd(text, _.getFormat != TextFormat.NONE).map(_.getFormat)
 
   /**
     * Gets the color at the end of a [[Text]].

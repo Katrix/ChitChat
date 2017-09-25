@@ -13,7 +13,8 @@ import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
-class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(Some(cmdAdmin)) {
+class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin)
+    extends CommandBase(Some(cmdAdmin)) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val channel = args.one(LibCommandKey.Channel).getOrElse(throw channelNotFound)

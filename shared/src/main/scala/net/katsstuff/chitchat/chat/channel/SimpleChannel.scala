@@ -12,17 +12,20 @@ import io.github.katrix.katlib.serializer.TypeSerializerImpl
 import net.katsstuff.chitchat.chat.HandlerOnly
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 
-case class SimpleChannel(name: String, prefix: Text, description: Text, members: Set[WeakReference[MessageReceiver]]) extends Channel {
+case class SimpleChannel(name: String, prefix: Text, description: Text, members: Set[WeakReference[MessageReceiver]])
+    extends Channel {
   type Self = SimpleChannel
 
   lazy val messageChannel: MessageChannel = new PrefixedMessageChannel(prefix, members)
 
-  override def name_=(newName: String)(implicit perm: HandlerOnly):                                    Self               = copy(name = newName)
-  override def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly):                                  Self               = copy(prefix = newPrefix)
-  override def description_=(newDescription: Text)(implicit perm: HandlerOnly):                        Self               = copy(description = newDescription)
-  override def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self               = copy(members = newMembers)
-  override def handleExtraData(data: String):                                                          Either[Text, Self] = Left(t"This channel does not support extra data")
-  override def typeName:                                                                               String             = "Simple"
+  override def name_=(newName: String)(implicit perm: HandlerOnly):   Self = copy(name = newName)
+  override def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly): Self = copy(prefix = newPrefix)
+  override def description_=(newDescription: Text)(implicit perm: HandlerOnly): Self =
+    copy(description = newDescription)
+  override def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self =
+    copy(members = newMembers)
+  override def handleExtraData(data: String): Either[Text, Self] = Left(t"This channel does not support extra data")
+  override def typeName:                      String             = "Simple"
   override def toString: String =
     s"SimpleChannel($name, $prefix, $description, ${members.flatMap(_.get)})"
 }

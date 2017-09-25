@@ -36,11 +36,19 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
         headerApplier.setParameter(plugin.config.TemplateHeader, src.getName.text)
         val headerText = headerApplier.toText
 
-        val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
+        val formatter = new MessageFormatter(
+          t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message"
+        )
         formatter.getHeader.add(headerApplier)
 
         val event =
-          SpongeEventFactory.createMessageChannelEvent(cause, channel.messageChannel, Optional.of(channel.messageChannel), formatter, false)
+          SpongeEventFactory.createMessageChannelEvent(
+            cause,
+            channel.messageChannel,
+            Optional.of(channel.messageChannel),
+            formatter,
+            false
+          )
         val cancelled = Sponge.getEventManager.post(event)
 
         if (!cancelled) {
@@ -58,7 +66,10 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
   override def commandSpec: CommandSpec =
     CommandSpec
       .builder()
-      .arguments(new ChannelCommandArgument(LibCommandKey.Channel), GenericArguments.remainingJoinedStrings(LibCommandKey.Message))
+      .arguments(
+        new ChannelCommandArgument(LibCommandKey.Channel),
+        GenericArguments.remainingJoinedStrings(LibCommandKey.Message)
+      )
       .description(t"Sends a message to another channel")
       .permission(LibPerm.ShoutCmd)
       .executor(this)

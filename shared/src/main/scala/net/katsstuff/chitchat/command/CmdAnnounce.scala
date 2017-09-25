@@ -34,7 +34,13 @@ class CmdAnnounce(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
     val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
     formatter.getHeader.add(headerApplier)
 
-    val event     = SpongeEventFactory.createMessageChannelEvent(cause, MessageChannel.TO_ALL, Optional.of(MessageChannel.TO_ALL), formatter, false)
+    val event = SpongeEventFactory.createMessageChannelEvent(
+      cause,
+      MessageChannel.TO_ALL,
+      Optional.of(MessageChannel.TO_ALL),
+      formatter,
+      false
+    )
     val cancelled = Sponge.getEventManager.post(event)
 
     if (!cancelled) {

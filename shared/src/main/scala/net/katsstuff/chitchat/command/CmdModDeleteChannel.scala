@@ -11,12 +11,14 @@ import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
-class CmdModDeleteChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(Some(cmdAdmin)) {
+class CmdModDeleteChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin)
+    extends CommandBase(Some(cmdAdmin)) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val data = for {
       channel <- args.one(LibCommandKey.Channel).toRight(invalidParameterError)
-      _       <- if (src.hasPermission(s"${LibPerm.DeleteChannelCmd}.${channel.name}")) Right(()) else Left(missingPermissionChannel)
+      _ <- if (src.hasPermission(s"${LibPerm.DeleteChannelCmd}.${channel.name}")) Right(())
+      else Left(missingPermissionChannel)
     } yield channel
 
     data match {

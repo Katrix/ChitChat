@@ -14,9 +14,12 @@ package object command {
   val userTypeable:   Typeable[User]   = Typeable[User]
   val playerTypeable: Typeable[Player] = Typeable[Player]
 
-  def button(label: Text)(command: String): Text = t"[$label]".toBuilder.onClick(TextActions.suggestCommand(command)).build()
+  def button(label: Text)(command: String): Text =
+    t"[$label]".toBuilder.onClick(TextActions.suggestCommand(command)).build()
 
-  def nonUserError:             CommandException = new CommandException(t"${RED}You need to be a user to be able to use this command")
-  def channelNotFound:          CommandException = new CommandException(t"${RED}No channel with that name found")
-  def missingPermissionChannel: CommandException = new CommandException(t"${RED}You don't have the permission to do that with this channel")
+  def nonUserError: CommandException =
+    new CommandException(t"${RED}You need to be a user to be able to use this command")
+  def channelNotFound: CommandException = new CommandException(t"${RED}No channel with that name found")
+  def missingPermissionChannel: CommandException =
+    new CommandException(t"${RED}You don't have the permission to do that with this channel")
 }

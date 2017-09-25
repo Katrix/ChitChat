@@ -92,7 +92,7 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
       case None =>
     }
 
-    if(event.getCause.contains(SendToConsole)) {
+    if (event.getCause.contains(SendToConsole)) {
       event.getChannel.toOption.foreach(c => event.setChannel(new CombinedMessageChannel(c, MessageChannel.TO_CONSOLE)))
     }
   }
@@ -105,9 +105,13 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
     player.sendMessage(t"${YELLOW}You are chatting in ${handler.getChannelForReceiver(player).name}")
   }
 
-  @Listener def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit = formatConnectEvent(event, cfg.disconnectTemplate.value)
+  @Listener def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit =
+    formatConnectEvent(event, cfg.disconnectTemplate.value)
 
-  def formatConnectEvent(event: ClientConnectionEvent with MessageEvent with TargetPlayerEvent, template: TextTemplate): Unit = {
+  def formatConnectEvent(
+      event: ClientConnectionEvent with MessageEvent with TargetPlayerEvent,
+      template: TextTemplate
+  ): Unit = {
     val appliers = event.getFormatter.getBody.getAll.asScala
     val player   = event.getTargetEntity
     val name     = findNameConnect(appliers, "body").getOrElse(t"${player.getName}")

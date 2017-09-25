@@ -13,7 +13,8 @@ import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.chat.channel.SimpleChannel
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
-class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin) extends CommandBase(Some(cmdAdmin)) {
+class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin)
+    extends CommandBase(Some(cmdAdmin)) {
 
   override def execute(src: CommandSource, args: CommandContext): CommandResult = {
     val serializer = TextSerializers.FORMATTING_CODE

@@ -23,7 +23,8 @@ object AdvancedChannelAST {
     def next: Option[Transformation]
   }
 
-  final case class TransformationConstant(name: String, next: Option[Transformation])                              extends Transformation
-  final case class TransformationApply(name: String, arguments: Map[String, String], next: Option[Transformation]) extends Transformation
+  final case class TransformationConstant(name: String, next: Option[Transformation]) extends Transformation
+  final case class TransformationApply(name: String, arguments: Map[String, String], next: Option[Transformation])
+      extends Transformation
 
 }

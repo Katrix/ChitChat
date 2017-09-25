@@ -10,7 +10,8 @@ import io.github.katrix.katlib.persistant.CommentedConfigValue
 import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.objectmapping.ObjectMappingException
 
-class ChitChatConfigV1(cfgRoot: CommentedConfigurationNode, default: ChitChatConfig)(implicit plugin: KatPlugin) extends ChitChatConfig {
+class ChitChatConfigV1(cfgRoot: CommentedConfigurationNode, default: ChitChatConfig)(implicit plugin: KatPlugin)
+    extends ChitChatConfig {
 
   override val version: CommentedConfigValue[String] = configValue(default.version)
 

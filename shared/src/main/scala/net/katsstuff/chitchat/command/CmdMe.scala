@@ -29,7 +29,9 @@ class CmdMe(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
     headerApplier.setParameter(plugin.config.TemplateHeader, src.getName.text)
     val headerText = headerApplier.toText
 
-    val formatter = new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$rawMessage")
+    val formatter = new MessageFormatter(
+      t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$rawMessage"
+    )
     formatter.getHeader.add(headerApplier)
 
     val event = SpongeEventFactory

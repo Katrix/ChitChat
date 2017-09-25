@@ -23,13 +23,16 @@ class CmdModChannel(implicit handler: ChannelHandler, plugin: KatPlugin) extends
       .sortBy(_._1)
       .map {
         case (channelName, channel) =>
-          val setName        = button(t"${YELLOW}Set name")(s"/channelmod edit $channelName --name <newName>")
-          val setPrefix      = button(t"${YELLOW}Set prefix")(s"/channelmod edit $channelName --prefix <newprefix>")
-          val setDescription = button(t"${YELLOW}Set description")(s"/channelmod edit $channelName --description <newDescription>")
+          val setName   = button(t"${YELLOW}Set name")(s"/channelmod edit $channelName --name <newName>")
+          val setPrefix = button(t"${YELLOW}Set prefix")(s"/channelmod edit $channelName --prefix <newprefix>")
+          val setDescription =
+            button(t"${YELLOW}Set description")(s"/channelmod edit $channelName --description <newDescription>")
 
           val extraSets = channel.extraData.values.map { extraData =>
             val extraDataName = extraData.displayName
-            button(t"${YELLOW}Set $extraDataName")(s"/channelmod edit $channelName --extra $extraDataName <new${extraDataName.capitalize}")
+            button(t"${YELLOW}Set $extraDataName")(
+              s"/channelmod edit $channelName --extra $extraDataName <new${extraDataName.capitalize}"
+            )
           }
 
           val combinedExtra = Text.of(extraSets.toSeq: _*)

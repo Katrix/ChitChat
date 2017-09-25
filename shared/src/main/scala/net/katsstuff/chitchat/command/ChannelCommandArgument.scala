@@ -10,10 +10,12 @@ import org.spongepowered.api.text.Text
 
 import net.katsstuff.chitchat.chat.ChannelHandler
 
-class ChannelCommandArgument(key: Option[Text])(implicit handler: ChannelHandler) extends PatternMatchingCommandElement(key.orNull) {
+class ChannelCommandArgument(key: Option[Text])(implicit handler: ChannelHandler)
+    extends PatternMatchingCommandElement(key.orNull) {
 
   def this(key: Text)(implicit handler: ChannelHandler) = this(Some(key))
 
-  override def getValue(choice: String):          AnyRef           = handler.getChannel(choice).getOrElse(throw new IllegalArgumentException)
+  override def getValue(choice: String): AnyRef =
+    handler.getChannel(choice).getOrElse(throw new IllegalArgumentException)
   override def getChoices(source: CommandSource): Iterable[String] = handler.allChannels.keys.asJava
 }
