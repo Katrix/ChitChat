@@ -30,36 +30,39 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
         val formatter      = event.getFormatter
         val oldSerializer  = TextSerializers.FORMATTING_CODE
         val jsonSerializer = TextSerializers.JSON
-        val plainName      = findNameChat(formatter.getHeader.getAll.asScala, "header").getOrElse(t"${player.getName}")
+        val name           = findNameChat(formatter.getHeader.getAll.asScala, "header").getOrElse(t"${player.getName}")
 
         val versionHelper = plugin.versionHelper
 
+        //Search for a option to use, trying both json and formatting codes
         def getTextOption(variant: String, default: => Text) =
           versionHelper
             .getSubjectOption(player, s"json$variant")
             .map(jsonSerializer.deserialize)
-            .orElse(
+            .orElse {
               versionHelper
                 .getSubjectOption(player, variant)
                 .map(oldSerializer.deserialize)
-            )
+            }
             .getOrElse(default)
 
         val prefix = getTextOption("prefix", cfg.defaultPrefix.value)
         val suffix = getTextOption("suffix", cfg.defaultSuffix.value)
 
-        val stringNameColor = versionHelper.getSubjectOption(player, "namestyle")
-        val textFormat      = stringNameColor.flatMap(s => TextHelper.getFormatAtEnd(oldSerializer.deserialize(s)))
-        val name            = textFormat.map(f => t"$f$plainName").getOrElse(plainName)
+        val stringFormat  = versionHelper.getSubjectOption(player, "namestyle")
+        val textFormat    = stringFormat.flatMap(s => TextHelper.getFormatAtEnd(oldSerializer.deserialize(s)))
+        val formattedName = textFormat.map(format => t"$format$name").getOrElse(name)
 
         for (applier <- formatter.getHeader.asScala) {
           if (applier.getParameters.containsKey("header")) {
             applier.setTemplate(cfg.headerTemplate.value)
-            applier.setParameter("header", name)
           }
+
+          applier.setParameter("header", formattedName)
           applier.setParameter(cfg.TemplatePrefix, prefix)
         }
 
+        //Colors the body from formatting codes. This might destroy other data
         if (player.hasPermission(LibPerm.ChatColor)) {
           for (applier <- formatter.getBody.asScala if applier.getParameters.containsKey("body")) {
             applier.getParameter("body") match {
@@ -78,9 +81,11 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
         }
 
         event.getChannel.toOption.foreach { existing =>
+          //Apply chat channel
           val playerChannel = handler.getChannelForReceiver(player)
           event.setChannel(new IntersectionMessageChannel(Set(existing, playerChannel.messageChannel)))
 
+          //Pling mention
           if (cfg.mentionPling.value) {
             val message = event.getFormatter.getBody.format.toPlain
             playerChannel.members
@@ -105,7 +110,8 @@ class ChatListener(implicit plugin: ChitChatPlugin, handler: ChannelHandler) {
     player.sendMessage(t"${YELLOW}You are chatting in ${handler.getChannelForReceiver(player).name}")
   }
 
-  @Listener def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit =
+  @Listener
+  def onDisconnect(event: ClientConnectionEvent.Disconnect): Unit =
     formatConnectEvent(event, cfg.disconnectTemplate.value)
 
   def formatConnectEvent(

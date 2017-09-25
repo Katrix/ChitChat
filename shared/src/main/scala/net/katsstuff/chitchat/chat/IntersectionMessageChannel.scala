@@ -22,16 +22,19 @@ class IntersectionMessageChannel(val channels: Set[MessageChannel]) extends Mess
       recipient: MessageReceiver,
       original: Text,
       `type`: ChatType
-  ): Optional[Text] =
-    Optional.ofNullable(
-      channels
-        .foldLeft(original)((acc, channel) => channel.transformMessage(sender, recipient, acc, `type`).orElse(acc))
+  ): Optional[Text] = {
+    val transformedText = channels.foldLeft(original)(
+      (acc, channel) => channel.transformMessage(sender, recipient, acc, `type`).orElse(acc)
     )
 
-  override def getMembers: util.Collection[MessageReceiver] =
-    channels
-      .map(_.getMembers.asScala.toSet)
-      .reduceLeftOption((acc, members) => acc.intersect(members))
-      .getOrElse(Set())
+    Optional.ofNullable(transformedText)
+  }
+
+  override def getMembers: util.Collection[MessageReceiver] = {
+    val allMembers = channels.map(_.getMembers.asScala.toSet)
+
+    allMembers
+      .foldLeft(allMembers.flatten)((acc, members) => acc.intersect(members))
       .asJava
+  }
 }

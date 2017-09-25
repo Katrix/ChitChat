@@ -13,7 +13,7 @@ import org.spongepowered.api.text.format.TextColors._
 import io.github.katrix.katlib.helper.Implicits._
 import net.katsstuff.chitchat.ChitChatPlugin
 import net.katsstuff.chitchat.chat.channel.{Channel, ChannelRegistry, SimpleChannel}
-import net.katsstuff.chitchat.chat.data.ChannelData
+import net.katsstuff.chitchat.chat.data.{ChannelData, ImmutableChannelData}
 import net.katsstuff.chitchat.persistant.StorageLoader
 
 class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
@@ -22,8 +22,6 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     * The name of the global channel. This channel should always be present.
     */
   final val GlobalName = "Global"
-
-  private implicit object HandlerOnly extends HandlerOnly
 
   private val channels: mutable.HashMap[String, Channel] = mutable.HashMap.empty
   val registry = new ChannelRegistry
@@ -39,7 +37,7 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     channels ++= storage.loadData
 
     if (!channels.contains(GlobalName)) {
-      channels.put(GlobalName, SimpleChannel(GlobalName, t"${GOLD}G", t"The global channel", Set()))
+      channels.put(GlobalName, SimpleChannel(GlobalName, t"${GOLD}G", t"The global channel", Set.empty))
     }
 
     Sponge.getServer.getOnlinePlayers.asScala.foreach(loginPlayer)
@@ -48,7 +46,7 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   /**
     * Saves the channels using the [[StorageLoader]].
     */
-  def saveChannels(): Unit = storage.saveData(channels.toMap)
+  private def saveChannels(): Unit = storage.saveData(channels.toMap)
 
   /**
     * The global channel. This channel should always be present.
@@ -62,13 +60,15 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     * The channel name may not be the same as [[GlobalName]]
     */
   def addChannel(channel: Channel): Boolean =
-    if (channels.contains(channel.name) && channel.name != GlobalName) {
-      false
-    } else {
-      channels.put(channel.name, channel)
-      saveChannels()
+    if (!channels.contains(channel.name) && channel.name != GlobalName) {
+      modifyChannelSave(channel)
       true
-    }
+    } else false
+
+  private def modifyChannelSave(channel: Channel): Unit = {
+    channels.put(channel.name, channel)
+    saveChannels()
+  }
 
   /**
     * Removes a channel, moves all of it's members to the global channel and
@@ -78,14 +78,19 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   def removeChannel(channel: Channel): Boolean =
     if (channel.name != GlobalName) {
       channel.messageChannel.send(
-        t"${YELLOW}The channel you are in is being deleted. You are being moved to the main channel"
+        t"${YELLOW}The channel you are in is being deleted. You are being moved to the global channel"
       )
+
+      val data = new ImmutableChannelData(GlobalName)
+      channel.members.flatMap(_.get).foreach {
+        case holder: DataHolder => holder.offer(data.asMutable())
+        case _ => //Do nothing
+      }
       val global    = globalChannel
       val newGlobal = global.members = global.members ++ channel.members
-      channels.put(newGlobal.name, newGlobal)
 
       channels.remove(channel.name)
-      saveChannels()
+      modifyChannelSave(newGlobal)
       true
     } else false
 
@@ -96,26 +101,21 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   def renameChannel(channel: Channel, newName: String): Boolean =
     if (channel.name != GlobalName) {
       channels.remove(channel.name)
-      channels.put(newName, channel.name = newName)
-      saveChannels()
+      modifyChannelSave(channel.name = newName)
       true
     } else false
 
   /**
     * Sets the prefix for a channel and saves all the channels.
     */
-  def setChannelPrefix(channel: Channel, newPrefix: Text): Unit = {
-    channels.put(channel.name, channel.prefix = newPrefix)
-    saveChannels()
-  }
+  def setChannelPrefix(channel: Channel, newPrefix: Text): Unit =
+    modifyChannelSave(channel.prefix = newPrefix)
 
   /**
     * Sets the prefix for a channel and saves all the channels.
     */
-  def setChannelDescription(channel: Channel, newDescription: Text): Unit = {
-    channels.put(channel.name, channel.description = newDescription)
-    saveChannels()
-  }
+  def setChannelDescription(channel: Channel, newDescription: Text): Unit =
+    modifyChannelSave(channel.description = newDescription)
 
   /**
     * Sets extra data for a channel and saves all the channels.
@@ -123,9 +123,8 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
   def setExtraData(channel: Channel, extra: String): Option[Text] = {
     val handled = channel.handleExtraData(extra)
 
-    handled.fold(Some(_), newChannel => {
-      channels.put(newChannel.name, newChannel)
-      saveChannels()
+    handled.fold(e => Some(e), newChannel => {
+      modifyChannelSave(newChannel)
       None
     })
   }
@@ -188,9 +187,3 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
           .getOrElse(globalChannel)
     }
 }
-
-/**
-  * Represents that if this type is defined as an implicit parameter on a
-  * method, that method may only be called from within the [[ChannelHandler]].
-  */
-sealed trait HandlerOnly

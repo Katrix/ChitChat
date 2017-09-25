@@ -18,14 +18,15 @@ case class SimpleChannel(name: String, prefix: Text, description: Text, members:
 
   lazy val messageChannel: MessageChannel = new PrefixedMessageChannel(prefix, members)
 
-  override def name_=(newName: String)(implicit perm: HandlerOnly):   Self = copy(name = newName)
-  override def prefix_=(newPrefix: Text)(implicit perm: HandlerOnly): Self = copy(prefix = newPrefix)
-  override def description_=(newDescription: Text)(implicit perm: HandlerOnly): Self =
-    copy(description = newDescription)
-  override def members_=(newMembers: Set[WeakReference[MessageReceiver]])(implicit perm: HandlerOnly): Self =
-    copy(members = newMembers)
+  override def name_=(newName: String):                                    Self = copy(name = newName)
+  override def prefix_=(newPrefix: Text):                                  Self = copy(prefix = newPrefix)
+  override def description_=(newDescription: Text):                        Self = copy(description = newDescription)
+  override def members_=(newMembers: Set[WeakReference[MessageReceiver]]): Self = copy(members = newMembers)
+
   override def handleExtraData(data: String): Either[Text, Self] = Left(t"This channel does not support extra data")
-  override def typeName:                      String             = "Simple"
+
+  override def typeName: String = "Simple"
+
   override def toString: String =
     s"SimpleChannel($name, $prefix, $description, ${members.flatMap(_.get)})"
 }
@@ -34,7 +35,7 @@ object SimpleChannel {
 
   //We want to ignore the members field
 
-  implicit private val textSerializer =
+  implicit private val textSerializer: ConfigSerializer[Text] =
     TypeSerializerImpl.fromTypeSerializer(TypeSerializers.getDefaultSerializers.get(typeToken[Text]), classOf[Text])
 
   implicit object SimpleChannelSerializer extends ConfigSerializer[SimpleChannel] {
@@ -50,7 +51,7 @@ object SimpleChannel {
         name        <- node.getNode("name").read[String]
         prefix      <- node.getNode("prefix").read[Text]
         description <- node.getNode("description").read[Text]
-      } yield SimpleChannel(name, prefix, description, Set())
+      } yield SimpleChannel(name, prefix, description, Set.empty)
   }
 
 }
