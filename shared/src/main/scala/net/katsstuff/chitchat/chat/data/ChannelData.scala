@@ -15,7 +15,8 @@ import org.spongepowered.api.data.{DataContainer, DataHolder, DataView}
 import net.katsstuff.chitchat.ChitChatPlugin
 
 class ChannelData(_value: String)(implicit plugin: ChitChatPlugin)
-    extends AbstractSingleData[String, ChannelData, ImmutableChannelData](_value, plugin.versionHelper.ChannelKey) {
+    extends AbstractSingleData[String, ChannelData, ImmutableChannelData](_value, plugin.versionHelper.ChannelKey)
+      with Comparable[ChannelData] /*Adding in Comparable makes it easy to keep compat with API 4*/ {
 
   override def asImmutable(): ImmutableChannelData = new ImmutableChannelData(getValue)
 
@@ -47,7 +48,7 @@ class ImmutableChannelData(_value: String)(implicit plugin: ChitChatPlugin)
     extends AbstractImmutableSingleData[String, ImmutableChannelData, ChannelData](
       _value,
       plugin.versionHelper.ChannelKey
-    ) {
+    ) with Comparable[ImmutableChannelData] {
 
   override def asMutable(): ChannelData = new ChannelData(value)
 

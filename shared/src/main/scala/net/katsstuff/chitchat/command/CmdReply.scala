@@ -7,7 +7,6 @@ import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.command.{CommandException, CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
-import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextFormat
@@ -31,7 +30,7 @@ class CmdReply(pmCmd: CmdPm)(implicit plugin: ChitChatPlugin) extends LocalizedC
 
     data match {
       case Right((receiver, message, channel)) =>
-        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
+        val cause         = plugin.versionHelper.createChatCause(src)
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.pmTemplate.value)
         headerApplier.setParameter(plugin.config.Sender, src.getName.text)
         headerApplier.setParameter(plugin.config.Receiver, receiver.getName.text)

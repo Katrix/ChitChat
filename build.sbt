@@ -116,7 +116,13 @@ lazy val chitChatV600 = (project in file("6.0.0"))
   .enablePlugins(SpongePlugin)
   .dependsOn(chitChatShared)
   .settings(commonSettings: _*)
-  .settings(spongeApiVersion := "6.0.0-SNAPSHOT", libraryDependencies += katLibDependecy("6-0-0"))
+  .settings(spongeApiVersion := "6.0.0", libraryDependencies += katLibDependecy("6-0-0"))
+
+lazy val chitChatV700 = (project in file("7.0.0"))
+  .enablePlugins(SpongePlugin)
+  .dependsOn(chitChatShared)
+  .settings(commonSettings: _*)
+  .settings(spongeApiVersion := "7.0.0-SNAPSHOT", libraryDependencies += katLibDependecy("7-0-0"))
 
 lazy val chitChatRoot = (project in file("."))
   .settings(
@@ -127,4 +133,4 @@ lazy val chitChatRoot = (project in file("."))
     publishLocal := {}
   )
   .disablePlugins(AssemblyPlugin)
-  .aggregate(chitChatShared, chitChatV410, chitChatV500, chitChatV600)
+  .aggregate(chitChatShared, chitChatV410, chitChatV500, chitChatV600, chitChatV700)

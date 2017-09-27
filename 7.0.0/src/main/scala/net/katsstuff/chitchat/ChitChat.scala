@@ -6,17 +6,16 @@ import org.slf4j.Logger
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.command.CommandSource
 import org.spongepowered.api.config.ConfigDir
-import org.spongepowered.api.data.DataQuery
+import org.spongepowered.api.data.{DataQuery, DataRegistration}
 import org.spongepowered.api.data.key.{Key, KeyFactory}
 import org.spongepowered.api.data.value.mutable.Value
 import org.spongepowered.api.effect.sound.{SoundType, SoundTypes}
 import org.spongepowered.api.event.Listener
-import org.spongepowered.api.event.cause.{Cause, NamedCause}
+import org.spongepowered.api.event.cause.{Cause, EventContext, EventContextKey, EventContextKeys, NamedCause}
 import org.spongepowered.api.event.game.GameReloadEvent
 import org.spongepowered.api.event.game.state.{GameConstructionEvent, GameInitializationEvent}
 import org.spongepowered.api.plugin.{Dependency, Plugin, PluginContainer}
 import org.spongepowered.api.service.permission.Subject
-import org.spongepowered.api.service.permission.option.OptionSubject
 import org.spongepowered.api.text.format.TextColors._
 
 import com.google.inject.Inject
@@ -37,7 +36,7 @@ import ninja.leaping.configurate.objectmapping.serialize.{TypeSerializer, TypeSe
 object ChitChat {
 
   final val Version         = s"${KatLib.CompiledAgainst}-2.0.1"
-  final val ConstantVersion = "4.1.0-2.0.1"
+  final val ConstantVersion = "6.0.0-2.0.1"
   assert(Version == ConstantVersion)
 
   private var _plugin: ChitChat = _
@@ -79,7 +78,13 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
         Right(new SimpleChannel(name, prefix, description, Set()))
       case _ => Left(t"${RED}This channel does not take extra arguments")
     })
-    Sponge.getDataManager.register(classOf[ChannelData], classOf[ImmutableChannelData], new ChannelDataBuilder)
+
+    DataRegistration.builder
+      .dataClass[ChannelData, ImmutableChannelData](classOf[ChannelData])
+      .immutableClass(classOf[ImmutableChannelData])
+      .builder(new ChannelDataBuilder())
+      .manipulatorId(s"${LibPlugin.Id}:ChannelData")
+      .buildAndRegister(container.container)
 
     Sponge.getEventManager.registerListeners(this, new ChatListener)
 
@@ -109,25 +114,27 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
     Sponge.getCommandManager.register(this, cmd.commandSpec, cmd.aliases: _*)
 
   override val versionHelper: VersionHelper = new VersionHelper {
-    override val levelUpSound: SoundType = SoundTypes.LEVEL_UP
-    override val ChannelKey: Key[Value[String]] =
-      KeyFactory.makeSingleKey(
-        classOf[String],
-        classOf[Value[String]],
-        DataQuery.of(LibPlugin.Id, "channel", "currentChannel")
-      )
-    override def getSubjectOption(subject: Subject, option: String): Option[String] = subject match {
-      case optSubject: OptionSubject => optSubject.getOption(option).toOption
-      case _                         => None
+    val SendToConsoleContextKey: EventContextKey[SendToConsole.type] = new EventContextKey[SendToConsole.type] {
+      override def getAllowedType: Class[SendToConsole.type] = classOf[SendToConsole.type]
+      override def getName: String = "SendToConsole"
+      override def getId: String = "SendToConsole"
     }
-    override def createChatCause(src: CommandSource, sendToConsole: Boolean): Cause = {
-      val causeBuilder = Cause
-        .builder()
-        .suggestNamed("Plugin", plugin)
-        .named(NamedCause.owner(src))
 
-      if(sendToConsole) causeBuilder.named("SendToConsole", SendToConsole).build()
-      else causeBuilder.build()
+    override val levelUpSound: SoundType = SoundTypes.ENTITY_PLAYER_LEVELUP
+    override val ChannelKey: Key[Value[String]] = KeyFactory.makeSingleKey(
+      typeToken[String],
+      typeToken[Value[String]],
+      DataQuery.of(LibPlugin.Id, "channel", "currentChannel"),
+      s"${LibPlugin.Id}:currentChannel",
+      "ChitChat Current Channel"
+    )
+    override def getSubjectOption(subject: Subject, option: String): Option[String] = subject.getOption(option).toOption
+    override def createChatCause(src: CommandSource, sendToConsole: Boolean): Cause = {
+      val builder = EventContext.builder().add(EventContextKeys.PLUGIN, plugin.container).add(EventContextKeys.OWNER, src)
+      val ctx = if(sendToConsole) builder.add(SendToConsoleContextKey, SendToConsole).build()
+      else builder.build()
+
+      Cause.of(ctx, src)
     }
   }
 }

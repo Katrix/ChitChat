@@ -4,12 +4,14 @@ import java.nio.file.Path
 
 import org.slf4j.Logger
 import org.spongepowered.api.Sponge
+import org.spongepowered.api.command.CommandSource
 import org.spongepowered.api.config.ConfigDir
 import org.spongepowered.api.data.{DataQuery, DataRegistration}
 import org.spongepowered.api.data.key.{Key, KeyFactory}
 import org.spongepowered.api.data.value.mutable.Value
 import org.spongepowered.api.effect.sound.{SoundType, SoundTypes}
 import org.spongepowered.api.event.Listener
+import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.game.GameReloadEvent
 import org.spongepowered.api.event.game.state.{GameConstructionEvent, GameInitializationEvent}
 import org.spongepowered.api.plugin.{Dependency, Plugin, PluginContainer}
@@ -23,20 +25,10 @@ import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.lib.LibKatLibPlugin
 import io.github.katrix.katlib.serializer.TypeSerializerImpl._
 import io.github.katrix.katlib.{ImplKatPlugin, KatLib}
-import net.katsstuff.chitchat.chat.{ChannelHandler, ChatListener}
+import net.katsstuff.chitchat.chat.{ChannelHandler, ChatListener, SendToConsole}
 import net.katsstuff.chitchat.chat.channel.{Channel, SimpleChannel}
 import net.katsstuff.chitchat.chat.data.{ChannelData, ChannelDataBuilder, ImmutableChannelData}
-import net.katsstuff.chitchat.command.{
-  CmdAnnounce,
-  CmdInChannel,
-  CmdJoinChannel,
-  CmdListChannel,
-  CmdMe,
-  CmdModChannel,
-  CmdPm,
-  CmdReply,
-  CmdShout
-}
+import net.katsstuff.chitchat.command.{CmdAnnounce, CmdInChannel, CmdJoinChannel, CmdListChannel, CmdMe, CmdModChannel, CmdPm, CmdReply, CmdShout}
 import net.katsstuff.chitchat.lib.LibPlugin
 import net.katsstuff.chitchat.persistant.{ChitChatConfig, ChitChatConfigLoader, StorageLoader}
 import ninja.leaping.configurate.objectmapping.serialize.{TypeSerializer, TypeSerializers}
@@ -131,5 +123,14 @@ class ChitChat @Inject()(logger: Logger, @ConfigDir(sharedRoot = false) cfgDir: 
       "ChitChat Current Channel"
     )
     override def getSubjectOption(subject: Subject, option: String): Option[String] = subject.getOption(option).toOption
+    override def createChatCause(src: CommandSource, sendToConsole: Boolean): Cause = {
+      val causeBuilder = Cause
+        .builder()
+        .suggestNamed("Plugin", plugin)
+        .named(NamedCause.owner(src))
+
+      if(sendToConsole) causeBuilder.named("SendToConsole", SendToConsole).build()
+      else causeBuilder.build()
+    }
   }
 }

@@ -12,7 +12,6 @@ import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
-import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
@@ -23,10 +22,9 @@ import io.github.katrix.katlib.command.LocalizedCommand
 import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.i18n.Localized
 import io.github.katrix.katlib.lib.LibCommonTCommandKey
-import net.katsstuff.chitchat.{CCResource, ChitChatPlugin}
-import net.katsstuff.chitchat.chat.SendToConsole
 import net.katsstuff.chitchat.helper.TextHelper
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
+import net.katsstuff.chitchat.{CCResource, ChitChatPlugin}
 
 class CmdPm(implicit plugin: ChitChatPlugin) extends LocalizedCommand(None) {
 
@@ -43,12 +41,7 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends LocalizedCommand(None) {
 
     data match {
       case Right((player, message)) =>
-        val cause = Cause
-          .builder()
-          .suggestNamed("Plugin", plugin)
-          .named(NamedCause.owner(src))
-          .named("SendToConsole", SendToConsole)
-          .build()
+        val cause = plugin.versionHelper.createChatCause(src, sendToConsole = true)
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.pmTemplate.value)
         headerApplier.setParameter(plugin.config.Sender, src.getName.text)
         headerApplier.setParameter(plugin.config.Receiver, player.getName.text)
@@ -63,8 +56,7 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends LocalizedCommand(None) {
         conversations.put(src, srcChannel)
         conversations.put(player, new PmMessageChannel(player, src))
 
-        val event =
-          SpongeEventFactory.createMessageChannelEvent(cause, srcChannel, Optional.of(srcChannel), formatter, false)
+        val event = SpongeEventFactory.createMessageChannelEvent(cause, srcChannel, Optional.of(srcChannel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
 
         if (!cancelled) {

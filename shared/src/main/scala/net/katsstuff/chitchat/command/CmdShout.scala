@@ -7,7 +7,6 @@ import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
-import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextFormat
@@ -32,24 +31,17 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
 
     data match {
       case Right((channel, message)) =>
-        val cause         = Cause.builder().suggestNamed("Plugin", plugin).named(NamedCause.owner(src)).build()
+        val cause         = plugin.versionHelper.createChatCause(src)
         val headerApplier = new SimpleTextTemplateApplier(plugin.config.shoutTemplate.value)
         headerApplier.setParameter(plugin.config.TemplateHeader, src.getName.text)
         val headerText = headerApplier.toText
 
-        val formatter = new MessageFormatter(
-          t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message"
-        )
+        val formatter =
+          new MessageFormatter(t"${TextHelper.getFormatAtEnd(headerText).getOrElse(TextFormat.NONE)}$message")
         formatter.getHeader.add(headerApplier)
 
-        val event =
-          SpongeEventFactory.createMessageChannelEvent(
-            cause,
-            channel.messageChannel,
-            Optional.of(channel.messageChannel),
-            formatter,
-            false
-          )
+        val msgChannel = channel.messageChannel
+        val event = SpongeEventFactory.createMessageChannelEvent(cause, msgChannel, Optional.of(msgChannel), formatter, false)
         val cancelled = Sponge.getEventManager.post(event)
 
         if (!cancelled) {
