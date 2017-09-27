@@ -1,26 +1,31 @@
 package net.katsstuff.chitchat.command
 
+import java.util.Locale
+
 import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.command.{CommandException, CommandResult, CommandSource}
+import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextColors._
 import org.spongepowered.api.text.serializer.TextSerializers
 
 import io.github.katrix.katlib.KatPlugin
-import io.github.katrix.katlib.command.CommandBase
+import io.github.katrix.katlib.command.LocalizedCommand
 import io.github.katrix.katlib.helper.Implicits._
+import io.github.katrix.katlib.i18n.Localized
+import net.katsstuff.chitchat.CCResource
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.chat.channel.SimpleChannel
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
 class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin)
-    extends CommandBase(Some(cmdAdmin)) {
+    extends LocalizedCommand(Some(cmdAdmin)) {
 
-  override def execute(src: CommandSource, args: CommandContext): CommandResult = {
+  override def execute(src: CommandSource, args: CommandContext): CommandResult = Localized(src) { implicit locale =>
     val serializer = TextSerializers.FORMATTING_CODE
 
     val data = for {
-      name <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterError)
+      name <- args.one(LibCommandKey.ChannelName).toRight(invalidParameterErrorLocalized)
       _    <- if (src.hasPermission(s"${LibPerm.CreateChannelCmd}.$name")) Right(()) else Left(missingPermissionChannel)
     } yield
       (
@@ -39,14 +44,17 @@ class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
           .createChannel(channelType, name, prefix, description, extra.getOrElse(""))
           .fold(e => throw new CommandException(e), identity)
       case Left(e) => throw e
-      case _       => throw invalidParameterError
+      case _       => throw invalidParameterErrorLocalized
     }
 
     if (handler.addChannel(channel)) {
-      src.sendMessage(t"${GREEN}Created new channel")
+      src.sendMessage(t"$GREEN${CCResource.get("cmd.mod.createChannel.success")}")
       CommandResult.success()
-    } else throw new CommandException(t"${RED}Channel name can't be Global")
+    } else throw new CommandException(CCResource.getText("cmd.mod.createChannel.cantNameGlobal"))
   }
+
+  override def localizedDescription(implicit locale: Locale): Option[Text] =
+    Some(CCResource.getText("cmd.mod.createChannel.description"))
 
   override def commandSpec: CommandSpec =
     CommandSpec
@@ -58,7 +66,7 @@ class CmdModCreateChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
         GenericArguments.optional(GenericArguments.string(LibCommandKey.ChannelType)),
         GenericArguments.optional(GenericArguments.remainingJoinedStrings(LibCommandKey.ChannelExtra))
       )
-      .description(t"Create a new channel")
+      .description(this)
       .permission(LibPerm.CreateChannelCmd)
       .executor(this)
       .build()

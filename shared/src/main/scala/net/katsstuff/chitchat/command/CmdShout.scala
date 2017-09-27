@@ -1,6 +1,6 @@
 package net.katsstuff.chitchat.command
 
-import java.util.Optional
+import java.util.{Locale, Optional}
 
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
@@ -9,23 +9,24 @@ import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
 import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
-import org.spongepowered.api.text.format.TextColors._
+import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextFormat
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier
 
-import io.github.katrix.katlib.command.CommandBase
+import io.github.katrix.katlib.command.LocalizedCommand
 import io.github.katrix.katlib.helper.Implicits._
-import net.katsstuff.chitchat.ChitChatPlugin
+import io.github.katrix.katlib.i18n.Localized
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.helper.TextHelper
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
+import net.katsstuff.chitchat.{CCResource, ChitChatPlugin}
 
-class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends CommandBase(None) {
+class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends LocalizedCommand(None) {
 
-  override def execute(src: CommandSource, args: CommandContext): CommandResult = {
+  override def execute(src: CommandSource, args: CommandContext): CommandResult = Localized(src) { implicit locale =>
     val data = for {
       channel <- args.one(LibCommandKey.Channel).toRight(channelNotFound)
-      message <- args.one(LibCommandKey.Message).toRight(invalidParameterError)
+      message <- args.one(LibCommandKey.Message).toRight(invalidParameterErrorLocalized)
       _       <- if (src.hasPermission(s"${LibPerm.ShoutCmd}.${channel.name}")) Right(()) else Left(missingPermissionChannel)
     } yield (channel, t"$message")
 
@@ -53,15 +54,15 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
 
         if (!cancelled) {
           event.getChannel.toOption.foreach(_.send(src, event.getMessage))
-          src.sendMessage(t"${GREEN}Sent message to ${channel.name}")
+          src.sendMessage(CCResource.getText("cmd.shout.success", "channel" -> channel.name))
           CommandResult.success()
-        } else {
-          src.sendMessage(t"${RED}Failed to send message. Maybe some other plugin blocked it")
-          CommandResult.empty()
-        }
+        } else throw sendMessageFailed
       case Left(e) => throw e
     }
   }
+
+  override def localizedDescription(implicit locale: Locale): Option[Text] =
+    Some(CCResource.getText("cmd.shout.description"))
 
   override def commandSpec: CommandSpec =
     CommandSpec
@@ -70,7 +71,7 @@ class CmdShout(implicit plugin: ChitChatPlugin, handler: ChannelHandler) extends
         new ChannelCommandArgument(LibCommandKey.Channel),
         GenericArguments.remainingJoinedStrings(LibCommandKey.Message)
       )
-      .description(t"Sends a message to another channel")
+      .description(this)
       .permission(LibPerm.ShoutCmd)
       .executor(this)
       .build()

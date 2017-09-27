@@ -6,10 +6,10 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 import org.spongepowered.api.text.Text
-import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
+import org.spongepowered.api.text.channel.MessageReceiver
 
 import io.github.katrix.katlib.serializer.ConfigSerializerBase.{ConfigNode, ConfigSerializer}
-import net.katsstuff.chitchat.chat.HandlerOnly
+import net.katsstuff.chitchat.chat.LocalizedMessageChannel
 
 case class ExtraData(displayName: String, data: Any)
 
@@ -19,12 +19,12 @@ case class ExtraData(displayName: String, data: Any)
   * How to represent them is up to the implementation.
   *
   * A channel also has a set of members,
-  * which should be the members of the [[MessageChannel]].
+  * which should be the members of the [[LocalizedMessageChannel]].
   */
 trait Channel {
   type Self <: Channel
 
-  def messageChannel: MessageChannel
+  def messageChannel: LocalizedMessageChannel
 
   def name:                    String
   def name_=(newName: String): Self

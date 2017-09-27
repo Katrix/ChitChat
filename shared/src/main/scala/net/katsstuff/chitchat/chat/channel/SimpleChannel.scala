@@ -4,19 +4,19 @@ import scala.ref.WeakReference
 import scala.util.Try
 
 import org.spongepowered.api.text.Text
-import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
+import org.spongepowered.api.text.channel.MessageReceiver
 
 import io.github.katrix.katlib.helper.Implicits._
 import io.github.katrix.katlib.serializer.ConfigSerializerBase.{ConfigNode, ConfigSerializer}
 import io.github.katrix.katlib.serializer.TypeSerializerImpl
-import net.katsstuff.chitchat.chat.HandlerOnly
+import net.katsstuff.chitchat.chat.LocalizedMessageChannel
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 
 case class SimpleChannel(name: String, prefix: Text, description: Text, members: Set[WeakReference[MessageReceiver]])
     extends Channel {
   type Self = SimpleChannel
 
-  lazy val messageChannel: MessageChannel = new PrefixedMessageChannel(prefix, members)
+  lazy val messageChannel: LocalizedMessageChannel = new LocalizedMessageChannel(new PrefixedMessageChannel(prefix, members))
 
   override def name_=(newName: String):                                    Self = copy(name = newName)
   override def prefix_=(newPrefix: Text):                                  Self = copy(prefix = newPrefix)

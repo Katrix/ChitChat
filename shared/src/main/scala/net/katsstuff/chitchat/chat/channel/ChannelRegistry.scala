@@ -14,9 +14,9 @@ import io.github.katrix.katlib.helper.Implicits._
 class ChannelRegistry {
 
   //Name, prefix, description, extra
-  type ConstructorParams = (String, Text, Text, String)
+  type Constructor = (String, Text, Text, String) => Either[Text, Channel]
 
-  private val channels = new mutable.HashMap[String, ConstructorParams => Either[Text, Channel]]
+  private val channels = new mutable.HashMap[String, Constructor]
 
   /**
     * Registers a new channel type
@@ -25,7 +25,7 @@ class ChannelRegistry {
     *                    If incorrect information is supplied,
     *                    the function can return Left with the error message
     */
-  def registerChannelType(name: String, constructor: ConstructorParams => Either[Text, Channel]): Unit =
+  def registerChannelType(name: String, constructor: Constructor): Unit =
     channels.put(name, constructor)
 
   /**

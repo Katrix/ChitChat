@@ -11,7 +11,8 @@ import org.spongepowered.api.text.channel.MessageReceiver
 import org.spongepowered.api.text.format.TextColors._
 
 import io.github.katrix.katlib.helper.Implicits._
-import net.katsstuff.chitchat.ChitChatPlugin
+import io.github.katrix.katlib.i18n.Resource
+import net.katsstuff.chitchat.{CCResource, ChitChatPlugin}
 import net.katsstuff.chitchat.chat.channel.{Channel, ChannelRegistry, SimpleChannel}
 import net.katsstuff.chitchat.chat.data.{ChannelData, ImmutableChannelData}
 import net.katsstuff.chitchat.persistant.StorageLoader
@@ -77,9 +78,8 @@ class ChannelHandler(storage: StorageLoader)(implicit plugin: ChitChatPlugin) {
     */
   def removeChannel(channel: Channel): Boolean =
     if (channel.name != GlobalName) {
-      channel.messageChannel.send(
-        t"${YELLOW}The channel you are in is being deleted. You are being moved to the global channel"
-      )
+      implicit val resource: Resource = CCResource
+      channel.messageChannel.sendLocalized("channel.deleteMoved", t"$YELLOW")
 
       val data = new ImmutableChannelData(GlobalName)
       channel.members.flatMap(_.get).foreach {

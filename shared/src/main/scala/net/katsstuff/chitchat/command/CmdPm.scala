@@ -1,7 +1,7 @@
 package net.katsstuff.chitchat.command
 
 import java.util
-import java.util.Optional
+import java.util.{Locale, Optional}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -14,30 +14,31 @@ import org.spongepowered.api.command.{CommandResult, CommandSource}
 import org.spongepowered.api.event.SpongeEventFactory
 import org.spongepowered.api.event.cause.{Cause, NamedCause}
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter
+import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.channel.{MessageChannel, MessageReceiver}
-import org.spongepowered.api.text.format.TextColors._
 import org.spongepowered.api.text.format.TextFormat
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier
 
-import io.github.katrix.katlib.command.CommandBase
+import io.github.katrix.katlib.command.LocalizedCommand
 import io.github.katrix.katlib.helper.Implicits._
+import io.github.katrix.katlib.i18n.Localized
 import io.github.katrix.katlib.lib.LibCommonTCommandKey
-import net.katsstuff.chitchat.ChitChatPlugin
+import net.katsstuff.chitchat.{CCResource, ChitChatPlugin}
 import net.katsstuff.chitchat.chat.SendToConsole
 import net.katsstuff.chitchat.helper.TextHelper
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
-class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
+class CmdPm(implicit plugin: ChitChatPlugin) extends LocalizedCommand(None) {
 
   protected[command] val conversations = new mutable.WeakHashMap[CommandSource, PmMessageChannel]
 
-  override def execute(src: CommandSource, args: CommandContext): CommandResult = {
+  override def execute(src: CommandSource, args: CommandContext): CommandResult = Localized(src) { implicit locale =>
     val data = for {
       player <- args
         .one(LibCommonTCommandKey.Player)
         .orElse(conversations.get(src).flatMap(_.receiver.get))
-        .toRight(playerNotFoundError)
-      message <- args.one(LibCommandKey.Message).toRight(invalidParameterError)
+        .toRight(playerNotFoundErrorLocalized)
+      message <- args.one(LibCommandKey.Message).toRight(invalidParameterErrorLocalized)
     } yield (player, message)
 
     data match {
@@ -69,14 +70,17 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
         if (!cancelled) {
           event.getChannel.toOption.foreach(_.send(src, event.getMessage))
           CommandResult.success()
-        } else {
-          src.sendMessage(t"${RED}Failed to send message. Maybe some other plugin blocked it")
-          CommandResult.empty()
-        }
+        } else throw sendMessageFailed
 
       case Left(e) => throw e
     }
   }
+
+  override def localizedDescription(implicit locale: Locale): Option[Text] =
+    Some(CCResource.getText("cmd.pm.description"))
+
+  override def localizedExtendedDescription(implicit locale: Locale): Option[Text] =
+    Some(CCResource.getText("cmd.pm.extendedDescription"))
 
   override def commandSpec: CommandSpec =
     CommandSpec
@@ -85,8 +89,8 @@ class CmdPm(implicit plugin: ChitChatPlugin) extends CommandBase(None) {
         GenericArguments.optional(GenericArguments.player(LibCommonTCommandKey.Player)),
         GenericArguments.remainingJoinedStrings(LibCommandKey.Message)
       )
-      .description(t"Send a message to another player")
-      .extendedDescription(t"The player is optional if you they were the previous player you sent a message to")
+      .description(this)
+      .extendedDescription(this)
       .permission(LibPerm.PMCmd)
       .executor(this)
       .build()

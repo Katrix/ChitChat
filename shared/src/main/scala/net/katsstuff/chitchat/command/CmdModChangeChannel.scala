@@ -1,22 +1,26 @@
 package net.katsstuff.chitchat.command
 
+import java.util.Locale
+
 import org.spongepowered.api.command.args.{CommandContext, GenericArguments}
 import org.spongepowered.api.command.spec.CommandSpec
-import org.spongepowered.api.command.{CommandResult, CommandSource}
+import org.spongepowered.api.command.{CommandException, CommandResult, CommandSource}
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextColors._
 import org.spongepowered.api.text.serializer.TextSerializers
 
 import io.github.katrix.katlib.KatPlugin
-import io.github.katrix.katlib.command.CommandBase
+import io.github.katrix.katlib.command.LocalizedCommand
 import io.github.katrix.katlib.helper.Implicits._
+import io.github.katrix.katlib.i18n.Localized
+import net.katsstuff.chitchat.CCResource
 import net.katsstuff.chitchat.chat.ChannelHandler
 import net.katsstuff.chitchat.lib.{LibCommandKey, LibPerm}
 
 class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHandler, plugin: KatPlugin)
-    extends CommandBase(Some(cmdAdmin)) {
+    extends LocalizedCommand(Some(cmdAdmin)) {
 
-  override def execute(src: CommandSource, args: CommandContext): CommandResult = {
+  override def execute(src: CommandSource, args: CommandContext): CommandResult = Localized(src) { implicit locale =>
     val channel = args.one(LibCommandKey.Channel).getOrElse(throw channelNotFound)
     if (!src.hasPermission(s"${LibPerm.ChangeChannelCmd}.${channel.name}")) throw missingPermissionChannel
 
@@ -32,14 +36,14 @@ class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
 
     name.foreach { newName =>
       handler.renameChannel(channel, newName)
-      builder.append(t"Set name to $newName")
+      builder.append(CCResource.getText("cmd.mod.changeChannel.setName", "name" -> newName))
       counter += 1
     }
 
     prefix.foreach { newPrefix =>
       val deseralized = serializer.deserialize(newPrefix)
       handler.setChannelPrefix(channel, deseralized)
-      builder.append(t"Set prefix to $deseralized")
+      builder.append(CCResource.getText("cmd.mod.changeChannel.setPrefix", "prefix" -> deseralized))
       if (counter > 0) builder.append(Text.NEW_LINE)
       counter += 1
     }
@@ -47,7 +51,7 @@ class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
     description.foreach { newDescription =>
       val deseralized = serializer.deserialize(newDescription)
       handler.setChannelDescription(channel, deseralized)
-      builder.append(t"Set description to $deseralized")
+      builder.append(CCResource.getText("cmd.mod.changeChannel.setDescription", "description" -> deseralized))
       if (counter > 0) builder.append(Text.NEW_LINE)
       counter += 1
     }
@@ -56,17 +60,20 @@ class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
       handler
         .setExtraData(channel, extraData)
         .fold {
-          builder.append(t"Set extra data")
+          builder.append(CCResource.getText("cmd.mod.changeChannel.setExtra"))
           counter += 1
         }(src.sendMessage)
 
     }
 
     if (counter != 0) src.sendMessage(builder.trim().build())
-    else src.sendMessage(t"${RED}No changes made, please specify flags for what to change")
+    else throw new CommandException(CCResource.getText("cmd.mod.changeChannel.noChangesSet"))
 
     CommandResult.builder().successCount(counter).build()
   }
+
+  override def localizedDescription(implicit locale: Locale): Option[Text] =
+    Some(CCResource.getText("cmd.mod.changeChannel.description"))
 
   override def commandSpec: CommandSpec =
     CommandSpec
@@ -80,7 +87,7 @@ class CmdModChangeChannel(cmdAdmin: CmdModChannel)(implicit handler: ChannelHand
           .valueFlag(GenericArguments.remainingJoinedStrings(LibCommandKey.ChannelDescription), "-extra")
           .buildWith(new ChannelCommandArgument(LibCommandKey.Channel))
       )
-      .description(t"Change a channel's settings")
+      .description(this)
       .permission(LibPerm.ChangeChannelCmd)
       .executor(this)
       .build()
