@@ -16,6 +16,7 @@ import org.spongepowered.api.text.chat.ChatType
 class IntersectionMessageChannel(val channels: Set[MessageChannel]) extends MessageChannel {
 
   def this(channels: MessageChannel*) = this(channels.toSet)
+  def this(channels: Iterable[MessageChannel]) = this(channels.toSet)
 
   override def transformMessage(
       sender: scala.Any,

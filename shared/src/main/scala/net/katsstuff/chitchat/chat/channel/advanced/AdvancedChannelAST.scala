@@ -2,29 +2,23 @@ package net.katsstuff.chitchat.chat.channel.advanced
 
 object AdvancedChannelAST {
 
-  sealed trait ListenerTerm
-
-  sealed trait NamedChannel extends ListenerTerm {
-    def name: String
+  sealed trait Term {
+    def idx: Int
   }
+  sealed trait Expression extends Term
 
-  final case class ChannelApply(name: String, arguments: Map[String, String]) extends NamedChannel
-  final case class ChannelConstant(name: String)                              extends NamedChannel
+  final case class Constant(name: String, idx: Int)                              extends Expression
+  final case class Apply(name: String, arguments: Map[String, String], idx: Int) extends Expression
+  final case class ApplyVarArgs(name: String, arguments: Seq[String], idx: Int)  extends Expression
 
-  final case class TransformingTerm(transformation: Transformation)                          extends ListenerTerm
-  final case class Combine(method: CombineMethod, first: ListenerTerm, second: ListenerTerm) extends ListenerTerm
+  final case class TransformedTerm(term: Term, transformation: Transformation, idx: Int) extends Term
+
+  final case class Combine(method: CombineMethod, first: Term, second: Term, idx: Int) extends Term
 
   sealed trait CombineMethod
-  case object Union     extends CombineMethod
-  case object Intersect extends CombineMethod
+  case object Union      extends CombineMethod
+  case object Intersect  extends CombineMethod
+  case object Difference extends CombineMethod
 
-  sealed trait Transformation {
-    def name: String
-    def next: Option[Transformation]
-  }
-
-  final case class TransformationConstant(name: String, next: Option[Transformation]) extends Transformation
-  final case class TransformationApply(name: String, arguments: Map[String, String], next: Option[Transformation])
-      extends Transformation
-
+  case class Transformation(expression: Expression, next: Option[Transformation], idx: Int)
 }
