@@ -1,10 +1,8 @@
-def removeSnapshot(str: String): String = if (str.endsWith("-SNAPSHOT")) str.substring(0, str.length - 9) else str
-def katLibDependecy(module: String) = "com.github.Katrix-.KatLib" % s"katlib-$module" % "2.3.1" % Provided
+lazy val exclusions = Seq(ExclusionRule("org.spongepowered", "spongeapi"), ExclusionRule("com.typesafe", "config"))
 
-lazy val publishResolver = {
-  val artifactPattern = s"""${file("publish").absolutePath}/[revision]/[artifact]-[revision](-[classifier]).[ext]"""
-  Resolver.file("publish").artifacts(artifactPattern)
-}
+def removeSnapshot(str: String): String = if (str.endsWith("-SNAPSHOT")) str.substring(0, str.length - 9) else str
+def katLibDependecy(module: String) =
+  "com.github.Katrix-.KatLib" % s"katlib-$module" % "develop3.0.0-SNAPSHOT" excludeAll (exclusions: _*)
 
 //Taken from http://tpolecat.github.io/2017/04/25/scalac-flags.html with modifications
 lazy val extraScalacOptions = Seq(
@@ -48,91 +46,89 @@ lazy val extraScalacOptions = Seq(
   "-Ywarn-unused:privates"             // Warn if a private member is unused.
 )
 
-lazy val commonSettings = Seq(
-  name := s"ChitChat-${removeSnapshot(spongeApiVersion.value)}",
-  organization := "net.katsstuff",
-  version := "2.0.1",
-  scalaVersion := "2.12.3",
-  resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += katLibDependecy("shared"),
-  libraryDependencies += "org.jetbrains" % "annotations" % "15.0" % Provided,
-  libraryDependencies += "com.lihaoyi" %% "fastparse" % "0.4.4",
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  scalacOptions ++= extraScalacOptions,
-  scalacOptions in (Compile, console) ~= (_.filterNot(Set("-Ywarn-unused:imports"))),
-  crossPaths := false,
-  assemblyShadeRules in assembly := Seq(
-    ShadeRule.rename("scala.**"     -> "io.github.katrix.katlib.shade.scala.@1").inAll,
-    ShadeRule.rename("shapeless.**" -> "io.github.katrix.katlib.shade.shapeless.@1").inAll
-  ),
-  autoScalaLibrary := false,
-  publishTo := Some(publishResolver),
-  publishArtifact in makePom := false,
-  publishArtifact in (Compile, packageBin) := false,
-  publishArtifact in (Compile, packageDoc) := false,
-  publishArtifact in (Compile, packageSrc) := false,
-  artifact in (Compile, assembly) := {
-    val art = (artifact in (Compile, assembly)).value
-    art.copy(`classifier` = Some("assembly"))
-  },
-  spongePluginInfo := spongePluginInfo.value.copy(
-    id = "chitchat",
-    name = Some("ChitChat"),
-    version = Some(s"${removeSnapshot(spongeApiVersion.value)}-${version.value}"),
-    authors = Seq("Katrix"),
-    description = Some("A chat plugin to manage several different chat channels and do chatty stuff."),
-    dependencies = Set(
-      DependencyInfo("spongeapi", Some(removeSnapshot(spongeApiVersion.value))),
-      DependencyInfo("katlib", Some(s"${removeSnapshot(spongeApiVersion.value)}-2.1.0"))
+lazy val chitChat =
+  crossProject(SpongePlatform("5.1.0"), SpongePlatform("6.0.0"), SpongePlatform("7.0.0"))
+    .enablePlugins(SbtProguard)
+    .settings(
+      name := s"HomeSweetHome-${removeSnapshot(spongeApiVersion.value)}",
+      organization := "net.katsstuff",
+      version := "3.0.0-SNAPSHOT",
+      scalaVersion := "2.12.5",
+      resolvers += "jitpack" at "https://jitpack.io",
+      addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6"),
+      libraryDependencies += "org.jetbrains" % "annotations" % "15.0" % Provided,
+      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+      scalacOptions ++= extraScalacOptions,
+      proguardOptions in Proguard ++= Seq(
+        "-dontwarn", //"-dontwarn io.github.katrix.homesweethome.shade.scala.**",
+        "-dontnote",
+        "-dontoptimize",
+        "-dontobfuscate",
+        "-keepparameternames",
+        "-keepattributes *",
+        "-keep public class net.katsstuff.homesweethome.HomeSweetHome",
+        """|-keepclassmembers class * {
+           |    ** MODULE$;
+           |    @org.spongepowered.api.event.Listener *;
+           |    @com.google.inject.Inject *;
+           |}""".stripMargin
+      ),
+      proguardInputs in Proguard := Seq(assembly.value),
+      javaOptions in (Proguard, proguard) := Seq("-Xmx1G"),
+      crossPaths := false,
+      assemblyShadeRules in assembly := Seq(
+        ShadeRule.rename("cats.**"                     -> "net.katsstuff.homesweethomeshade.cats.@1").inAll,
+        ShadeRule.rename("com.google.protobuf.**"      -> "net.katsstuff.homesweethomeshade.protobuf.@1").inAll,
+        ShadeRule.rename("com.trueaccord.lenses.**"    -> "net.katsstuff.homesweethomeshade.lenses.@1").inAll,
+        ShadeRule.rename("com.trueaccord.scalapb.**"   -> "net.katsstuff.homesweethomeshade.scalapb.@1").inAll,
+        ShadeRule.rename("fansi.**"                    -> "net.katsstuff.homesweethomeshade.fansi.@1").inAll,
+        ShadeRule.rename("fastparse.**"                -> "net.katsstuff.homesweethomeshade.fastparse.@1").inAll,
+        ShadeRule.rename("io.circe.**"                 -> "net.katsstuff.homesweethomeshade.circe.@1").inAll,
+        ShadeRule.rename("jawn.**"                     -> "net.katsstuff.homesweethomeshade.jawn.@1").inAll,
+        ShadeRule.rename("machinist.**"                -> "net.katsstuff.homesweethomeshade.machinist.@1").inAll, //Zap?
+        ShadeRule.rename("metaconfig.**"               -> "net.katsstuff.homesweethomeshade.metaconfig.@1").inAll,
+        ShadeRule.rename("org.langmeta.**"             -> "net.katsstuff.homesweethomeshade.langmeta.@1").inAll,
+        ShadeRule.rename("org.scalameta.**"            -> "net.katsstuff.homesweethomeshade.scalameta.@1").inAll,
+        ShadeRule.rename("org.typelevel.paiges.**"     -> "net.katsstuff.homesweethomeshade.paiges.@1").inAll,
+        ShadeRule.rename("pprint.**"                   -> "net.katsstuff.homesweethomeshade.pprint.@1").inAll,
+        ShadeRule.rename("scala.**"                    -> "net.katsstuff.homesweethomeshade.scala.@1").inAll,
+        ShadeRule.rename("scalapb.**"                  -> "net.katsstuff.homesweethomeshade.scalapb.@1").inAll,
+        ShadeRule.rename("shapeless.**"                -> "net.katsstuff.homesweethomeshade.shapeless.@1").inAll,
+        ShadeRule.rename("sourcecode.**"               -> "net.katsstuff.homesweethomeshade.sourcecode.@1").inAll,
+        ShadeRule.rename("net.katsstuff.katlib.**"     -> "net.katsstuff.homesweethomeshade.katlib.@1").inAll,
+        ShadeRule.rename("net.katsstuff.scammander.**" -> "net.katsstuff.homesweethomeshade.scammander.@1").inAll,
+        ShadeRule.zap("macrocompat.**").inAll,
+      ),
+      assemblyJarName := s"${name.value}-assembly-${version.value}.jar",
+      spongePluginInfo := spongePluginInfo.value.copy(
+        id = "chitchat",
+        name = Some("ChitChat"),
+        version = Some(s"${version.value}-${removeSnapshot(spongeApiVersion.value)}"),
+        authors = Seq("Katrix"),
+        description = Some("A chat plugin to manage several different chat channels and do chatty stuff."),
+        dependencies = Set(
+          DependencyInfo(LoadOrder.None, "spongeapi", Some(removeSnapshot(spongeApiVersion.value)), optional = false)
+        )
+      ),
+      oreDeploymentKey := (oreDeploymentKey in Scope.Global).?.value.flatten,
+      //https://github.com/portable-scala/sbt-crossproject/issues/74
+      Seq(Compile, Test).flatMap(inConfig(_) {
+        unmanagedResourceDirectories ++= {
+          unmanagedSourceDirectories.value
+            .map(src => (src / ".." / "resources").getCanonicalFile)
+            .filterNot(unmanagedResourceDirectories.value.contains)
+            .distinct
+        }
+      })
     )
-  )
-) ++ addArtifact(artifact in (Compile, assembly), assembly)
+    .spongeSettings("5.1.0")(libraryDependencies += katLibDependecy("5-1-0"))
+    .spongeSettings("6.0.0")(libraryDependencies += katLibDependecy("6-0-0"))
+    .spongeSettings("7.0.0")(libraryDependencies += katLibDependecy("7-0-0"))
 
-lazy val chitChatShared = (project in file("shared"))
-  .enablePlugins(SpongePlugin)
-  .settings(
-    commonSettings,
-    name := "ChitChat-Shared",
-    publishArtifact := false,
-    publish := {},
-    publishLocal := {},
-    assembleArtifact := false,
-    spongeMetaCreate := false,
-    //Default version, needs to build correctly against all supported versions
-    spongeApiVersion := "4.1.0"
-  )
-
-lazy val chitChatV410 = (project in file("4.1.0"))
-  .enablePlugins(SpongePlugin)
-  .dependsOn(chitChatShared)
-  .settings(commonSettings: _*)
-  .settings(spongeApiVersion := "4.1.0", libraryDependencies += katLibDependecy("4-1-0"))
-
-lazy val chitChatV500 = (project in file("5.0.0"))
-  .enablePlugins(SpongePlugin)
-  .dependsOn(chitChatShared)
-  .settings(commonSettings: _*)
-  .settings(spongeApiVersion := "5.0.0", libraryDependencies += katLibDependecy("5-0-0"))
-
-lazy val chitChatV600 = (project in file("6.0.0"))
-  .enablePlugins(SpongePlugin)
-  .dependsOn(chitChatShared)
-  .settings(commonSettings: _*)
-  .settings(spongeApiVersion := "6.0.0", libraryDependencies += katLibDependecy("6-0-0"))
-
-lazy val chitChatV700 = (project in file("7.0.0"))
-  .enablePlugins(SpongePlugin)
-  .dependsOn(chitChatShared)
-  .settings(commonSettings: _*)
-  .settings(spongeApiVersion := "7.0.0-SNAPSHOT", libraryDependencies += katLibDependecy("7-0-0"))
+lazy val chitChatV500 = chitChat.spongeProject("5.1.0")
+lazy val chitChatV600 = chitChat.spongeProject("6.0.0")
+lazy val chitChatV700 = chitChat.spongeProject("7.0.0")
 
 lazy val chitChatRoot = (project in file("."))
-  .settings(
-    publishArtifact := false,
-    assembleArtifact := false,
-    spongeMetaCreate := false,
-    publish := {},
-    publishLocal := {}
-  )
   .disablePlugins(AssemblyPlugin)
-  .aggregate(chitChatShared, chitChatV410, chitChatV500, chitChatV600, chitChatV700)
+  .aggregate(chitChatV500, chitChatV600, chitChatV700)
